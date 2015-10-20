@@ -1,0 +1,5 @@
+# codeblocks related ignores
+*.depend
+*.layout
+bin/*
+obj/*
