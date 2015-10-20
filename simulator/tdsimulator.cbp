@@ -28,6 +28,9 @@
 			<Add library="gdi32" />
 			<Add directory="C:/sdks/glfw-3.1.1/GLFW3/bin/Release" />
 		</Linker>
+		<ExtraCommands>
+			<Add before="..\arduino\sync_lib_files.bat" />
+		</ExtraCommands>
 		<Unit filename="arduino_wrappers/test/test.cpp" />
 		<Unit filename="include/RenderBuffer.h" />
 		<Unit filename="include/SPI.h" />
