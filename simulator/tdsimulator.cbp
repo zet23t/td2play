@@ -20,6 +20,16 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 			</Target>
+			<Target title="TinyScreenRaycaster (Debug)">
+				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
+			<Target title="Test Textures (Debug)">
+				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -38,13 +48,22 @@
 		</ExtraCommands>
 		<Unit filename="../arduino/test/test.ino" />
 		<Unit filename="../arduino/test_text/test_text.ino" />
+		<Unit filename="../arduino/test_textures/test_textures.ino">
+			<Option target="Test Textures (Debug)" />
+		</Unit>
 		<Unit filename="../srclib/lib_RenderBuffer.h" />
 		<Unit filename="../srclib/lib_StringBuffer.h" />
+		<Unit filename="arduino_wrappers/TinyScreenRaycaster/TinyScreenRaycaster.cpp">
+			<Option target="TinyScreenRaycaster (Debug)" />
+		</Unit>
 		<Unit filename="arduino_wrappers/test/test.cpp">
 			<Option target="Test (Debug)" />
 		</Unit>
 		<Unit filename="arduino_wrappers/test_text/test_text.cpp">
 			<Option target="Test Text (Debug)" />
+		</Unit>
+		<Unit filename="arduino_wrappers/test_textures/test_textures.cpp">
+			<Option target="Test Textures (Debug)" />
 		</Unit>
 		<Unit filename="include/SPI.h" />
 		<Unit filename="include/TinyScreen.h" />
