@@ -3,3 +3,5 @@
 *.layout
 bin/*
 obj/*
+*.exe
+.objs
