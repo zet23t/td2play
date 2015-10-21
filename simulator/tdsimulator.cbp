@@ -38,13 +38,14 @@
 		</ExtraCommands>
 		<Unit filename="../arduino/test/test.ino" />
 		<Unit filename="../arduino/test_text/test_text.ino" />
+		<Unit filename="../srclib/lib_RenderBuffer.h" />
+		<Unit filename="../srclib/lib_StringBuffer.h" />
 		<Unit filename="arduino_wrappers/test/test.cpp">
 			<Option target="Test (Debug)" />
 		</Unit>
 		<Unit filename="arduino_wrappers/test_text/test_text.cpp">
 			<Option target="Test Text (Debug)" />
 		</Unit>
-		<Unit filename="include/RenderBuffer.h" />
 		<Unit filename="include/SPI.h" />
 		<Unit filename="include/TinyScreen.h" />
 		<Unit filename="include/Wire.h" />
