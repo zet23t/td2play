@@ -1,7 +1,3 @@
-#ifndef PROGMEM
-#define PROGMEM
-#endif // PROGMEM
-
 #include <TinyScreen.h>
 #include <SPI.h>
 #include <Wire.h>
