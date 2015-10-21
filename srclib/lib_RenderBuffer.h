@@ -107,7 +107,7 @@ namespace RenderCommandData {
          * RGB-565 color for the command
          */
         uint16_t color;
-        uint8_t x1;
+        int16_t x1;
         const FONT_INFO *font;
         const char *text;
     };
@@ -125,7 +125,7 @@ public:
      * The type of the render command
      */
     uint8_t type;
-    uint8_t y1, y2;
+    int8_t y1, y2;
     union
     {
         RenderCommandData::Rect rect;
@@ -146,8 +146,8 @@ private:
             uint8_t fontFirstCh = text.font->startCh;
             //uint8_t fontLastCh = font->endCh;
             uint8_t stringChar = 0;
-            uint8_t fontX = text.x1;
-            uint8_t fontY = y1;
+            int16_t fontX = text.x1;
+            int8_t fontY = y1;
             uint8_t ch = text.text[stringChar++];
             while(ch)
             {
