@@ -51,6 +51,7 @@ void TinyScreen::endTransfer(void) {
     ratio = width / (float) height;
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.25f,0.25f,0.5f,0.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
