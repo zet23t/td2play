@@ -1,0 +1,344 @@
+<html>
+<head>
+	<title>TinyDuino Image Code Generator</title>
+	<link rel="stylesheet" type="text/css" href="style.css"></link>
+	<script type="text/javascript" src="jquery-2.1.4.min.js"></script>
+</head>
+<body>
+	<h1>TinyDuino Image Code Generator</h1>
+	<p>This page enables you to convert images into C code. The resulting 
+		source code is compiled into the binary and can be displayed 
+		on the TinyScreen using the functionality of other libraries.</p>
+	<div>
+		<h1>Step 1: Select an image</h1>
+		<input id="f" type="file" />
+	</div>
+	<div id="previewdiv" style="display:none">
+		<h1>Step 2: Export options</h1>
+		<table>
+			<tr>
+				<td>
+					<h2>Options</h2>
+					<table>
+						<tr><td>Name:</td><td><input type="text" id="name" /></td></tr>
+						<tr><td>Background color: </td><td>
+						<select onchange="document.getElementById('canvas').style.background=this.value">
+							<option value='#fff'>White</option>
+							<option value='#000'>Black</option>
+							<option value='#f00'>Red</option>
+							<option value='#0f0'>Green</option>
+							<option value='#00f'>Blue</option>
+						</select></td></tr>
+
+						<tr><td>Zoom: </td><td><select onchange="setZoom(this.value)">
+							<option value="1">1x</option>
+							<option value="2" selected="1">2x</option>
+							<option value="3">3x</option>
+							<option value="4">4x</option>
+						</select></td></tr>
+
+						<tr><td>Size: </td><td><select onchange="setSize(this.value.split(/,/))">
+							<option value="96,64">96x64 (Tiny Screen)</option>
+							<option value="-1,-1">Image size</option>
+						</select></td></tr>
+
+						<tr><td>Color conversion: </td><td><select onchange="setConverter(encoder[value])">
+							<option value="RGBA">RGB(A)</option>
+							<option value="RGB233">RGB-332 (8bit)</option>
+							<option value="RGB233RLE">RGB-332 (8bit) + Run length encoding</option>
+							<option value="RGB565">RGB-565 (16bit)</option>
+						</select></td></tr>
+						<tr><td>Transparency mask color:</td><td>
+							<input id="mask" type="checkbox" checked="true" onchange="updateTransparency()" /><input type='color' id='maskcolor' value="#ff00ff" onchange="updateTransparency()" /></td></tr>
+						<tr><td>Error diffusion:</td><td><input type="checkbox" checked="true" onchange="updateErrorDiffusion(this.checked)" /></td></tr>
+						</table>
+						
+						<button onclick="generateOutput()">Generate C Code</button>
+					</div>
+				</td>
+				<td id='canvasBackground'>
+					<h2>Preview</h2>
+					<canvas id="canvas" width="192" height="128" style='border:1px solid black'></canvas>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<div style="display:none" id='outputDiv'>
+		<h1>C Code Output</h1>
+		<div id="rgbaHint" class='hint'>
+		</div>
+		<div id="outputinfo"></div>
+		Copy the source code into your header.<br />
+		<textarea onclick="this.select()" id='output' readonly="true" cols="80" rows="8" wrap="soft"></textarea>
+	</div>
+	<script type="text/javascript">
+	
+	var encoder = {}
+	encoder.RGBA = function (data, orig, i, bytes) {
+		bytes.push(data[i]);
+		bytes.push(data[i+1]);
+		bytes.push(data[i+2]);
+		bytes.push(data[i+3]);
+	};
+	encoder.RGBA.hint = 
+		"Exporting data as RGBA (32bit) is rarely useful! The TinyScreen can "+
+		"only display 16bit color depth."
+	encoder.RGBA.bytesPerPixel = 4;
+	encoder.RGB565 = function(data, orig, i, bytes) {
+		if (data[i+3] < 128) {
+			data[i] = Settings.transparentColor[0];
+			data[i+1] = Settings.transparentColor[1];
+			data[i+2] = Settings.transparentColor[2];
+			data[i+3] = Settings.transparentColor[3];
+		}
+		var r = data[i] & (31 << 3);
+		var g = data[i+1] & (63 << 2);
+		var b = data[i+2] & (31 << 3);
+		var rb = r | r >> 5;
+		var gb = g | g >> 6;
+		var bb = b | b >> 5;
+		changePixel(data,i,rb,gb,bb);
+		bytes.push(r|g>>5);
+		bytes.push((g<<3)&0xff|(b>>3));
+	}
+	encoder.RGB565.bytesPerPixel = 2;
+
+	encoder.RGB233 = function(data,orig, i, bytes) {
+		if (data[i+3] < 128) {
+			data[i] = Settings.transparentColor[0];
+			data[i+1] = Settings.transparentColor[1];
+			data[i+2] = Settings.transparentColor[2];
+			data[i+3] = Settings.transparentColor[3];
+		}
+
+		var r = data[i] & (3 << 6);
+		var g = data[i+1] & (7 << 5);
+		var b = data[i+2] & (7 << 5);
+		var rb = r | r >> 2 | r >> 4;
+		var gb = g | g >> 3 | g >> 6;
+		var bb = b | b >> 3 | b >> 6;
+		changePixel(data,i,rb,gb,bb);
+		bytes.push(r|g>>2|b>>5);
+	}
+	encoder.RGB233.bytesPerPixel = 1;
+
+	encoder.RGB233X16B1 = function (data,orig,i,bytes) {
+		encoder.RGB233
+	} 
+
+	encoder.RGB233RLE = function(data,orig,i,bytes) {
+		return encoder.RGB233(data,orig,i,bytes);
+	}
+	encoder.RGB233RLE.bytesPerPixel = 1;
+	encoder.RGB233RLE.hint = "Run length encoding compresses data by counting repeating "+
+		"symbols and storing the number of occurences. So AAABB become 3A2B - which can "+
+		"be shorter than the original sequence (not necessarily!). <br /><br />"+
+		"The data can not be accessed out of order, which makes it a bad choice for "+
+		"tile maps / texture atlases. It's better suited for large images that are "+
+		"drawn entirely.<br /><br />Disabling error diffusion helps compression.";
+	encoder.RGB233RLE.postConversion = function(bytes) {
+		var compressed = [];
+		var current = -1;
+		var len = 0;
+		for (var i=0;i<bytes.length;i+=1) {
+			var val = bytes[i];
+			if (val == current && len < 254) {
+				len+=1;
+			} else {
+				if (len > 0) 
+					compressed.push(val,len);
+				len = 1;
+				current = val;
+			}
+		}
+		if (len > 0) {
+			compressed.push(val,len);
+		}
+		return compressed;
+	}
+	
+	var Settings = {
+		zoom:2,
+		width:96,
+		height:64,
+		img:null,
+		converted: null,
+		rgbConverter: encoder.RGBA,
+		convertedData: null,
+		convertedBytes: null,
+		transparentColor: [0xff,0,0xff,0xff],
+		errorDiffusion:true
+	}
+	function updateErrorDiffusion(on) {
+		Settings.errorDiffusion = on;
+		redraw();
+	}
+	function updateTransparency() {
+		var mask = document.getElementById("mask").value;
+		var color = parseInt(document.getElementById("maskcolor").value.substr(1),16);
+		if (mask) {
+			Settings.transparentColor = [color>>16,color>>8&0xff,color&0xff,0xff];
+		} else {
+			Settings.transparentColor = [-1,-1,-1,0xff];
+		}
+		redraw();
+	}
+	function setConverter(c) {
+		Settings.rgbConverter = c;
+		redraw();
+	}
+	
+
+	
+	function changePixel(data,i,rb,gb,bb) {
+		if (Settings.errorDiffusion) {
+
+
+			var errR = -(rb - data[i+0]);
+			var errG = -(gb - data[i+1]);
+			var errB = -(bb - data[i+2]);
+			var width = Settings.img.width;
+			var height = Settings.img.height;
+			var x = (i / 4) % width;
+			var y = Math.floor((i / 4) / width);
+			var errfac = 3;
+			function fix(i) {
+				if (data[i] < 0) data[i] = 0;
+				if (data[i+1] < 0) data[i+1] = 0;
+				if (data[i+2] < 0) data[i+2] = 0;
+				if (data[i] > 0xff) data[i] = 0xff;
+				if (data[i+1] > 0xff) data[i+1] = 0xff;
+				if (data[i+2] > 0xff) data[i+2] = 0xff;
+			} 
+			if (x < width - 1) {
+				data[i+4] += errR / errfac;
+				data[i+5] += errG / errfac;
+				data[i+6] += errB / errfac;
+				fix(i+4);
+			}
+			if (y < height - 1) {
+				data[i+width+0] += errR / errfac;
+				data[i+width+1] += errG / errfac;
+				data[i+width+2] += errB / errfac;	
+				fix(i+width);
+			}
+			if (x < width - 1 && y < height - 1) {
+				data[i+width+4] += errR / errfac;
+				data[i+width+5] += errG / errfac;
+				data[i+width+6] += errB / errfac;	
+				fix(i+width+4);
+			}
+		}
+		data[i+0] = rb;
+		data[i+1] = gb;
+		data[i+2] = bb;
+	}
+	function generateOutput() {
+		document.getElementById("outputDiv").style.display = "block";
+		var hint = document.getElementById("rgbaHint");
+		if (Settings.rgbConverter.hint) {
+			hint.style.display = "block";
+			hint.innerHTML = Settings.rgbConverter.hint;
+		} else {
+			hint.style.display = "none";
+		}
+		var bytes = [];
+		var converter = Settings.rgbConverter;
+		var data = Settings.convertedBytes;
+		var width = Settings.img.width;
+		var height = Settings.img.height;
+		console.log(converter.bytesPerPixel)
+		var bpp = converter.bytesPerPixel;
+		if (converter.postConversion) data = converter.postConversion(data);
+		for (var i = 0; i < data.length; i += 1) {
+			var val = data[i];
+			bytes.push("0x"+(val < 16 ? "0":"")+val.toString(16)+",")
+			if (i%(width*bpp) == (width*bpp) - 1) bytes.push("\n  ")
+		}
+		var output = "const unsigned char _image_"+Settings.name+"_data[] PROGMEM = {\n  "
+			+ bytes.join("") + "\n};"
+		var outtex = document.getElementById("output");
+		outtex.value = output;
+		document.getElementById("outputinfo").innerHTML = 
+			"Raw memory usage: <b>"+data.length+" bytes</b>";
+		outtex.select();
+	}
+	function convert() {
+		var img = Settings.img;
+		var canvas = document.createElement("canvas");
+		canvas.width = img.width;
+		canvas.height = img.height;
+		//
+		var ctx = canvas.getContext("2d");
+		ctx.drawImage(img,0,0);
+		var imgData = ctx.getImageData(0,0,canvas.width, canvas.height);
+		var data = imgData.data;
+		Settings.convertedBytes = [];
+		if (Settings.rgbConverter) {
+			var ardat = [];
+			for (var i = 0; i < data.length; i += 1) ardat[i] = data[i];
+
+			for (var i = 0; i < data.length; i += 4) {
+				Settings.rgbConverter(ardat,data,i, Settings.convertedBytes);
+			}
+
+			for (var i = 0; i < data.length; i += 1) data[i] = ardat[i];
+
+		}
+		ctx.putImageData(imgData,0,0);
+		Settings.converted = canvas;
+		Settings.convertedData = data;
+	}
+	function setSize(xy) {
+		var x = parseInt(xy[0]);
+		var y = parseInt(xy[1]);
+		if (x < 0) x = Settings.img.width;
+		if (y < 0) y = Settings.img.height;
+		Settings.width = x;
+		Settings.height = y;
+		redraw();
+	}
+	function setZoom(z) {
+		Settings.zoom = z;
+		redraw();
+	}
+	function redraw() {
+		var canvas = document.getElementById("canvas");
+		canvas.width = Settings.width * Settings.zoom;
+		canvas.height = Settings.height * Settings.zoom;
+        var ctx = canvas.getContext("2d");
+        ctx.mozImageSmoothingEnabled = false;
+		ctx.webkitImageSmoothingEnabled = false;
+		ctx.imageSmoothingEnabled = false;
+		ctx.clearRect(0,0,canvas.width,canvas.height);
+     	if (Settings.img) {
+     		convert();
+     		var img = Settings.converted || Settings.img;
+			ctx.drawImage(img,0,0,img.width*Settings.zoom,img.height*Settings.zoom);
+     	}   
+	}
+	$('#f').on('change', function(ev) {
+	    var f = ev.target.files[0];
+	    var fr = new FileReader();
+	    
+	    fr.onload = function(ev2) {
+	        console.dir(ev2);
+	        var img = new Image();
+	        img.src = ev2.target.result;
+	        img.onload = function() {
+	        	document.getElementById("previewdiv").style.display = "block";
+	        	Settings.img = img;
+	        	Settings.name = document.getElementById("f").value.match(/[\/\\]([^\/\\]+)\..*$/)[1];
+	        	document.getElementById("name").value = Settings.name;
+	        	redraw();
+	        }
+	    };
+	    
+	    fr.readAsDataURL(f);
+	});
+
+	redraw();
+	</script>
+</body>
+</html>

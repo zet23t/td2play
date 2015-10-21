@@ -1,0 +1,48 @@
+body {
+	color:black;
+	background:#ccc;
+	font-family: Arial;
+}
+
+body > div {
+	background: white;
+	border-radius: 0.5cm;
+	border-top-left-radius:0;
+	padding: 0.5cm;
+	margin:1cm 0;
+	position: relative;
+	box-shadow: 0.02cm 0.03cm 0.25cm rgba(0,0,0,0.24);
+}
+
+div > h1 {
+	font-size: 12pt;
+	top:-0.75cm;
+	left:-0cm;
+	position: absolute;
+	border-top-left-radius: 0.5cm;
+	border-top-right-radius: 0.5cm;
+	padding: 0.25cm 0.5cm 0cm 0.5cm;
+	background: #fff;
+}
+
+h2 {
+	font-size: 12pt;
+}
+
+td {
+	vertical-align: top;
+}
+
+.hint {
+	border-radius: 0.2cm;
+	background: #FFECB4;
+	border: 1px solid #f80;
+	padding: 0.2cm;
+	margin: 0.5cm;
+}
+
+textarea {
+	word-wrap:normal;
+	white-space: pre;
+	width: 100%;
+}
