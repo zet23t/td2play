@@ -1,3 +1,7 @@
+#ifndef PROGMEM
+#define PROGMEM
+#endif
+
 #include <inttypes.h>
 #include <math.h>
 #include <stdlib.h>

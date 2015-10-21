@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <TinyScreen.h>
 
-#include <RenderBuffer.h>
-
 #define TINYSCREEN_WIDTH 96
 #define TINYSCREEN_HEIGHT 64
 

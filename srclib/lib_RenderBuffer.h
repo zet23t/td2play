@@ -30,6 +30,11 @@ namespace TextureType {
 #include <memory.h>
 #define pgm_read_byte *
 #define pgm_read_word *
+
+#endif
+
+#ifndef PROGMEM
+#define PROGMEM
 #endif
 
 class Texture {
