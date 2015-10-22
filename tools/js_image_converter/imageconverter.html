@@ -99,8 +99,8 @@
 		var gb = g | g >> 6;
 		var bb = b | b >> 5;
 		changePixel(data,i,rb,gb,bb);
-		bytes.push(r|g>>5);
-		bytes.push((g<<3)&0xff|(b>>3));
+		bytes.push(b|g>>5);
+		bytes.push((g<<3)&0xff|(r>>3));
 	}
 	encoder.RGB565.bytesPerPixel = 2;
 
