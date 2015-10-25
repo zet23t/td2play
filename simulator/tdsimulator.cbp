@@ -45,6 +45,7 @@
 		</Linker>
 		<ExtraCommands>
 			<Add before="..\arduino\sync_lib_files.bat" />
+			<Mode after="always" />
 		</ExtraCommands>
 		<Unit filename="../arduino/test/test.ino" />
 		<Unit filename="../arduino/test_text/test_text.ino" />
