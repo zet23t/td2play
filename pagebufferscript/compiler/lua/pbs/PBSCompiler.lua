@@ -1,22 +1,22 @@
 local class = require "class"
 
-local PSCType = class()
-function PSCType:init(name, sizeBytes)
+local PBSType = class()
+function PBSType:init(name, sizeBytes)
 	self.name = name
 	self.sizeBytes = sizeBytes
 end
 
 local builtinTypes = {
-	PSCType:new("void", 0)
+	PBSType:new("void", 0)
 }
 
 for primitive in ("int uint"):gmatch "%S+" do
 	for size in ("8 16 32"):gmatch "%S+" do
-		builtinTypes[#builtinTypes + 1] = PSCType:new(primitive..size, size / 8)
+		builtinTypes[#builtinTypes + 1] = PBSType:new(primitive..size, size / 8)
 	end
 end
-builtinTypes[#builtinTypes + 1] = PSCType:new("float",32)
-builtinTypes[#builtinTypes + 1] = PSCType:new("ufloat",32)
+builtinTypes[#builtinTypes + 1] = PBSType:new("float",32)
+builtinTypes[#builtinTypes + 1] = PBSType:new("ufloat",32)
 
 
 local InstructionCode = class()
@@ -166,10 +166,10 @@ function InstructionCode:compileCode()
 end
 
 
-local PSCCompiler = class()
+local PBSCompiler = class()
 
-function PSCCompiler:init(parser)
-	self.parser = parser or require "PSCParser":new()
+function PBSCompiler:init(parser)
+	self.parser = parser or require "pbs.PBSParser":new()
 	self.typeMap = {}
 	for i,type in ipairs(builtinTypes) do
 		self:addType(type)
@@ -178,7 +178,7 @@ function PSCCompiler:init(parser)
 	self.nativeFunctionMap = {}
 end
 
-function PSCCompiler:addNativeFunction(address, name, returnType)
+function PBSCompiler:addNativeFunction(address, name, returnType)
 	local funcDef = {
 		address = address; 
 		name = name; 
@@ -201,16 +201,16 @@ function PSCCompiler:addNativeFunction(address, name, returnType)
 	return addArg
 end
 
-function PSCCompiler:sizeOf(type)
+function PBSCompiler:sizeOf(type)
 	return self.typeMap[type].sizeBytes
 end
 
-function PSCCompiler:addType(type)
+function PBSCompiler:addType(type)
 	self.typeMap[type.name] = type
 	return self
 end
 
-function PSCCompiler:compile(file)
+function PBSCompiler:compile(file)
 	self.parser:load(file)
 	local ast = {}
 	repeat
@@ -222,7 +222,7 @@ function PSCCompiler:compile(file)
 	return self:process(ast)
 end
 
-function PSCCompiler:processFunctionDeclaration(ast)
+function PBSCompiler:processFunctionDeclaration(ast)
 	for i,node in ipairs(ast) do
 		if node.type == "functionDef" then
 			local fdecl = self.functionMap[node.name]
@@ -236,7 +236,7 @@ function PSCCompiler:processFunctionDeclaration(ast)
 	end
 end
 
-function PSCCompiler:processFunctionImplementation(funcNode, instructionCode)
+function PBSCompiler:processFunctionImplementation(funcNode, instructionCode)
 	local variableMapStack = {{}}
 	instructionCode:flagFunctionStart(funcNode.name)
   
@@ -352,7 +352,7 @@ function PSCCompiler:processFunctionImplementation(funcNode, instructionCode)
 	end
 end
 
-function PSCCompiler:process(ast)
+function PBSCompiler:process(ast)
 	local instructionCode = InstructionCode:new()
 	self.instructionCode = instructionCode
 	self:processFunctionDeclaration(ast)
@@ -368,4 +368,4 @@ function PSCCompiler:process(ast)
 	return instructionCode:compileCode()
 end
 
-return PSCCompiler
+return PBSCompiler

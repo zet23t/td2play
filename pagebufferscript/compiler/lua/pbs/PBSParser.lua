@@ -1,6 +1,8 @@
 local class = require "class"
-local PSCLexer = require "PSCLexer"
-local lexer = PSCLexer:new()
+local PBSLexer = require "pbs.PBSLexer"
+local PBSNode = require "pbs.PBSNode"
+
+local lexer = PBSLexer:new()
 local precedence = {
 	["*"] = 1;
 	["/"] = 1;
@@ -8,11 +10,10 @@ local precedence = {
 	["-"] = 2;
 }
 
-local PSCNode = require "PSCNode"
 
-local PSCParser = class(require "parserLib".Parser)
-function PSCParser:init(lexer, defaultState)
-	if not lexer then lexer = PSCLexer:new() end
+local PBSParser = class(require "parserLib".Parser)
+function PBSParser:init(lexer, defaultState)
+	if not lexer then lexer = PBSLexer:new() end
 	self.Super.init(self,lexer, defaultState or "main")
 
 	self
@@ -48,7 +49,7 @@ function PSCParser:init(lexer, defaultState)
 				end
 
 				--print("Function: "..name.." returning "..returnType)
-				return PSCNode.functionDef:new {
+				return PBSNode.functionDef:new {
 					name = name;
 					sourceInfo = parser:getCurrentSourceInfo();
 					returnType = returnType;
@@ -64,7 +65,7 @@ function PSCParser:init(lexer, defaultState)
 				args[#args + 1] = arg
 				nextToken = parser:expect{",",")"}
 			until nextToken.identifier == ")"
-			return PSCNode.functionCall:new {
+			return PBSNode.functionCall:new {
 				name = functionCallName;
 				sourceInfo = parser:getCurrentSourceInfo();
 				arguments = args;
@@ -80,12 +81,12 @@ function PSCParser:init(lexer, defaultState)
 			end;
 			["return"] = function(parser)
         if parser:accept "end" then
-					return PSCNode.functionReturn:new {
+					return PBSNode.functionReturn:new {
 						sourceInfo = parser:getCurrentSourceInfo();
 						hasEnd = true;
 					}
 				else
-					return PSCNode.functionReturn:new {
+					return PBSNode.functionReturn:new {
 						sourceInfo = parser:getCurrentSourceInfo();
 						expression = parser:parse "expression";
 					}
@@ -97,21 +98,21 @@ function PSCParser:init(lexer, defaultState)
 		}
 		:defineState "expression" {
 			["literal"] = function(parser, identifier, match)
-				local root = PSCNode.value:new {
+				local root = PBSNode.value:new {
 					valuetype = identifier;
 					sourceInfo = parser:getCurrentSourceInfo();
 					value = match;
 				}
 				local op = parser:accept{"*","+","/"}
 				if op then 
-					root = PSCNode.operator:new {
+					root = PBSNode.operator:new {
 						op = op.match;
 						left = root;
 						sourceInfo = parser:getCurrentSourceInfo();
 						right = parser:parse "expression";
 					}
 					if root.right.op and precedence[root.op] < precedence[root.right.op] then
-						local newRoot = PSCNode.operator:new {
+						local newRoot = PBSNode.operator:new {
 							sourceInfo = parser:getCurrentSourceInfo();
 							op = root.right.op;
 							left = root;
@@ -132,4 +133,4 @@ function PSCParser:init(lexer, defaultState)
 		}
 end
 
-return PSCParser
+return PBSParser

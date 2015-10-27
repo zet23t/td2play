@@ -1,8 +1,8 @@
-local PSCCompiler = require "PSCCompiler"
-local prog = PSCCompiler:new()
+local PBSCompiler = require "pbs.PBSCompiler"
+local prog = PBSCompiler:new()
 prog:addNativeFunction(0, "printInt16","void") "int16"
 prog:addNativeFunction(1, "printInt32","void") "int32"
-local code = prog:compile "test/funcdef.psc"
+local code = prog:compile "test/funcdef.pbs"
 prog.instructionCode:printInstructions()
 io.write("// Program size: "..#code.." bytes")
 for i=1,#code do
@@ -16,8 +16,8 @@ print()
 
 
 --[[
-local PSCParser = require "PSCParser"
-local parser = PSCParser:new()
+local PBSParser = require "PBSParser"
+local parser = PBSParser:new()
 
 parser:load "test/funcdef.psc"
 local program = {}

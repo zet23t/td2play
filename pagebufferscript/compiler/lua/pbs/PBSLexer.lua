@@ -2,9 +2,9 @@ local parserLib = require "parserLib"
 local Lexer = parserLib.Lexer
 local class = require "class"
 
-local PSCLexer = class(Lexer)
+local PBSLexer = class(Lexer)
 
-function PSCLexer:init(scanner) 
+function PBSLexer:init(scanner) 
 	self.Super.init(self,scanner)
 	self
 		:addKeywords "function" "end" "(" ")" ":" "+" "*" "/" "," "return"
@@ -17,4 +17,4 @@ function PSCLexer:init(scanner)
 		:addRecognizer("integerDec", "^[0-9]+")
 end
 
-return PSCLexer
+return PBSLexer
