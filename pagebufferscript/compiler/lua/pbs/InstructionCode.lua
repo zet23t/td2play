@@ -1,4 +1,4 @@
-
+local class = require "class"
 local InstructionCode = class()
 
 InstructionCode.opCodeMap = require "pbs.const.opCodeMap"
