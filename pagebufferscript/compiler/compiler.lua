@@ -3,7 +3,7 @@ local prog = PBSCompiler:new()
 prog:addNativeFunction(0, "printInt16","void") "int16"
 prog:addNativeFunction(1, "printInt32","void") "int32"
 local code = prog:compile "test/funcdef.pbs"
-prog.instructionCode:printInstructions()
+--prog.instructionCode:printInstructions()
 io.write("// Program size: "..#code.." bytes")
 for i=1,#code do
   local fname = prog.instructionCode.functionAddressMarkerMap[i-1]
