@@ -14,6 +14,17 @@ for i=1,#code do
 end
 print()
 
+local VM = require "pbsinterpreter"
+local vm = VM:new()
+vm:load(code)
+vm:addFunction(0,function(vm) 
+      print(vm:readInt16FromStack(0))
+    end)
+vm:addFunction(1,function(vm) 
+      print(vm:readInt32FromStack(0))
+    end)
+vm:execute()
+
 
 --[[
 local PBSParser = require "PBSParser"
