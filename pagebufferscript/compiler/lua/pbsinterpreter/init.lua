@@ -35,7 +35,7 @@ local instruction = {
       return true
     end;
 	["return-uint16"] = function(vm) 
-      local frame = vm:popStackFrame()
+      local frame = vm:popStackFrame(2)
       local a = vm.stack[frame.stackOffset - 2]
       local b = vm.stack[frame.stackOffset - 1]
       vm.stack[frame.functionStackOffset] = a
@@ -51,8 +51,12 @@ local instruction = {
     end;
 	["callNative"] = function(vm) 
       local id = vm:nextInstruction(1)
-      local fn = assert(vm.nativeFunctions[id])
-      fn(vm)
+      local fnInfo = assert(vm.nativeFunctions[id])
+      vm:pushNewStackFrame()
+      local frame = vm:currentStackFrame()
+      frame.functionStackOffset = frame.functionStackOffset - fnInfo.argumentSize
+      fnInfo.func(vm)
+      vm:popStackFrame(fnInfo.returnSize)
       return true
     end;
 	["return-void"] = function(vm) end;
@@ -99,7 +103,6 @@ function VM:readInt32FromStack(offset)
   local i = frame.functionStackOffset + offset
   local s = self.stack
   local a,b,c,d = s[i], s[i + 1],s[i+2],s[i+3]
-  print(a,b,c,d)
   return a + b * 0x100 + c * 0x10000 + d * 0x1000000
 end
 
@@ -114,16 +117,21 @@ function VM:pushStackValue(offset, size)
 end
 
 function VM:pushNewStackFrame(instructionPointer)
+  local current = self.stackframes[#self.stackframes]
   self.stackframes[#self.stackframes + 1] = {
     instructionPointer = instructionPointer or 0;
-    stackOffset = #self.stack + 1; 
-    functionStackOffset = #self.stack + 1;
+    stackOffset = current and current.stackOffset or #self.stack + 1; 
+    functionStackOffset = current and current.stackOffset or #self.stack + 1;
   }
 end
 
-function VM:popStackFrame()
+function VM:popStackFrame(keep)
   local frame = self.stackframes[#self.stackframes]
   self.stackframes[#self.stackframes]= nil
+  local now = self.stackframes[#self.stackframes]
+  if now then
+    now.stackOffset = frame.functionStackOffset + (keep or 0)
+  end
   return frame
 end
 function VM:currentStackFrame()
@@ -147,15 +155,22 @@ function VM:execute()
     local op = assert(self:nextInstruction(1), self:currentStackFrame().instructionPointer)
     local opName = assert(opIds[op], op)
     local opFunc = assert(instruction[opName], opName)
+    print(opName)
+    print("  >",unpack(self.stack,1,self:currentStackFrame().stackOffset+1))
     if not opFunc(self) then
       print("Terminated with "..opName)
       break
     end
+    print("  <",unpack(self.stack,1,self:currentStackFrame().stackOffset+1))
   end
 end
 
-function VM:addFunction(id, func)
-  self.nativeFunctions[id] = func
+function VM:addFunction(id, func, argumentSize, returnSize)
+  self.nativeFunctions[id] = {
+    func = func;
+    argumentSize = argumentSize;
+    returnSize = returnSize;
+  }
 end
 
 return VM

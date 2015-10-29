@@ -19,10 +19,10 @@ local vm = VM:new()
 vm:load(code)
 vm:addFunction(0,function(vm) 
       print(vm:readInt16FromStack(0))
-    end)
+    end, 2, 0)
 vm:addFunction(1,function(vm) 
       print(vm:readInt32FromStack(0))
-    end)
+    end, 4, 0)
 vm:execute()
 
 
