@@ -35,13 +35,7 @@ local instruction = {
       return true
     end;
 	["return-uint16"] = function(vm) 
-      local frame = vm:popStackFrame(2)
-      local a = vm.stack[frame.stackOffset - 2]
-      local b = vm.stack[frame.stackOffset - 1]
-      vm.stack[frame.functionStackOffset] = a
-      vm.stack[frame.functionStackOffset + 1] = b
-      local now = vm:currentStackFrame()
-      now.stackOffset = frame.functionStackOffset + 2
+      vm:popStackFrame(2)
       return true
     end;
 	["call"] = function(vm) 
@@ -131,6 +125,14 @@ function VM:popStackFrame(keep)
   local now = self.stackframes[#self.stackframes]
   if now then
     now.stackOffset = frame.functionStackOffset + (keep or 0)
+    local toStart = now.stackOffset - keep
+    local fromStart = frame.stackOffset - keep
+    for i=0,keep-1 do 
+      self.stack[toStart + i]= self.stack[fromStart + i]
+    end
+    for i=now.stackOffset,#self.stack do
+      self.stack[i] = nil
+    end
   end
   return frame
 end
@@ -156,12 +158,12 @@ function VM:execute()
     local opName = assert(opIds[op], op)
     local opFunc = assert(instruction[opName], opName)
     print(opName)
-    print("  >",unpack(self.stack,1,self:currentStackFrame().stackOffset+1))
+    print("  >",unpack(self.stack,1,self:currentStackFrame().stackOffset))
     if not opFunc(self) then
       print("Terminated with "..opName)
       break
     end
-    print("  <",unpack(self.stack,1,self:currentStackFrame().stackOffset+1))
+    print("  <",unpack(self.stack,1,self:currentStackFrame().stackOffset))
   end
 end
 
