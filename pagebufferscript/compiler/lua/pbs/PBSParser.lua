@@ -72,6 +72,9 @@ function PBSParser:init(lexer, defaultState)
 			}
 		end)
 		:defineState "block" {
+      ["local"] = function(parser, identifier, match)
+          error("?")
+        end;
 			["word"] = function(parser, identifier, match)
 				local nextToken = parser:next()
 				if nextToken.identifier == "(" then

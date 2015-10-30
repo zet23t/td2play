@@ -1,5 +1,8 @@
+--# expectedOutput{1,2}
 function main():void
   local x:int8 = 1
+  printInt16(x)
+  x = x * 2
   printInt16(x)
   return
 end

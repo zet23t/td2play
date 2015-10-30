@@ -7,7 +7,7 @@ local PBSLexer = class(Lexer)
 function PBSLexer:init(scanner) 
 	self.Super.init(self,scanner)
 	self
-		:addKeywords "function" "end" "(" ")" ":" "+" "*" "/" "," "return"
+		:addKeywords "function" "end" "(" ")" ":" "+" "*" "/" "," "return" "local"
 	self
 		:addRecognizer("comment", "^%-%-[^\n]+.?")
 		:addRecognizer("word", "^[a-zA-Z_][a-zA-Z0-9_]*")
