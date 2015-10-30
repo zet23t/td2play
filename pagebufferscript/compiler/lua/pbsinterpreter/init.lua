@@ -1,6 +1,8 @@
 local class = require "class"
 
 local VM = class()
+VM.log = require "log"
+
 local opCodeMap = require "pbs.const.opCodeMap"
 local opIds = {}
 for k,v in pairs(opCodeMap) do 
@@ -157,13 +159,14 @@ function VM:execute()
     local op = assert(self:nextInstruction(1), self:currentStackFrame().instructionPointer)
     local opName = assert(opIds[op], op)
     local opFunc = assert(instruction[opName], opName)
-    print(opName)
-    print("  >",unpack(self.stack,1,self:currentStackFrame().stackOffset))
+    
+    self.log:info(opName)
+    self.log:info("  >",unpack(self.stack,1,self:currentStackFrame().stackOffset))
     if not opFunc(self) then
       print("Terminated with "..opName)
       break
     end
-    print("  <",unpack(self.stack,1,self:currentStackFrame().stackOffset))
+    self.log:info("  <",unpack(self.stack,1,self:currentStackFrame().stackOffset))
   end
 end
 

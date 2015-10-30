@@ -1,3 +1,5 @@
+require "log".enabled.info = false
+
 local PBSCompiler = require "pbs.PBSCompiler"
 local prog = PBSCompiler:new()
 prog:addNativeFunction(0, "printInt16","void") "int16"
