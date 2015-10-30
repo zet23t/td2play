@@ -1,6 +1,8 @@
 require "log".enabled.info = false
 
-local PBSCompiler = require "pbs.PBSCompiler"
+require "test.test"
+
+--[[local PBSCompiler = require "pbs.PBSCompiler"
 local prog = PBSCompiler:new()
 prog:addNativeFunction(0, "printInt16","void") "int16"
 prog:addNativeFunction(1, "printInt32","void") "int32"
@@ -27,6 +29,7 @@ vm:addFunction(1,function(vm)
     end, 4, 0)
 vm:execute()
 
+]]
 
 --[[
 local PBSParser = require "PBSParser"

@@ -163,7 +163,9 @@ function VM:execute()
     self.log:info(opName)
     self.log:info("  >",unpack(self.stack,1,self:currentStackFrame().stackOffset))
     if not opFunc(self) then
-      print("Terminated with "..opName)
+      if not opName:match "^return" then 
+        self.log:warn("Terminated with "..opName)
+      end
       break
     end
     self.log:info("  <",unpack(self.stack,1,self:currentStackFrame().stackOffset))

@@ -2,6 +2,7 @@ local log = {}
 
 log.enabled = {
   info = true;
+  warn = true;
 }
 
 setmetatable(log,{__index = function(t, k)

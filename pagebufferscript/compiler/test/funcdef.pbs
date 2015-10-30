@@ -1,7 +1,5 @@
 --- Basic function calling and function defining test
--- expected output:
--- 25
--- 36
+--# expectedOutput{25, 36}
 
 function sq(a:uint8):uint16
 	return a * a
