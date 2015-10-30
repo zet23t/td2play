@@ -13,5 +13,6 @@ This project is still in a very early stage!
 * ./simulator: A simple simulator that enables compilation on PC for testing
 * ./screenshots: A collection of screenshots I'm making over the course of development
 * ./tools: Tools that may be used during development
+* ./pagebufferscript: A scripting language for TD environment - concept only so far
 
 For more information, please read the readme files in the respective directories.
