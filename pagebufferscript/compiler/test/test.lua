@@ -4,9 +4,9 @@ local function test(file)
   local prog = PBSCompiler:new()
   prog:addNativeFunction(0, "printInt16","void") "int16"
   prog:addNativeFunction(1, "printInt32","void") "int32"
-  local code = prog:compile("test/"..file)
+  local code = prog:compile("test/"..file..".pbs")
   
-  local fp = io.open("test/"..file,"rb")
+  local fp = io.open("test/"..file..".pbs","rb")
   local content = fp:read "*a"
   
   local expectedOutput = {}
@@ -43,5 +43,11 @@ local function test(file)
   print("  checks done: "..(expectedOutputPos-1))
 end
 
-test "funcdef.pbs"
+local function runTests(files)
+  for i,v in ipairs(files) do
+    test(v)
+  end
+end
+
+runTests {"funcdef", "locals"}
 
