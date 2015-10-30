@@ -73,6 +73,10 @@ function PBSParser:init(lexer, defaultState)
 		end)
 		:defineState "block" {
       ["local"] = function(parser, identifier, match)
+          local name = parser:expect "word".match
+          parser:expect ":"
+          local type = parser:expect "word".match
+          print(name,type)
           error("?")
         end;
 			["word"] = function(parser, identifier, match)
