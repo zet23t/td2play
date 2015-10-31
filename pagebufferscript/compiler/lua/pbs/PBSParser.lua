@@ -76,14 +76,27 @@ function PBSParser:init(lexer, defaultState)
           local name = parser:expect "word".match
           parser:expect ":"
           local type = parser:expect "word".match
-          print(name,type)
-          error("?")
+          local info = {
+            sourceInfo = parser:getCurrentSourceInfo();
+            name = name;
+            vartype = type;
+          }
+          if parser:accept "=" then
+            info.initialize = parser:parse "expression"
+          end
+          return PBSNode.localDef:new(info)
         end;
 			["word"] = function(parser, identifier, match)
-				local nextToken = parser:next()
-				if nextToken.identifier == "(" then
+				if parser:accept "(" then
 					return parser:parse("readFunctionCallArguments", match)
-				end
+				elseif parser:accept "=" then
+          return PBSNode.assignment:new {
+              sourceInfo = parser:getCurrentSourceInfo();
+              varname = match;
+              expression = parser:parse "expression";
+            }
+        end
+        
 				parser:error("Unexpected identifier: "..nextToken.identifier)
 			end;
 			["return"] = function(parser)

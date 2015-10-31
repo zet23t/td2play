@@ -127,6 +127,20 @@ function PBSCompiler:processFunctionImplementation(funcNode, instructionCode)
 	local function process(node,...) 
 		return assert(processor[node.type],"No processor for "..node.type)(node,...)
 	end
+  function processor.localDef(node)
+    if node.initilize then
+      process(node.initialize, node.vartype)
+    end
+    addVariable(node.name,node.vartype)
+  end
+  function processor.assignment(node, targetType)
+    local var = getVariable(node.varname)
+    if not var then 
+      error("Variable without definition: "..node.varname.." "..node.sourceInfo) 
+    end
+    
+    process(node.expression,var.vartype)
+  end
 	function processor.operator(node, targetType)
 		local lefttype = process(node.left, targetType)
 		local righttype = process(node.right, targetType)

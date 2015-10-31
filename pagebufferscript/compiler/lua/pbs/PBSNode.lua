@@ -6,6 +6,21 @@ function PBSNode:init(type, param)
 	self.sourceInfo = assert(param.sourceInfo)
 end
 
+PBSNode.localDef = class(PBSNode)
+function PBSNode.localDef:init(param)
+  self.Super.init(self, "localDef",param)
+  self.name = assert(param.name)
+  self.vartype = assert(param.vartype)
+  self.initialize = param.initialize
+end
+
+PBSNode.assignment = class(PBSNode)
+function PBSNode.assignment:init(param)
+  self.Super.init(self, "assignment",param)
+  self.varname = param.varname
+  self.expression = param.expression
+end
+
 PBSNode.functionDef = class(PBSNode)
 function PBSNode.functionDef:init(param)
 	self.Super.init(self, "functionDef", param)
@@ -14,12 +29,14 @@ function PBSNode.functionDef:init(param)
 	self.instructions = assert(param.instructions)
 	self.arguments = assert(param.arguments)
 end
+
 PBSNode.functionCall = class(PBSNode)
 function PBSNode.functionCall:init(param)
 	self.Super.init(self, "functionCall", param)
 	self.name = assert(param.name)
 	self.arguments = assert(param.arguments)
 end
+
 PBSNode.value = class(PBSNode)
 function PBSNode.value:init(param)
 	self.Super.init(self, "value", param)
@@ -27,6 +44,7 @@ function PBSNode.value:init(param)
 	self.value = assert(param.value)
 	self.isLiteral = self.value:match "^[^a-zA-Z_]"
 end
+
 PBSNode.operator = class(PBSNode)
 function PBSNode.operator:init(param)
 	self.Super.init(self, "operator", param)
@@ -34,6 +52,7 @@ function PBSNode.operator:init(param)
 	self.left = assert(param.left)
 	self.right = assert(param.right)
 end
+
 PBSNode.functionReturn = class(PBSNode)
 function PBSNode.functionReturn:init(param)
 	self.Super.init(self, "functionReturn", param)
@@ -56,6 +75,16 @@ function PBSNode.functionDef:reduce()
 		copy.instructions[i] = self.instructions[i]:reduce()
 	end
 	return self:new(copy)
+end
+
+function PBSNode.localDef:reduce()
+  local copy = {}
+  copy.sourceInfo = self.sourceInfo
+  copy.name = self.name
+  copy.init = self.init
+  copy.type = self.type
+  if copy.init then copy.init = copy.init:reduce() end
+  return self:new(copy)
 end
 
 function PBSNode.functionCall:reduce()
