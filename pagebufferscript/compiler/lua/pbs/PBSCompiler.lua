@@ -142,8 +142,8 @@ function PBSCompiler:processFunctionImplementation(funcNode, instructionCode)
     process(node.expression,var.vartype)
   end
 	function processor.operator(node, targetType)
-		local lefttype = process(node.left, targetType)
-		local righttype = process(node.right, targetType)
+		local lefttype = assert(process(node.left, targetType))
+		local righttype = assert(process(node.right, targetType))
 		instructionCode:pushOperator(node.op, lefttype, righttype, targetType)
 		if leftType == righttype then return leftType end
 		return "?"
@@ -189,14 +189,14 @@ function PBSCompiler:processFunctionImplementation(funcNode, instructionCode)
 					int8 = true, int16 = true, int32 = true
 				}
 				assert(allowed[targetType], "Target type incompatible with integer value: "..targetType)
-				if targetType == "uint8" or targettype == "int8" then
+				if targetType == "uint8" or targetType == "int8" then
 					instructionCode:push8bitLiteral(node.value)
-				elseif targettype == "uint16" or targettype == "int16" then
+				elseif targetType == "uint16" or targetType == "int16" then
 					instructionCode:push16bitLiteral(node.value)
 				else
 					instructionCode:push32bitLiteral(node.value)
 				end
-				return targettype
+				return targetType
 			elseif node.valuetype == "string" then
 				instructionCode:pushStringLiteral(node.value)
 				return "string"
