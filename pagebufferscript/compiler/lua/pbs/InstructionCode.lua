@@ -98,7 +98,8 @@ function InstructionCode:compileCode()
 			if     op == "push-8bit-value" 
 				or op == "push-16bit-value"  
 				or op == "push-8bit-literal" 
-				or op == "push-stack-value-uint8" 
+				or op == "push-stack-value-uint8"
+				or op == "push-stack-value-int8" 
 			then
         --print("?", op, inst[2])
 				put8(inst[2])
@@ -112,7 +113,8 @@ function InstructionCode:compileCode()
 				put16(assert(functionMemoryAddressMap[inst[2]]))
 			elseif op == "callNative" then
 				put8(inst[2])
-			elseif op == "op-*-uint8-uint8-uint16" 
+			elseif op == "op-*-uint8-uint8-uint16"
+        or op == "op-*-int8-int8-int8"
 				or op == "return-uint16" 
         or op == "return-void" then
 				-- no param, just op

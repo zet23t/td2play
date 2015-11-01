@@ -6,7 +6,9 @@ return {
 	["push-8bit-value"] = 0x05;
 	["push-16bit-value"] = 0x06;
 	["push-stack-value-uint8"] = 0x07;
+	["push-stack-value-int8"] = 0x0a;
 	["op-*-uint8-uint8-uint16"] = 0x08;
+	["op-*-int8-int8-int8"] = 0x0b;
 	["return-uint16"] = 0x09;
 	["call"] = 0x10;
 	["callNative"] = 0x11;

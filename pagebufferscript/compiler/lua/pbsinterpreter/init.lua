@@ -25,7 +25,7 @@ local instruction = {
       vm:pushStackValue(offset,1)
       return true
     end;
-	["op-*-uint8-uint8-uint16"] = function(vm) 
+  ["op-*-uint8-uint8-uint16"] = function(vm) 
       local frame = vm:currentStackFrame()
       local a = vm.stack[frame.stackOffset - 1]
       local b = vm.stack[frame.stackOffset - 2]
@@ -67,6 +67,7 @@ local instruction = {
        return true
     end;
 }
+instruction["push-stack-value-int8"] = instruction["push-stack-value-uint8"];
 
 function VM:init()
   self.stack = {}
