@@ -95,7 +95,7 @@ function InstructionCode:compileCode()
 		local op = inst[1]
 		if op ~= "functionstart" and inst.size > 0 then
 			put8(assert(self.opCodeMap[op], "no op: "..op))
-			if     op == "push-8bit-value" 
+			if   op == "push-8bit-value" 
 				or op == "push-16bit-value"  
 				or op == "push-8bit-literal" 
 				or op == "push-stack-value-uint8"
@@ -123,6 +123,7 @@ function InstructionCode:compileCode()
       elseif op == "cast-uint16-int16" then
         -- nop
       elseif op == "cast-uint16-int32" then
+      elseif op == "cast-int8-int16" then
 			else
 				error("no handling for "..op)
 			end

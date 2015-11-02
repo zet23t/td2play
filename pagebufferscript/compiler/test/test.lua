@@ -4,7 +4,9 @@ local function test(file)
   local prog = PBSCompiler:new()
   prog:addNativeFunction(0, "printInt16","void") "int16"
   prog:addNativeFunction(1, "printInt32","void") "int32"
+  
   local code = prog:compile("test/"..file..".pbs")
+  prog.instructionCode:printInstructions()
   
   local fp = io.open("test/"..file..".pbs","rb")
   local content = fp:read "*a"

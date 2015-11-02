@@ -159,7 +159,10 @@ function PBSCompiler:processFunctionImplementation(funcNode, instructionCode)
 		end
 		for i,arg in ipairs(node.arguments) do
 			local targetArg = target.arguments[i]
-      local t = process(arg,targetArg.vartype)
+      local t = assert(process(arg,targetArg.vartype))
+      if t~=targetArg.vartype then
+        instructionCode:pushCast(t, targetArg.vartype)
+      end
 		end
 		if target.isNative then
 			instructionCode:pushNativeFunctionCall(target.address)
@@ -169,7 +172,7 @@ function PBSCompiler:processFunctionImplementation(funcNode, instructionCode)
     if targetType ~= target.returnType then
       instructionCode:pushCast(target.returnType, targetType)
     end
-    --return target.returnType
+    return targetType
 	end
 	function processor.functionReturn(node)
 		if node.expression then

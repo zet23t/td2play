@@ -16,4 +16,5 @@ return {
   ["move-function-stack-offset"] = 0x13;
   ["cast-uint16-int16"] = 0x14;
   ["cast-uint16-int32"] = 0x15;
+  ["cast-int8-int16"] = 0x16;
 }

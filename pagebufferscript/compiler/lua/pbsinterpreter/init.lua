@@ -66,6 +66,10 @@ local instruction = {
        vm:pushOnStack(0,0)
        return true
     end;
+  ["cast-int8-int16"] = function(vm) 
+      vm:pushOnStack(0)
+      return true
+    end;
 }
 instruction["push-stack-value-int8"] = instruction["push-stack-value-uint8"];
 
