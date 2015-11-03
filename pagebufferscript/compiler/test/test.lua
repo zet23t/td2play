@@ -46,8 +46,9 @@ local function test(file)
       "Missing expected output: ".. tostring(expectedOutput[expectedOutputPos]))
     print("  checks done: "..(expectedOutputPos-1))
   end
-  xpcall(compileAndRun, function(err, msg)
+  xpcall(compileAndRun, function(err)
       print "Error during test:"
+      print(debug.traceback(err))
       print("  checks succeeded: ".. expectedOutputPos - 1 .."/".. #expectedOutput)
       if prog.instructionCode and prog.instructionCode.code then
         print "Compiled Bytecode: "
