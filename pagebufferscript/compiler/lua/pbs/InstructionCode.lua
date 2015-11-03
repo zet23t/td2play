@@ -129,7 +129,21 @@ function InstructionCode:compileCode()
 			end
 		end
 	end
-	return table.concat(self.code)
+  self.bytecode = table.concat(self.code)
+	return self.bytecode
+end
+
+function InstructionCode:printByteCode()
+  local code = self.bytecode
+  for i=1,#code do
+    local fname = self.functionAddressMarkerMap[i-1]
+    if fname then
+      if i > 1 then io.write "\n" end
+      io.write("  // function: "..fname.."@"..(i-1).."\n  ")
+    end
+    io.write(("0x%02x, "):format(code:byte(i)))
+  end
+  io.write "\n"
 end
 
 return InstructionCode
