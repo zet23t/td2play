@@ -135,13 +135,64 @@ end
 
 function InstructionCode:printByteCode()
   local code = self.bytecode
-  for i=1,#code do
-    local fname = self.functionAddressMarkerMap[i-1]
+  local opMap = {}
+  for k, op in pairs(InstructionCode.opCodeMap) do opMap[op] = k end
+  
+  local pos = 1
+  local function getNextByte()
+    local byte = code:byte(pos)
+    pos = pos + 1
+    return byte
+  end
+  
+  while pos < #code do
+    local fname = self.functionAddressMarkerMap[pos-1]
     if fname then
-      if i > 1 then io.write "\n" end
-      io.write("  // function: "..fname.."@"..(i-1).."\n  ")
+      if pos > 1 then io.write "\n" end
+      io.write("  // function: "..fname.."@"..(pos-1).."\n")
     end
-    io.write(("0x%02x, "):format(code:byte(i)))
+    local byte = getNextByte()
+    local opName = opMap[byte]
+    local str
+    if opName == "push-8bit-literal" then
+      local literal = getNextByte()
+      str = ("0x%02x, 0x%02x, // %s (%d)"):format(byte, literal, opName, literal)
+    elseif opName == "push-16bit-literal" then
+      local a = getNextByte()
+      local b = getNextByte()
+      str = ("0x%02x, 0x%02x, 0x%02x, // %s (%d)"):format(byte, a, b, opName, a*0x100 + b)
+    elseif opName == "push-32bit-literal" then
+      local a = getNextByte()
+      local b = getNextByte()
+      local c = getNextByte()
+      local d = getNextByte()
+      str = ("0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x02x, // %s (%d)"):format(byte, a, b, c, d, opName, a*0x1000000 + b * 0x10000 + c * 0x100 + d)
+    elseif opName == "push-string-literal" then
+      error "not implemented"
+    elseif opName == "push-8bit-value" then
+      error "unused?"
+    elseif opName == "push-16bit-value" then
+      error "unused?"
+    elseif opName == "push-stack-value-uint8" then
+      error "unused?"
+      
+	--[[
+	[""] = 0x07;
+	["push-stack-value-int8"] = 0x0a;
+	["op-*-uint8-uint8-uint16"] = 0x08;
+	["op-*-int8-int8-int8"] = 0x0b;
+	["return-uint16"] = 0x09;
+	["call"] = 0x10;
+	["callNative"] = 0x11;
+	["return-void"] = 0x12;
+  ["move-function-stack-offset"] = 0x13;
+  ["cast-uint16-int16"] = 0x14;
+  ["cast-uint16-int32"] = 0x15;
+  ["cast-int8-int16"] = 0x16;]]
+    else
+      str = ("0x%02x, // ?"):format(byte)
+    end
+    io.write("    "..str.."\n")
   end
   io.write "\n"
 end
