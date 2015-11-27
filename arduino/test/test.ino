@@ -10,7 +10,6 @@ RenderBuffer buffer;
 
 void setup() {
   Wire.begin();
-  SerialUSB.print("hello!");
   display.begin();
   display.setFlip(0);
   display.setBrightness(8);

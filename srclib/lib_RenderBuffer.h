@@ -1,7 +1,6 @@
 #ifndef __RENDERBUFFER_H__
 #define __RENDERBUFFER_H__
 
-#include <TinyScreen.h>
 #include <assert.h>
 
 namespace RenderBufferConst {

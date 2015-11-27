@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <TinyScreen.h>
 #include "lib_RenderBuffer.h"
 
 void Texture::fillLineRgb565sram (uint16_t *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
