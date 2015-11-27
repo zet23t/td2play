@@ -1,3 +1,6 @@
+#ifndef __TINYSCREEN_H__
+#define __TINYSCREEN_H__
+
 #ifndef PROGMEM
 #define PROGMEM
 #endif
@@ -69,3 +72,5 @@ public:
     const FONT_CHAR_INFO* _fontDescriptor;
     const unsigned char* _fontBitmap;
 };
+
+#endif // __TINYSCREEN_H__
