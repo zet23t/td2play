@@ -22,6 +22,7 @@ typedef struct {
     GLuint screenTexture;
     unsigned char screenData[SCREEN_TEXTURE_SIZE*SCREEN_TEXTURE_SIZE * 3];
     unsigned char x,y;
+    bool is16bit;
     GLFWwindow* window;
 } Emulator;
 
@@ -91,7 +92,9 @@ void TinyScreen::endTransfer(void) {
     void TinyScreen::off(void) {}
     void TinyScreen::setFlip(uint8_t) {}
     void TinyScreen::setMirror(uint8_t) {}
-    void TinyScreen::setBitDepth(uint8_t) {}
+    void TinyScreen::setBitDepth(uint8_t is16bit) {
+        emulator.is16bit = is16bit ? true : false;
+    }
     void TinyScreen::setBrightness(uint8_t) {}
     //void TinyScreen::writeRemap(void) {}
     //accelerated drawing commands
@@ -104,14 +107,29 @@ void TinyScreen::endTransfer(void) {
     //basic graphics commands
     void TinyScreen::writePixel(uint16_t) {
     }
-    void TinyScreen::writeBuffer(uint8_t *rgb565, int num) {
+    void TinyScreen::writeBuffer(uint8_t *rgb, int num) {
         //uint16_t *rgb565_16 = (uint16_t*)&rgb565[0];
         int idx = emulator.x + emulator.y * SCREEN_TEXTURE_SIZE;
-        for (int i=0;i<num; i+=2) {
-            uint16_t word = rgb565[i]<<8 | rgb565[i+1];
-            uint8_t r = word & 31;
-            uint8_t g = (word >> 5) & 63;
-            uint8_t b = word >> 11;
+        uint8_t *rgb565 = rgb;
+        for (int i=0;i<num; i+=1) {
+            uint8_t r,g,b;
+            if (emulator.is16bit) {
+                uint16_t word = 0;
+                word = rgb565[i]<<8 | rgb565[i+1];
+                r = word & 31;
+                g = (word >> 5) & 63;
+                b = word >> 11;
+
+                i+=1;
+            } else {
+                uint8_t rgb233 = rgb[i];
+                r = rgb233 >> 6;
+                r = r << 6 | r << 4 | r << 2 | r;
+                g = (rgb233 >> 3) & 7;
+                g = g << 5 | g << 2 | g >> 1;
+                b = rgb233 & 7;
+                b = b << 5 | b << 2 | b >> 1;
+            }
             emulator.screenData[idx*3+0] = (r << 3 | r >> 2) * 1;
             emulator.screenData[idx*3+1] = (g << 2 | g >> 4)*1;
             emulator.screenData[idx*3+2] = (b << 3 | b >> 2)*1;
