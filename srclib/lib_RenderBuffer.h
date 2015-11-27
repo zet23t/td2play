@@ -32,6 +32,8 @@ namespace TextureType {
 // The following macro is the version I used first but it produced wrong coloring
 //#define RGB565(r,g,b) (uint16_t)(((r) << 8 & 0xf800) | ((g) << 5 & 0x7e0) | ((b) >> 3))
 
+#define RGB233(r,g,b) (((r) >> 6) | ((g) >> 3 & 034) | ((b) & 0340))
+
 #ifdef WIN32
 #include <memory.h>
 #define pgm_read_byte *
@@ -134,9 +136,14 @@ public:
     RenderBuffer() {};
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
+    TColor rgb(uint8_t r, uint8_t g, uint8_t b) const;
     void flush(TinyScreen display);
 };
 
+template<class TColor, int maxCommands>
+TColor RenderBuffer<TColor,maxCommands>::rgb(uint8_t r, uint8_t g, uint8_t b) const {
+    return sizeof(TColor) == 2 ? RGB565(r,g,b) : RGB233(r,g,b);
+}
 
 template<class TCol, int maxCommands>
 RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)

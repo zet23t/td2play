@@ -120,19 +120,23 @@ void TinyScreen::endTransfer(void) {
                 g = (word >> 5) & 63;
                 b = word >> 11;
 
+                r = (r << 3 | r >> 2);
+                g = (g << 2 | g >> 4);
+                b = (b << 3 | b >> 2);
+
                 i+=1;
             } else {
                 uint8_t rgb233 = rgb[i];
-                r = rgb233 >> 6;
-                r = r << 6 | r << 4 | r << 2 | r;
-                g = (rgb233 >> 3) & 7;
+                r = rgb233 & 3;
+                r = (r << 6) | (r << 4) | (r << 2) | r;
+                g = (rgb233 >> 2) & 7;
                 g = g << 5 | g << 2 | g >> 1;
-                b = rgb233 & 7;
+                b = rgb233 >> 5 & 7;
                 b = b << 5 | b << 2 | b >> 1;
             }
-            emulator.screenData[idx*3+0] = (r << 3 | r >> 2) * 1;
-            emulator.screenData[idx*3+1] = (g << 2 | g >> 4)*1;
-            emulator.screenData[idx*3+2] = (b << 3 | b >> 2)*1;
+            emulator.screenData[idx*3+0] = r;
+            emulator.screenData[idx*3+1] = g;
+            emulator.screenData[idx*3+2] = b;
             if (idx % SCREEN_TEXTURE_SIZE == TINYSCREEN_WIDTH-1) {
                 idx = emulator.x + (++emulator.y) * SCREEN_TEXTURE_SIZE;//SCREEN_TEXTURE_SIZE - TINYSCREEN_WIDTH + 1;
             } else {
