@@ -200,63 +200,10 @@ void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y)
     }
 }
 
-template<class TCol>
-RenderCommand<TCol>* RenderBuffer<TCol>::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)
-{
-    if (x >= RenderBufferConst::screenWidth || y >= RenderBufferConst::screenHeight || x + width < 0 || y + height < 0)
-        return &noCommand;
-    if (commandCount >= RenderBufferConst::maxCommands) return &noCommand;
-    RenderCommand<TCol> *cmd = &commandList[commandCount++];
-    int16_t right = x + width, bottom = y + height;
-    if (x < 0) cmd->rect.x1 = 0, cmd->rect.u = -x;
-    else       cmd->rect.x1 = x, cmd->rect.u = 0;
-    if (y < 0) cmd->y1 = 0, cmd->rect.v = -y;
-    else       cmd->y1 = y, cmd->rect.v = 0;
-    cmd->rect.x2 = right > RenderBufferConst::screenWidth ? RenderBufferConst::screenWidth : right;
-    cmd->y2 = bottom > RenderBufferConst::screenHeight ? RenderBufferConst::screenHeight : bottom;
-    return cmd;
-}
-
-template<class TCol>
-RenderCommand<TCol>* RenderBuffer<TCol>::drawText(const char *text, int16_t x, int16_t y, TCol color, const FONT_INFO *font)
-{
-    if (y >= RenderBufferConst::screenHeight || y + font->height < 0
-            || commandCount >= RenderBufferConst::maxCommands) return &noCommand;
-    RenderCommand<TCol> *cmd = &commandList[commandCount++];
-    cmd->text.x1 = x;
-    cmd->y1 = y;
-    cmd->y2 = y + font->height;
-    cmd->text.color = color;
-    cmd->text.font = font;
-    cmd->text.text = text;
-    cmd->type = RenderCommandType::text;
-    return cmd;
-}
-
-template<class TCol>
-void RenderBuffer<TCol>::flush(TinyScreen display)
-{
-    display.goTo(0,0);
-    TCol line[RenderBufferConst::screenWidth];
-    display.startData();
-    for (uint8_t y=0; y<RenderBufferConst::screenHeight; y+=1)
-    {
-        memset(line,0,sizeof(line));
-        for (uint8_t i=0; i<commandCount; i+=1)
-        {
-            commandList[i].fillLine(line, y);
-        }
-        display.writeBuffer((uint8_t*)line, sizeof(line));
-    }
-    display.endTransfer();
-    commandCount = 0;
-}
 
 // make sure we generate all function with uint16 / uint8 signture
 template class Texture<uint16_t>;
 template class RenderCommand<uint16_t>;
-template class RenderBuffer<uint16_t>;
 
 template class Texture<uint8_t>;
 template class RenderCommand<uint8_t>;
-template class RenderBuffer<uint8_t>;

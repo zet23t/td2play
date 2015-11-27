@@ -6,7 +6,7 @@
 #include "lib_StringBuffer.h"
 
 TinyScreen display = TinyScreen(0);
-RenderBuffer<uint16_t> buffer;
+RenderBuffer<uint16_t,20> buffer;
 
 void setup() {
   Wire.begin();

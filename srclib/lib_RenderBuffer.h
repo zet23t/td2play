@@ -4,7 +4,6 @@
 #include <assert.h>
 
 namespace RenderBufferConst {
-    const uint8_t maxCommands = 48;
     const uint8_t screenWidth = 96;
     const uint8_t screenHeight = 64;
 }
@@ -124,11 +123,11 @@ public:
 };
 
 
-template<class TColor>
+template<class TColor, int maxCommands>
 class RenderBuffer
 {
 private:
-    RenderCommand<TColor> commandList[RenderBufferConst::maxCommands];
+    RenderCommand<TColor> commandList[maxCommands];
     uint8_t commandCount;
     RenderCommand<TColor> noCommand;
 public:
@@ -137,5 +136,58 @@ public:
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
     void flush(TinyScreen display);
 };
+
+
+template<class TCol, int maxCommands>
+RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)
+{
+    if (x >= RenderBufferConst::screenWidth || y >= RenderBufferConst::screenHeight || x + width < 0 || y + height < 0)
+        return &noCommand;
+    if (commandCount >= maxCommands) return &noCommand;
+    RenderCommand<TCol> *cmd = &commandList[commandCount++];
+    int16_t right = x + width, bottom = y + height;
+    if (x < 0) cmd->rect.x1 = 0, cmd->rect.u = -x;
+    else       cmd->rect.x1 = x, cmd->rect.u = 0;
+    if (y < 0) cmd->y1 = 0, cmd->rect.v = -y;
+    else       cmd->y1 = y, cmd->rect.v = 0;
+    cmd->rect.x2 = right > RenderBufferConst::screenWidth ? RenderBufferConst::screenWidth : right;
+    cmd->y2 = bottom > RenderBufferConst::screenHeight ? RenderBufferConst::screenHeight : bottom;
+    return cmd;
+}
+
+template<class TCol, int maxCommands>
+RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text, int16_t x, int16_t y, TCol color, const FONT_INFO *font)
+{
+    if (y >= RenderBufferConst::screenHeight || y + font->height < 0
+            || commandCount >= maxCommands) return &noCommand;
+    RenderCommand<TCol> *cmd = &commandList[commandCount++];
+    cmd->text.x1 = x;
+    cmd->y1 = y;
+    cmd->y2 = y + font->height;
+    cmd->text.color = color;
+    cmd->text.font = font;
+    cmd->text.text = text;
+    cmd->type = RenderCommandType::text;
+    return cmd;
+}
+
+template<class TCol, int maxCommands>
+void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
+{
+    display.goTo(0,0);
+    TCol line[RenderBufferConst::screenWidth];
+    display.startData();
+    for (uint8_t y=0; y<RenderBufferConst::screenHeight; y+=1)
+    {
+        memset(line,0,sizeof(line));
+        for (uint8_t i=0; i<commandCount; i+=1)
+        {
+            commandList[i].fillLine(line, y);
+        }
+        display.writeBuffer((uint8_t*)line, sizeof(line));
+    }
+    display.endTransfer();
+    commandCount = 0;
+}
 
 #endif

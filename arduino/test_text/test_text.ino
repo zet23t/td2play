@@ -9,7 +9,7 @@
 #include "lib_StringBuffer.h"
 
 TinyScreen display = TinyScreen(0);
-RenderBuffer<uint8_t> buffer;
+RenderBuffer<uint8_t,20> buffer;
 
 void setup() {
   Wire.begin();
