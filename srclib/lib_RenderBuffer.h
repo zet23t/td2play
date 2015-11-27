@@ -66,7 +66,7 @@ private:
                 for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
                 {
                     int index = (pos++ & widthMod) + offset;
-                    uint16_t col = rgb565[index++];
+                    uint16_t col = rgb565[index];
                     if (col != transparentColorMask) {
                         lineBuffer[lineX] = col;
                     }
@@ -77,7 +77,7 @@ private:
                 for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
                 {
                     int index = (pos++ & widthMod) + offset;
-                    uint16_t col = rgb565[index++];
+                    uint16_t col = rgb565[index];
                     if (col != transparentColorMask) {
                         lineBuffer[lineX] |= col;
                     }
@@ -88,7 +88,7 @@ private:
                 for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
                 {
                     int index = (pos++ & widthMod) + offset;
-                    uint16_t col = rgb565[index++];
+                    uint16_t col = rgb565[index];
                     if (col != transparentColorMask) {
                         lineBuffer[lineX] &= col;
                     }
@@ -99,7 +99,7 @@ private:
                 for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
                 {
                     int index = (pos++ & widthMod) + offset;
-                    uint16_t col = rgb565[index++];
+                    uint16_t col = rgb565[index];
                     if (col != transparentColorMask) {
                         uint16_t dst = lineBuffer[lineX];
                         col = col & ~(RGB565(1,1,1)) >> 1;
@@ -117,21 +117,21 @@ private:
                 for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
                 {
                     int index = (pos++ & widthMod) + offset;
-                    lineBuffer[lineX++] = rgb565[index++];
+                    lineBuffer[lineX++] = rgb565[index];
                 }
                 break;
             case RenderCommandBlendMode::bitwiseOr:
                 for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
                 {
                     int index = (pos++ & widthMod) + offset;
-                    lineBuffer[lineX++] |= rgb565[index++];
+                    lineBuffer[lineX++] |= rgb565[index];
                 }
                 break;
             case RenderCommandBlendMode::bitwiseAnd:
                 for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
                 {
                     int index = (pos++ & widthMod) + offset;
-                    lineBuffer[lineX++] &= rgb565[index++];
+                    lineBuffer[lineX++] &= rgb565[index];
                 }
                 break;
             case RenderCommandBlendMode::average:
@@ -139,7 +139,7 @@ private:
                 {
                     int index = (pos++ & widthMod) + offset;
                     uint16_t dst = lineBuffer[lineX] & ~(RGB565(1,1,1)) >> 1;
-                    uint16_t col = rgb565[index++] & ~(RGB565(1,1,1)) >> 1;
+                    uint16_t col = rgb565[index] & ~(RGB565(1,1,1)) >> 1;
                     lineBuffer[lineX++] = col + dst;
                 }
                 break;
