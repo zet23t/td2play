@@ -6,7 +6,7 @@
 #include "lib_StringBuffer.h"
 
 TinyScreen display = TinyScreen(0);
-RenderBuffer buffer;
+RenderBuffer<uint16_t> buffer;
 
 void setup() {
   Wire.begin();
@@ -16,7 +16,7 @@ void setup() {
   display.setBitDepth(1);
 }
 uint16_t rgb565[] = {0xffff,0xf,0xf0,0xffff};
-Texture _tex((uint8_t*) rgb565, TextureType::rgb565sram, 2,2, 0xffff);
+Texture<uint16_t> _tex((uint8_t*) rgb565, TextureType::rgb565sram, 2,2, 0xffff);
 
 void loop(void) {
     static unsigned long t = millis();

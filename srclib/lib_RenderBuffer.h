@@ -44,6 +44,7 @@ namespace TextureType {
 #define PROGMEM
 #endif
 
+template<class TColor>
 class Texture {
 private:
     union {
@@ -57,30 +58,32 @@ private:
     uint16_t heightMod;
     uint16_t transparentColorMask;
 
-    void fillLineRgb565sram (uint16_t *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
+    void fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
 public:
     Texture (uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
-    void fillLine(uint16_t *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
+    void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
 };
 
 namespace RenderCommandData {
+    template<class TColor>
     struct Rect {
         union {
             /**
-             * RGB-565 color for the command
+             * RGB-565 / RGB-233 color for the command
              */
-            uint16_t color;
-            const Texture *texture;
+            TColor color;
+            const Texture<TColor> *texture;
         };
         uint8_t x1, x2;
         uint8_t u, v;
         uint8_t blendMode;
     };
+    template<class TColor>
     struct Text {
         /**
-         * RGB-565 color for the command
+         * RGB-565 / RGB-233 color for the command
          */
-        uint16_t color;
+        TColor color;
         int16_t x1;
         const FONT_INFO *font;
         const char *text;
@@ -92,6 +95,7 @@ namespace RenderCommandData {
  * A command can encode various types of drawing instructions like
  * drawing a filled rect or a text.
  */
+template <class TColor>
 class RenderCommand
 {
 public:
@@ -102,34 +106,35 @@ public:
     int8_t y1, y2;
     union
     {
-        RenderCommandData::Rect rect;
-        RenderCommandData::Text text;
+        RenderCommandData::Rect<TColor> rect;
+        RenderCommandData::Text<TColor> text;
     };
 
 private:
     /**
      * Fills a line in the line buffer with text content
      */
-    void fillLineText(uint16_t *lineBuffer, uint8_t y);
+    void fillLineText(TColor *lineBuffer, uint8_t y);
 public:
     RenderCommand() {};
-    RenderCommand* filledRect(uint16_t color);
-    RenderCommand* sprite(const Texture *texture);
+    RenderCommand* filledRect(TColor color);
+    RenderCommand* sprite(const Texture<TColor> *texture);
     RenderCommand* blend(uint8_t blendMode);
-    void fillLine(uint16_t *line, uint8_t y);
+    void fillLine(TColor *line, uint8_t y);
 };
 
 
+template<class TColor>
 class RenderBuffer
 {
 private:
-    RenderCommand commandList[RenderBufferConst::maxCommands];
+    RenderCommand<TColor> commandList[RenderBufferConst::maxCommands];
     uint8_t commandCount;
-    RenderCommand noCommand;
+    RenderCommand<TColor> noCommand;
 public:
     RenderBuffer() {};
-    RenderCommand* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
-    RenderCommand* drawText(const char *text, int16_t x, int16_t y, uint16_t color, const FONT_INFO *font);
+    RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
+    RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, uint16_t color, const FONT_INFO *font);
     void flush(TinyScreen display);
 };
 

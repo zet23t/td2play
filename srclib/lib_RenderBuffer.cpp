@@ -2,7 +2,8 @@
 #include <TinyScreen.h>
 #include "lib_RenderBuffer.h"
 
-void Texture::fillLineRgb565sram (uint16_t *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
+template<class TColor>
+void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
     int offset = (v & heightMod) * this->width;
     int pos = u;
     if (transparentColorMask) {
@@ -92,7 +93,8 @@ void Texture::fillLineRgb565sram (uint16_t *lineBuffer, uint8_t lineX, uint16_t 
     }
 }
 
-Texture::Texture (uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
+template<class TColor>
+Texture<TColor>::Texture (uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
     this->data = data;
     this->type = type;
     this->width = width;
@@ -104,7 +106,8 @@ Texture::Texture (uint8_t *data, uint8_t type, uint16_t width, uint16_t height, 
     assert((this->height & this->heightMod) == 0);
 }
 
-void Texture::fillLine(uint16_t *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const {
+template<class TColor>
+void Texture<TColor>::fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const {
     switch (type) {
     case TextureType::rgb565sram: fillLineRgb565sram(lineBuffer,lineX,u,v,width, blendMode); break;
     }
@@ -113,7 +116,8 @@ void Texture::fillLine(uint16_t *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v
 /**
  * Fills a line in the line buffer with text content
  */
-void RenderCommand::fillLineText(uint16_t *lineBuffer, uint8_t y)
+template<class TColor>
+void RenderCommand<TColor>::fillLineText(TColor *lineBuffer, uint8_t y)
 {
     uint8_t fontHeight = text.font->height;
     //if(y >= fontY && y < fontY + fontHeight) // checked in caller already
@@ -153,7 +157,8 @@ void RenderCommand::fillLineText(uint16_t *lineBuffer, uint8_t y)
     }
 }
 
-RenderCommand* RenderCommand::filledRect(uint16_t color)
+template<class TColor>
+RenderCommand<TColor>* RenderCommand<TColor>::filledRect(TColor color)
 {
     this->rect.color = color;
     this->rect.blendMode = RenderCommandBlendMode::opaque;
@@ -161,19 +166,22 @@ RenderCommand* RenderCommand::filledRect(uint16_t color)
     return this;
 }
 
-RenderCommand* RenderCommand::sprite(const Texture *texture)
+template<class TColor>
+RenderCommand<TColor>* RenderCommand<TColor>::sprite(const Texture<TColor> *texture)
 {
     this->rect.texture = texture;
     this->type = RenderCommandType::textured;
     return this;
 }
 
-RenderCommand* RenderCommand::blend(uint8_t blendMode) {
+template<class TColor>
+RenderCommand<TColor>* RenderCommand<TColor>::blend(uint8_t blendMode) {
     this->rect.blendMode = blendMode;
     return this;
 }
 
-void RenderCommand::fillLine(uint16_t *line, uint8_t y)
+template<class TColor>
+void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y)
 {
     if (y>=y1 && y < y2)
     {
@@ -191,12 +199,14 @@ void RenderCommand::fillLine(uint16_t *line, uint8_t y)
         }
     }
 }
-RenderCommand* RenderBuffer::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)
+
+template<class TCol>
+RenderCommand<TCol>* RenderBuffer<TCol>::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)
 {
     if (x >= RenderBufferConst::screenWidth || y >= RenderBufferConst::screenHeight || x + width < 0 || y + height < 0)
         return &noCommand;
     if (commandCount >= RenderBufferConst::maxCommands) return &noCommand;
-    RenderCommand *cmd = &commandList[commandCount++];
+    RenderCommand<TCol> *cmd = &commandList[commandCount++];
     int16_t right = x + width, bottom = y + height;
     if (x < 0) cmd->rect.x1 = 0, cmd->rect.u = -x;
     else       cmd->rect.x1 = x, cmd->rect.u = 0;
@@ -207,11 +217,12 @@ RenderCommand* RenderBuffer::drawRect(int16_t x, int16_t y, uint16_t width, uint
     return cmd;
 }
 
-RenderCommand* RenderBuffer::drawText(const char *text, int16_t x, int16_t y, uint16_t color, const FONT_INFO *font)
+template<class TCol>
+RenderCommand<TCol>* RenderBuffer<TCol>::drawText(const char *text, int16_t x, int16_t y, uint16_t color, const FONT_INFO *font)
 {
     if (y >= RenderBufferConst::screenHeight || y + font->height < 0
             || commandCount >= RenderBufferConst::maxCommands) return &noCommand;
-    RenderCommand *cmd = &commandList[commandCount++];
+    RenderCommand<TCol> *cmd = &commandList[commandCount++];
     cmd->text.x1 = x;
     cmd->y1 = y;
     cmd->y2 = y + font->height;
@@ -222,7 +233,8 @@ RenderCommand* RenderBuffer::drawText(const char *text, int16_t x, int16_t y, ui
     return cmd;
 }
 
-void RenderBuffer::flush(TinyScreen display)
+template<class TCol>
+void RenderBuffer<TCol>::flush(TinyScreen display)
 {
     display.goTo(0,0);
     uint16_t line[RenderBufferConst::screenWidth];
@@ -239,3 +251,9 @@ void RenderBuffer::flush(TinyScreen display)
     display.endTransfer();
     commandCount = 0;
 }
+
+// make sure we generate all function with uint16 / uint8 signture
+template class Texture<uint16_t>;
+template class RenderCommand<uint16_t>;
+template class RenderBuffer<uint16_t>;
+//template class RenderBuffer<uint8_t>;
