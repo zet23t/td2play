@@ -109,3 +109,133 @@ void Texture::fillLine(uint16_t *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v
     case TextureType::rgb565sram: fillLineRgb565sram(lineBuffer,lineX,u,v,width, blendMode); break;
     }
 }
+
+/**
+ * Fills a line in the line buffer with text content
+ */
+void RenderCommand::fillLineText(uint16_t *lineBuffer, uint8_t y)
+{
+    uint8_t fontHeight = text.font->height;
+    //if(y >= fontY && y < fontY + fontHeight) // checked in caller already
+    {
+        const FONT_CHAR_INFO* fontDescriptor = text.font->charDesc;
+        const unsigned char* fontBitmap = text.font->bitmap;
+        uint8_t fontFirstCh = text.font->startCh;
+        //uint8_t fontLastCh = font->endCh;
+        uint8_t stringChar = 0;
+        int16_t fontX = text.x1;
+        int8_t fontY = y1;
+        uint8_t ch = text.text[stringChar++];
+        while(ch)
+        {
+            uint8_t chWidth = pgm_read_byte(&fontDescriptor[ch - fontFirstCh].width);
+            uint8_t bytesPerRow = chWidth / 8;
+            if(chWidth > bytesPerRow * 8)
+                bytesPerRow++;
+            uint16_t offset = pgm_read_word(&fontDescriptor[ch - fontFirstCh].offset) + (bytesPerRow * fontHeight) - 1;
+            const unsigned char *coffset = offset + fontBitmap - (y - fontY);
+            for(uint8_t byte = 0; byte < bytesPerRow; byte++)
+            {
+                uint8_t data = pgm_read_byte(coffset - ((bytesPerRow - byte - 1) * fontHeight));
+                uint8_t bits = byte * 8;
+                for(uint8_t i = 0; i < 8 && (bits + i) < chWidth && fontX < 96; ++i)
+                {
+                    if((data & (0x80 >> i)) && fontX >= 0)
+                    {
+                        lineBuffer[fontX] = text.color;
+                    }
+                    ++fontX;
+                }
+            }
+            fontX += 1;
+            ch = text.text[stringChar++];
+        }
+    }
+}
+
+RenderCommand* RenderCommand::filledRect(uint16_t color)
+{
+    this->rect.color = color;
+    this->rect.blendMode = RenderCommandBlendMode::opaque;
+    this->type = RenderCommandType::solid;
+    return this;
+}
+
+RenderCommand* RenderCommand::sprite(const Texture *texture)
+{
+    this->rect.texture = texture;
+    this->type = RenderCommandType::textured;
+    return this;
+}
+
+RenderCommand* RenderCommand::blend(uint8_t blendMode) {
+    this->rect.blendMode = blendMode;
+    return this;
+}
+
+void RenderCommand::fillLine(uint16_t *line, uint8_t y)
+{
+    if (y>=y1 && y < y2)
+    {
+        switch(type)
+        {
+        case RenderCommandType::solid:
+            for (uint8_t x = rect.x1; x < rect.x2; x+=1) line[x] = rect.color;
+            break;
+        case RenderCommandType::textured:
+            rect.texture->fillLine(line, rect.x1, rect.u, rect.v + y - y1, rect.x2 - rect.x1, rect.blendMode);
+            break;
+        case RenderCommandType::text:
+            fillLineText(line, y);
+            break;
+        }
+    }
+}
+RenderCommand* RenderBuffer::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)
+{
+    if (x >= RenderBufferConst::screenWidth || y >= RenderBufferConst::screenHeight || x + width < 0 || y + height < 0)
+        return &noCommand;
+    if (commandCount >= RenderBufferConst::maxCommands) return &noCommand;
+    RenderCommand *cmd = &commandList[commandCount++];
+    int16_t right = x + width, bottom = y + height;
+    if (x < 0) cmd->rect.x1 = 0, cmd->rect.u = -x;
+    else       cmd->rect.x1 = x, cmd->rect.u = 0;
+    if (y < 0) cmd->y1 = 0, cmd->rect.v = -y;
+    else       cmd->y1 = y, cmd->rect.v = 0;
+    cmd->rect.x2 = right > RenderBufferConst::screenWidth ? RenderBufferConst::screenWidth : right;
+    cmd->y2 = bottom > RenderBufferConst::screenHeight ? RenderBufferConst::screenHeight : bottom;
+    return cmd;
+}
+
+RenderCommand* RenderBuffer::drawText(const char *text, int16_t x, int16_t y, uint16_t color, const FONT_INFO *font)
+{
+    if (y >= RenderBufferConst::screenHeight || y + font->height < 0
+            || commandCount >= RenderBufferConst::maxCommands) return &noCommand;
+    RenderCommand *cmd = &commandList[commandCount++];
+    cmd->text.x1 = x;
+    cmd->y1 = y;
+    cmd->y2 = y + font->height;
+    cmd->text.color = color;
+    cmd->text.font = font;
+    cmd->text.text = text;
+    cmd->type = RenderCommandType::text;
+    return cmd;
+}
+
+void RenderBuffer::flush(TinyScreen display)
+{
+    display.goTo(0,0);
+    uint16_t line[RenderBufferConst::screenWidth];
+    display.startData();
+    for (uint8_t y=0; y<RenderBufferConst::screenHeight; y+=1)
+    {
+        memset(line,0,sizeof(line));
+        for (uint8_t i=0; i<commandCount; i+=1)
+        {
+            commandList[i].fillLine(line, y);
+        }
+        display.writeBuffer((uint8_t*)line, sizeof(line));
+    }
+    display.endTransfer();
+    commandCount = 0;
+}

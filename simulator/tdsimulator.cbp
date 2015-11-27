@@ -38,10 +38,10 @@
 			<Add directory="../arduino" />
 		</Compiler>
 		<Linker>
-			<Add library="glfw3" />
+			<Add library="GLFW3" />
 			<Add library="opengl32" />
 			<Add library="gdi32" />
-			<Add directory="C:/sdks/glfw-3.1.1/GLFW3/bin/Release" />
+			<Add directory="bin/Release" />
 		</Linker>
 		<ExtraCommands>
 			<Add before="..\arduino\sync_lib_files.bat" />
@@ -52,6 +52,7 @@
 		<Unit filename="../arduino/test_textures/test_textures.ino">
 			<Option target="Test Textures (Debug)" />
 		</Unit>
+		<Unit filename="../srclib/lib_RenderBuffer.cpp" />
 		<Unit filename="../srclib/lib_RenderBuffer.h" />
 		<Unit filename="../srclib/lib_StringBuffer.h" />
 		<Unit filename="arduino_wrappers/TinyScreenRaycaster/TinyScreenRaycaster.cpp">
