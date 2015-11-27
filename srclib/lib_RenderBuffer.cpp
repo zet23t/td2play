@@ -218,7 +218,7 @@ RenderCommand<TCol>* RenderBuffer<TCol>::drawRect(int16_t x, int16_t y, uint16_t
 }
 
 template<class TCol>
-RenderCommand<TCol>* RenderBuffer<TCol>::drawText(const char *text, int16_t x, int16_t y, uint16_t color, const FONT_INFO *font)
+RenderCommand<TCol>* RenderBuffer<TCol>::drawText(const char *text, int16_t x, int16_t y, TCol color, const FONT_INFO *font)
 {
     if (y >= RenderBufferConst::screenHeight || y + font->height < 0
             || commandCount >= RenderBufferConst::maxCommands) return &noCommand;
@@ -237,7 +237,7 @@ template<class TCol>
 void RenderBuffer<TCol>::flush(TinyScreen display)
 {
     display.goTo(0,0);
-    uint16_t line[RenderBufferConst::screenWidth];
+    TCol line[RenderBufferConst::screenWidth];
     display.startData();
     for (uint8_t y=0; y<RenderBufferConst::screenHeight; y+=1)
     {
