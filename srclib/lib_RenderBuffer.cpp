@@ -256,4 +256,7 @@ void RenderBuffer<TCol>::flush(TinyScreen display)
 template class Texture<uint16_t>;
 template class RenderCommand<uint16_t>;
 template class RenderBuffer<uint16_t>;
-//template class RenderBuffer<uint8_t>;
+
+template class Texture<uint8_t>;
+template class RenderCommand<uint8_t>;
+template class RenderBuffer<uint8_t>;

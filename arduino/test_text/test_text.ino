@@ -9,15 +9,14 @@
 #include "lib_StringBuffer.h"
 
 TinyScreen display = TinyScreen(0);
-RenderBuffer<uint16_t> buffer;
+RenderBuffer<uint8_t> buffer;
 
 void setup() {
   Wire.begin();
-  SerialUSB.print("hello!");
   display.begin();
   display.setFlip(0);
   display.setBrightness(8);
-  display.setBitDepth(1);
+  display.setBitDepth(0);
 }
 
 void loop(void) {
