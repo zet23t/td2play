@@ -7,7 +7,7 @@ cd $(dirname $0)
 for D in `find . -type d -name "[^.]*"`
 do
   echo "  ... into ${D:2}"
-  cp ../srclib/*.h $D
+  cp ../srclib/lib_*.* $D
 done
 
 echo "Done."
