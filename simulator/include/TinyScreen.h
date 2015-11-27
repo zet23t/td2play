@@ -6,9 +6,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
-static unsigned long millis() {
-    return clock();
-}
+unsigned long millis();
 
 typedef struct
 {
@@ -29,8 +27,7 @@ typedef struct
 
 class TinyScreen {
 public:
-    TinyScreen (int x) {
-    }
+    TinyScreen (int) {}
     void startData(void);
     void startCommand(void);
     void endTransfer(void);

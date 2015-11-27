@@ -91,8 +91,8 @@ void TinyScreen::endTransfer(void) {
     void TinyScreen::off(void) {}
     void TinyScreen::setFlip(uint8_t) {}
     void TinyScreen::setMirror(uint8_t) {}
-    void TinyScreen::setBitDepth(uint8_t b) {}
-    void TinyScreen::setBrightness(uint8_t v) {}
+    void TinyScreen::setBitDepth(uint8_t) {}
+    void TinyScreen::setBrightness(uint8_t) {}
     //void TinyScreen::writeRemap(void) {}
     //accelerated drawing commands
     void TinyScreen::drawPixel(uint8_t, uint8_t, uint16_t) {}
@@ -143,7 +143,7 @@ void TinyScreen::endTransfer(void) {
     void TinyScreen::setFont(const FONT_INFO&);
     void TinyScreen::setCursor(uint8_t, uint8_t);
     void TinyScreen::fontColor(uint8_t, uint8_t); */
-    size_t TinyScreen::write(uint8_t s) { return 0; }
+    size_t TinyScreen::write(uint8_t) { return 0; }
 
 
 static void init() {
@@ -162,11 +162,15 @@ static void init() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
-static void error_callback(int error, const char* description)
+unsigned long millis() {
+    return clock();
+}
+
+static void error_callback(int /*error*/, const char* description)
 {
     fputs(description, stderr);
 }
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int /*mods*/)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
