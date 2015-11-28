@@ -181,17 +181,55 @@ RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text,
 template<class TCol, int maxCommands>
 void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
 {
+    int remainingCount = commandCount;
+    RenderCommand<TCol>* remaining[maxCommands];
+    RenderCommand<TCol>* active[maxCommands];
+
+    for (int i=0;i<commandCount;i+=1) {
+        remaining[i] = &commandList[i];
+    }
+
     display.goTo(0,0);
     TCol line[RenderBufferConst::screenWidth];
     display.startData();
-    for (uint8_t y=0; y<RenderBufferConst::screenHeight; y+=1)
+
+    const uint8_t stepSize = 4;
+
+    for (uint8_t yg=0; yg<RenderBufferConst::screenHeight; yg+=stepSize)
     {
-        memset(line,0,sizeof(line));
-        for (uint8_t i=0; i<commandCount; i+=1)
-        {
-            commandList[i].fillLine(line, y);
+        uint8_t yLimit = yg + stepSize;
+        uint8_t newRemainingCount = 0;
+        uint8_t activeCount = 0;
+        for (uint8_t i = 0; i < remainingCount; i+=1) {
+            RenderCommand<TCol>* rc = remaining[i];
+            if (rc->y2 < yg) {
+                // command fallen out
+                continue;
+            }
+            remaining[newRemainingCount++] = rc;
+            if (rc->y1 <= yLimit)
+            {
+                active[activeCount++] = rc;
+            }
         }
-        display.writeBuffer((uint8_t*)line, sizeof(line));
+        remainingCount = newRemainingCount;
+        for (uint8_t y=yg;y < yLimit; y += 1) {
+            memset(line,0,sizeof(line));
+            int newActiveCount = 0;
+            for (uint8_t i=0; i<activeCount; i+=1)
+            {
+                RenderCommand<TCol>* rc = active[i];
+                if (rc->y2 < y) {
+                    continue;
+                }
+                active[i]->fillLine(line, y);
+                active[newActiveCount++] = rc;
+            }
+            activeCount = newActiveCount;
+            //line[remainingCount] = rgb(255,0,0);
+            //line[activeCount] = rgb(0,255,0);
+            display.writeBuffer((uint8_t*)line, sizeof(line));
+        }
     }
     display.endTransfer();
     commandCount = 0;
