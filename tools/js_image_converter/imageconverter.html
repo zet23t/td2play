@@ -119,7 +119,7 @@
 		var gb = g | g >> 3 | g >> 6;
 		var bb = b | b >> 3 | b >> 6;
 		changePixel(data,i,rb,gb,bb);
-		bytes.push(r|g>>2|b>>5);
+		bytes.push(r>>6|g>>3|b);
 	}
 	encoder.RGB233.bytesPerPixel = 1;
 
