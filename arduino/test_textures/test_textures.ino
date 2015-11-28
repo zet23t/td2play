@@ -29,7 +29,7 @@ Texture<uint16_t> _skyBackground((uint8_t*) _image_sky_background_data, TextureT
 Texture<uint16_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 32, 8, 0); // 0x1ff8
 #else
 Texture<uint8_t> _skyBackground((uint8_t*) _image_sky_background_data, TextureType::rgb565sram, 1,128, 0);
-Texture<uint8_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 32, 8, 0); // 0x1ff8
+Texture<uint8_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 32, 8, 0x1ff8); // 0x1ff8
 #endif
 
 void loop(void) {
@@ -39,7 +39,7 @@ void loop(void) {
     int yoffset = ((int)(n>>1 & 127) - 64);
     if (yoffset < 0) yoffset = -yoffset;
     buffer.drawRect(0,-yoffset,96,128)->sprite(&_skyBackground);
-    buffer.drawRect(0,(-yoffset>>1)*0 + 40, 96, 8)->sprite(&_clouds)->blend(RenderCommandBlendMode::average);
+    buffer.drawRect(0,(-yoffset>>1)*0 + 40, 96, 8)->sprite(&_clouds);//->blend(RenderCommandBlendMode::average);
     buffer.drawText(stringBuffer.start()->put("")->put(t2-t)->put("ms")->get(),
                     0,0,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
 
