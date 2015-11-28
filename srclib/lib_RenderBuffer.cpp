@@ -14,8 +14,17 @@ void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uin
                 int index = (pos++ & widthMod) + offset;
                 uint16_t col = rgb565[index];
                 if (col != transparentColorMask) {
-                    lineBuffer[lineX] = col;
+                    if (sizeof(TColor) == 2) {
+                        lineBuffer[lineX] = col;
+                    } else {
+                        uint8_t r = col & 31;
+                        uint8_t g = col >> 5 & 63;
+                        uint8_t b = col >> 11 & 31;
+
+                        lineBuffer[lineX] = (r >> 3) | (g & 034) | (b << 4 & 0160);
+                    }
                 }
+
                 lineX+=1;
             }
             break;
