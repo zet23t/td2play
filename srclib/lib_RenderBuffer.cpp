@@ -54,14 +54,26 @@ void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uin
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
-                uint16_t col = rgb565[index];
-                if (col != transparentColorMask) {
-                    uint16_t dst = lineBuffer[lineX];
-                    col = col & ~(RGB565(1,1,1)) >> 1;
-                    dst = dst & ~(RGB565(1,1,1)) >> 1;
-                    lineBuffer[lineX] = col + dst;
+                uint16_t src = rgb565[index];
+                if (src == transparentColorMask) {
+                    lineX+=1;
+                    continue;
                 }
-                lineX+=1;
+                uint16_t dst = lineBuffer[lineX] & ~(RGB565(1,1,1)) >> 1;
+                uint16_t col = src & ~(RGB565(1,1,1)) >> 1;
+                uint16_t result = col + dst;
+                if (sizeof(TColor) == 2) {
+                    lineBuffer[lineX++] = result;
+                } else {
+                    col = result >> 8 | result << 8;
+                    uint8_t r = (col & 31);
+                    uint8_t g = (col >> 5 & 63);
+                    uint8_t b = (col >> 11 & 31);
+
+                    lineBuffer[lineX++] = (r >> 3) | (g & 034) | (b << 3 & 0340);
+                }
+
+
             }
             break;
         }
@@ -75,7 +87,7 @@ void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uin
                 if (sizeof(TColor) == 2) {
                     lineBuffer[lineX++] = rgb565[index];
                 } else {
-                    uint16_t col = data[index*2+1]*0 | (data[index*2] << 8);
+                    uint16_t col = data[index*2+1] | (data[index*2] << 8);
                     uint8_t r = (col & 31);
                     uint8_t g = (col >> 5 & 63);
                     uint8_t b = (col >> 11 & 31);
@@ -104,7 +116,17 @@ void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uin
                 int index = (pos++ & widthMod) + offset;
                 uint16_t dst = lineBuffer[lineX] & ~(RGB565(1,1,1)) >> 1;
                 uint16_t col = rgb565[index] & ~(RGB565(1,1,1)) >> 1;
-                lineBuffer[lineX++] = col + dst;
+                uint16_t result = col + dst;
+                if (sizeof(TColor) == 2) {
+                    lineBuffer[lineX++] = result;
+                } else {
+                    col = result >> 8 | result << 8;
+                    uint8_t r = (col & 31);
+                    uint8_t g = (col >> 5 & 63);
+                    uint8_t b = (col >> 11 & 31);
+
+                    lineBuffer[lineX++] = (r >> 3) | (g & 034) | (b << 3 & 0340);
+                }
             }
             break;
         }
