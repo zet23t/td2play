@@ -22,14 +22,16 @@ void setup() {
   display.setBrightness(8);
   display.setBitDepth(buffer.is16bit());
 }
+#ifdef SCREEN_16BITS
 extern const unsigned char _image_sky_background_data[256];
 extern const unsigned char _image_clouds_data[512];
-#ifdef SCREEN_16BITS
 Texture<uint16_t> _skyBackground((uint8_t*) _image_sky_background_data, TextureType::rgb565sram, 1,128, 0);
 Texture<uint16_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 32, 8, 0); // 0x1ff8
 #else
-Texture<uint8_t> _skyBackground((uint8_t*) _image_sky_background_data, TextureType::rgb565sram, 1,128, 0);
-Texture<uint8_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 32, 8, 0x1ff8); // 0x1ff8
+extern const unsigned char _image_sky_background_8bit_data[512];
+extern const unsigned char _image_clouds_8bit_data[256];
+Texture<uint8_t> _skyBackground((uint8_t*) _image_sky_background_8bit_data, TextureType::rgb233sram, 4,128, 0);
+Texture<uint8_t> _clouds((uint8_t*) _image_clouds_8bit_data, TextureType::rgb233sram, 32, 8, 0x1f); // 0x1ff8
 #endif
 
 void loop(void) {
