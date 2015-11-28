@@ -13,7 +13,7 @@ void setup() {
   display.begin();
   display.setFlip(0);
   display.setBrightness(8);
-  display.setBitDepth(0);
+  display.setBitDepth(buffer.is16bit() ? 1 : 0);
 }
 uint16_t rgb565[] = {0xffff,0xf,0xf0,0xffff};
 Texture<uint8_t> _tex((uint8_t*) rgb565, TextureType::rgb565sram, 2,2, 0xffff);

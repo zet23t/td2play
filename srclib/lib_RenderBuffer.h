@@ -124,7 +124,6 @@ public:
     void fillLine(TColor *line, uint8_t y);
 };
 
-
 template<class TColor, int maxCommands>
 class RenderBuffer
 {
@@ -137,6 +136,7 @@ public:
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
     TColor rgb(uint8_t r, uint8_t g, uint8_t b) const;
+    bool is16bit() {return sizeof(TColor) == 2;}
     void flush(TinyScreen display);
 };
 
