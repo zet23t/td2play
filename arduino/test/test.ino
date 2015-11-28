@@ -19,12 +19,13 @@ void setup() {
   display.setBrightness(8);
   display.setBitDepth(buffer.is16bit() ? 1 : 0);
 }
-uint16_t rgb565[] = {0xffff,0xf,0xf0,0xffff};
+uint16_t rgb565[] = {0xffff,RGB565(255,0,0),RGB565(0,255,0),0xffff};
 #ifdef SCREEN_16BITS
 Texture<uint16_t> _tex((uint8_t*) rgb565, TextureType::rgb565sram, 2,2, 0xffff);
 #else
 Texture<uint8_t> _tex((uint8_t*) rgb565, TextureType::rgb565sram, 2,2, 0xffff);
 #endif
+
 void loop(void) {
     static unsigned long t = millis();
     unsigned long t2 = millis();
@@ -40,7 +41,10 @@ void loop(void) {
     buffer.drawText(stringBuffer.start()->put(cnt)->put("r")->get(),42,22,buffer.rgb(cnt,0,0), &virtualDJ_5ptFontInfo);
     buffer.drawText(stringBuffer.start()->put(cnt)->put("g")->get(),42,32,buffer.rgb(0,cnt,0), &virtualDJ_5ptFontInfo);
     buffer.drawText(stringBuffer.start()->put(cnt)->put("b")->get(),42,42,buffer.rgb(0,0,cnt), &virtualDJ_5ptFontInfo);
-    buffer.drawRect(60,10,8,8)->filledRect(cnt);
+    buffer.drawRect(54,10,8,8)->filledRect(cnt);
+    buffer.drawRect(64,10,8,8)->filledRect(buffer.rgb(128,0,0));
+    buffer.drawRect(74,10,8,8)->filledRect(buffer.rgb(0,128,0));
+    buffer.drawRect(84,10,8,8)->filledRect(buffer.rgb(0,0,128));
     buffer.drawRect(40,4,14,14)->sprite(&_tex);
     t = t2;
     buffer.flush(display);
