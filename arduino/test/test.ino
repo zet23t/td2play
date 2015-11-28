@@ -19,11 +19,16 @@ void setup() {
   display.setBrightness(8);
   display.setBitDepth(buffer.is16bit() ? 1 : 0);
 }
-uint16_t rgb565[] = {0xffff,RGB565(255,0,0),RGB565(0,255,0),0xffff};
+uint16_t rgb565[] = {
+    RGB565(0,0,255),RGB565(0,0,127), RGB565(127,0,0),RGB565(255,0,0),
+    RGB565(0,0,127),RGB565(0,0,127), RGB565(127,0,0),RGB565(127,0,0),
+    RGB565(0,127,0),RGB565(0,127,0), 0xffff, 0xffff,
+    RGB565(0,255,0),RGB565(0,127,0), 0xffff, 0xffff
+};
 #ifdef SCREEN_16BITS
 Texture<uint16_t> _tex((uint8_t*) rgb565, TextureType::rgb565sram, 2,2, 0xffff);
 #else
-Texture<uint8_t> _tex((uint8_t*) rgb565, TextureType::rgb565sram, 2,2, 0xffff);
+Texture<uint8_t> _tex((uint8_t*) rgb565, TextureType::rgb565sram, 4,4, 0xffff);
 #endif
 
 void loop(void) {

@@ -9,20 +9,19 @@
 #include "lib_StringBuffer.h"
 
 TinyScreen display = TinyScreen(0);
-RenderBuffer buffer;
+RenderBuffer<uint16_t,5> buffer;
 
 void setup() {
   Wire.begin();
-  SerialUSB.print("hello!");
   display.begin();
   display.setFlip(0);
   display.setBrightness(8);
   display.setBitDepth(1);
 }
 extern const unsigned char _image_sky_background_data[256];
-extern const unsigned char _image_clouds_data[1024];
-Texture _skyBackground((uint8_t*) _image_sky_background_data, TextureType::rgb565sram, 1,128, 0);
-Texture _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 64, 8, 0); // 0x1ff8
+extern const unsigned char _image_clouds_data[512];
+Texture<uint16_t> _skyBackground((uint8_t*) _image_sky_background_data, TextureType::rgb565sram, 1,128, 0);
+Texture<uint16_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 32, 8, 0); // 0x1ff8
 
 void loop(void) {
     static unsigned long t = millis();
