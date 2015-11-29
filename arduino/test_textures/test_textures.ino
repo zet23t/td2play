@@ -31,7 +31,7 @@ Texture<uint16_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram
 extern const unsigned char _image_sky_background_8bit_data[512];
 extern const unsigned char _image_clouds_8bit_data[256];
 Texture<uint8_t> _skyBackground((uint8_t*) _image_sky_background_8bit_data, TextureType::rgb233sram, 4,128, 0);
-Texture<uint8_t> _clouds((uint8_t*) _image_clouds_8bit_data, TextureType::rgb233sram, 32, 8, 0x1f); // 0x1ff8
+Texture<uint8_t> _clouds((uint8_t*) _image_clouds_8bit_data, TextureType::rgb233sram, 32, 8, 0xe3); // 0x1ff8
 #endif
 
 void loop(void) {
@@ -40,7 +40,8 @@ void loop(void) {
     unsigned int n = millis() >> 5;
     int yoffset = ((int)(n>>1 & 127) - 64);
     if (yoffset < 0) yoffset = -yoffset;
-    buffer.drawRect(0,-yoffset,96,128)->sprite(&_skyBackground);
+    buffer.setClearBackground(false);
+    buffer.drawRect(-yoffset%4,-yoffset,100,128)->sprite(&_skyBackground);
     buffer.drawRect(0,(-yoffset>>1)*0 + 40, 96, 8)->sprite(&_clouds)->blend(RenderCommandBlendMode::average);
     buffer.drawText(stringBuffer.start()->put("")->put(t2-t)->put("ms")->get(),
                     0,0,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);

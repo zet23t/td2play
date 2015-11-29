@@ -137,24 +137,69 @@ void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uin
 template<class TColor>
 void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
     int offset = (v & heightMod) * this->width;
+    uint8_t *rgb233Line = &rgb233[offset];
+
     int pos = u;
     if (transparentColorMask) {
         if (sizeof(TColor) == 1) {
-
+            uint8_t* rgb233LineEnd = rgb233Line + this->width;
+            uint8_t* rgb233LineStart = rgb233Line;
+            for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
+            {
+                //uint8_t rgb = rgb233Line[pos++ & widthMod];
+                uint8_t rgb = *rgb233Line;
+                rgb233Line+=1;
+                if (rgb233Line == rgb233LineEnd) rgb233Line = rgb233LineStart;
+                if (transparentColorMask != rgb)
+                    lineBuffer[lineX] = rgb;
+                lineX+=1;
+            }
         } else {
 
         }
     } else {
         if (sizeof(TColor) == 1) {
-            /*for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
-            {
-                int index = (pos++ & widthMod) + offset;
-                lineBuffer[lineX++] = rgb233[index];
-            }*/
+            int index = (pos & widthMod);
+            int rest = this->width - index;
+            int x2 = lineX + width;
+            if (x2 > RenderBufferConst::screenWidth) x2 = RenderBufferConst::screenWidth;
+            int sz = width - lineX;
+            if (rest >= sz) {
+                memcpy(&lineBuffer[lineX],&rgb233Line[index], sz);
+                return;
+            }
+            memcpy(&lineBuffer[lineX], &rgb233Line[index], rest);
+            // first part copied, restart at 0
+            // Minimize repeated copies of small sources by using the line buffer itself
+            // By copying the already filled linebuffer, we can double the memcopy block with
+            // each iteration.
+            // So if our source image is 4 pixels wide and have to fill 96 pixels, the
+            // memcpy blocksize is 4+4+8+16+32+ 32(rest) - which is less than the otherwise
+            // 24 memcpy calls. Though there's more logic, it is in deed faster this way for
+            // many cases, especially when the source texture is very narrow. Memcpy is very fast.
+            lineX+=rest;
+            uint8_t* src = rgb233Line;
+            uint8_t* cpStarted = (uint8_t*)&lineBuffer[lineX];
+            uint8_t cpWidth = this->width;
+            while (lineX < x2) {
+                rest = x2 - lineX;
+                if (rest > cpWidth) rest = cpWidth;
+                memcpy(&lineBuffer[lineX], src, rest);
+                lineX+=rest;
+                if (src == cpStarted) {
+                    cpWidth *= 2;
+                } else {
+                    src = cpStarted;
+                }
+            }
         } else {
 
         }
     }
+}
+
+template<class TColor>
+void Texture<TColor>::fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
 }
 
 template<class TColor>
@@ -175,6 +220,7 @@ void Texture<TColor>::fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uin
     switch (type) {
     case TextureType::rgb565sram: fillLineRgb565sram(lineBuffer,lineX,u,v,width, blendMode); break;
     case TextureType::rgb233sram: fillLineRgb233sram(lineBuffer,lineX,u,v,width, blendMode); break;
+    case TextureType::rgb233progmem: fillLineRgb233progmem(lineBuffer,lineX,u,v,width, blendMode); break;
     }
 }
 

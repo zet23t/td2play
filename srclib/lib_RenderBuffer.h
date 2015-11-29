@@ -64,6 +64,7 @@ private:
 
     void fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
     void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
+    void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
 public:
     Texture (uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
     void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
@@ -135,8 +136,14 @@ private:
     RenderCommand<TColor> commandList[maxCommands];
     uint8_t commandCount;
     RenderCommand<TColor> noCommand;
+    bool clearBackground;
 public:
-    RenderBuffer() {};
+    RenderBuffer() {
+        clearBackground = true;
+    };
+    void setClearBackground(bool clearB) {
+        clearBackground = clearB;
+    };
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
     TColor rgb(uint8_t r, uint8_t g, uint8_t b) const;
@@ -218,7 +225,8 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
         }
         remainingCount = newRemainingCount;
         for (uint8_t y=yg;y < yLimit; y += 1) {
-            memset(line,0,sizeof(line));
+            if (clearBackground)
+                memset(line,0,sizeof(line));
             int newActiveCount = 0;
             for (uint8_t i=0; i<activeCount; i+=1)
             {
