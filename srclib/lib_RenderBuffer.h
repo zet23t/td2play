@@ -2,6 +2,7 @@
 #define __RENDERBUFFER_H__
 
 #include <assert.h>
+#include <stdio.h>
 
 namespace RenderBufferConst {
     const uint8_t screenWidth = 96;
@@ -232,7 +233,7 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
         remainingCount = newRemainingCount;
         for (uint8_t y=yg;y < yLimit; y += 1) {
             if (clearBackground)
-                memset(line,0,sizeof(line));
+                memset(line,0,RenderBufferConst::screenWidth * sizeof(TCol));
             int newActiveCount = 0;
             for (uint8_t i=0; i<activeCount; i+=1)
             {
