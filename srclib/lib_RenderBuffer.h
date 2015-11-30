@@ -201,7 +201,13 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
     }
 
     display.goTo(0,0);
+    #ifdef WIN32
+    TCol line[RenderBufferConst::screenWidth + 4];
+    unsigned long *check = (unsigned long*)&line[RenderBufferConst::screenWidth];
+    *check = 0xbaad;
+    #else
     TCol line[RenderBufferConst::screenWidth];
+    #endif
     display.startData();
 
     const uint8_t stepSize = 4;
@@ -237,6 +243,9 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
                 active[i]->fillLine(line, y);
                 active[newActiveCount++] = rc;
             }
+            #ifdef WIN32
+            assert(*check == 0xbaad);
+            #endif // WIN32
             activeCount = newActiveCount;
             //line[remainingCount] = rgb(255,0,0);
             //line[activeCount] = rgb(0,255,0);
