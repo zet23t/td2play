@@ -3,6 +3,7 @@
 
 #ifdef WIN32
 #include <string.h>
+#define PSTR
 #define strlen_P strlen
 #define strcpy_P strcpy
 #endif // WIN32
