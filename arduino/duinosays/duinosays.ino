@@ -22,7 +22,7 @@ public:
         return buttonState >> btn & 1 ? true : false;
     }
     static bool wasButtonOn(ScreenButtonId btn) {
-        return buttonState >> (4 + btn) ? true : false;
+        return buttonState >> (4 + btn) & 1? true : false;
     }
     static bool isButtonActivated(ScreenButtonId btn) {
         return isButtonOn(btn) && !wasButtonOn(btn);
@@ -43,59 +43,15 @@ public:
         return !isAnyButtonOn() && wasAnyButtonOn();
     }
 
-    static bool isBottomLeftPressed() {
-        return buttonState & 1 ? true : false;
-    }
-    static bool isTopLeftPressed() {
-        return buttonState & 2 ? true : false;
-    }
-    static bool isTopRightPressed() {
-        return buttonState & 4 ? true : false;
-    }
-    static bool isBottomRightPressed() {
-        return buttonState & 8 ? true : false;
-    }
-    static bool wasBottomLeftPressed() {
-        return buttonState & 16 ? true : false;
-    }
-    static bool wasTopLeftPressed () {
-        return buttonState & 32 ? true : false;
-    }
-    static bool wasTopRightPressed() {
-        return buttonState & 64 ? true : false;
-    }
-    static bool wasBottomRightPressed() {
-        return buttonState & 128 ? true : false;
-    }
-
-    static bool wasBottomLeftActivated() {
-        return !wasBottomLeftPressed() && isBottomLeftPressed();
-    }
-    static bool wasTopLeftActivated() {
-        return !wasTopLeftPressed() && isTopLeftPressed();
-    }
-    static bool wasBottomRightActivated() {
-        return !wasBottomRightPressed() && isBottomRightPressed();
-    }
-    static bool wasTopRightActivated() {
-        return !wasTopRightPressed() && isTopRightPressed();
-    }
-
-    static bool wasBottomLeftReleased() {
-        return wasBottomLeftPressed() && !isBottomLeftPressed();
-    }
-    static bool wasTopLeftReleased() {
-        return wasTopLeftPressed() && !isTopLeftPressed();
-    }
-    static bool wasBottomRightReleased() {
-        return wasBottomRightPressed() && !isBottomRightPressed();
-    }
-    static bool wasTopRightReleased() {
-        return wasTopRightPressed() && !isTopRightPressed();
-    }
-
 };
 uint8_t ScreenButtonState::buttonState;
+
+namespace ParticleType {
+    const uint8_t bottomLeftButton = 0;
+    const uint8_t topLeftButton = 1;
+    const uint8_t topRightButton = 2;
+    const uint8_t bottomRightButton = 3;
+}
 
 enum DuinoSaysGameMode {
     DSMODE_MAINMENU,
@@ -103,6 +59,43 @@ enum DuinoSaysGameMode {
     DSMODE_GAMEOVER
 };
 class DuinoSays;
+
+class Particle {
+private:
+    int16_t x, y, vx, vy;
+    uint8_t type, frameAge, maxAge;
+
+public:
+    void init(uint8_t type, int16_t x, int16_t y, int16_t vx, int16_t vy, int8_t maxAge) {
+        this->type = type;
+        this->x = x;
+        this->y = y;
+        this->vx = vx;
+        this->vy = vy;
+        this->maxAge = maxAge;
+        this->frameAge = 0;
+    }
+
+    bool isAlive() {
+        return frameAge < maxAge;
+    }
+
+    void draw(DuinoSays *duinoSays);
+};
+
+template<uint8_t maxParticles>
+class ParticleSystem {
+private:
+    uint8_t particleCount;
+    Particle particles[maxParticles];
+public:
+    ParticleSystem(): particleCount(0) {};
+    void draw(DuinoSays *duinoSays);
+    void spawn(uint8_t type, int16_t x, int16_t y, int16_t vx, int16_t vy, uint16_t maxAge) {
+        if (particleCount >= maxParticles) return;
+        particles[particleCount++].init(type,x<<8,y<<8,vx,vy, maxAge);
+    }
+};
 
 class Button {
 private:
@@ -122,6 +115,7 @@ class DuinoSays {
 private:
     uint16_t seed;
     uint16_t currentLevel;
+    uint16_t currentStep;
     DuinoSaysGameMode mode;
     TinyScreen display;
     Button btnTopLeft;
@@ -129,7 +123,8 @@ private:
     Button btnBottomLeft;
     Button btnBottomRight;
 public:
-    RenderBuffer<uint16_t,8> buffer;
+    RenderBuffer<uint16_t,40> buffer;
+    ParticleSystem<28> particleSystem;
 
 public:
     DuinoSays():
@@ -149,6 +144,10 @@ public:
         display.setFlip(0);
         display.setBrightness(8);
         display.setBitDepth(buffer.is16bit()? 1:0);
+    }
+
+    void init() {
+        mode = DSMODE_MAINMENU;
     }
 
     void drawButton(bool on, uint16_t normalColor, uint16_t pressedColor, uint8_t x, uint8_t y) {
@@ -188,7 +187,7 @@ public:
     void loop() {
         ScreenButtonState::updateButtonState(display.getButtons());
 
-
+        static unsigned long throttle = millis();
         static unsigned long t = millis();
         unsigned long t2 = millis();
 
@@ -198,17 +197,59 @@ public:
         case DSMODE_PLAYING: loopPlaying(); break;
         }
 
+        particleSystem.draw(this);
+
         t = t2;
         buffer.flush(display);
         stringBuffer.reset();
+
+        while (millis() - throttle < 50) continue;
+        throttle = millis();
     }
 };
+
+void Particle::draw(DuinoSays* duinoSays) {
+    const int height = 24;
+    frameAge+=1;
+
+    const uint8_t rel = 255 - frameAge * 255 / maxAge;
+    const int width = 16 * rel >> 8;
+
+    uint8_t r = 255, g = 0, b = 255;
+    switch (type) {
+        case ParticleType::topLeftButton: r = 255, g = 64, b = 32; break;
+        case ParticleType::bottomLeftButton: r = 255, g = 255, b = 64; break;
+        case ParticleType::topRightButton: r = 32, g = 255, b = 32; break;
+        case ParticleType::bottomRightButton: r = 64, g = 64, b = 255; break;
+    }
+
+    duinoSays->buffer.drawRect((x>>8) - width / 2,(y>>8) - height / 2,width,height)->filledRect(duinoSays->buffer.rgb(rel * r >> 8,rel * g >> 8,rel * b >> 8));
+    x+=vx;
+    y+=vy;
+    vx -= vx>>3;
+    vy -= vy>>3;
+}
+
+template<uint8_t maxParticles>
+void ParticleSystem<maxParticles>::draw(DuinoSays* duinoSays) {
+    int n = 0;
+    for (int i=0; i < particleCount; i += 1) {
+        particles[i].draw(duinoSays);
+        if (particles[i].isAlive()) {
+            particles[n++] = particles[i];
+        }
+    }
+    particleCount = n;
+}
 
 void Button::draw(DuinoSays* duinoSays) {
     const bool on = ScreenButtonState::isButtonOn(btn);
     const int width = on ? 7 : 5;
     const int height = on ? 23 : 25;
     duinoSays->buffer.drawRect(x - width / 2,y - height / 2,width,height)->filledRect(on ? pressedColor : normalColor);
+    if (on && ScreenButtonState::isButtonActivated(btn)) {
+        duinoSays->particleSystem.spawn(btn, x,y,x<48?2000:-2000,0, 16);
+    }
 }
 
 DuinoSays duinoSays;
