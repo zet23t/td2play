@@ -46,7 +46,7 @@ public:
         return this;
     }
     StringBuffer* load(const char *src) {
-        int len = strlen_P(src) + 1;
+        int len = strlen_P(src);
 		if (STRINGBUFFER_SIZE - bufferPos > len) {
 			char *str = &buffer[bufferPos];
 			bufferPos += len;
