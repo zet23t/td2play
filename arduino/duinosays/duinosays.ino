@@ -102,17 +102,17 @@ private:
     uint8_t x;
     uint8_t y;
     ScreenButtonId btn;
-    uint16_t normalColor;
+    uint8_t normalColor[3];
     uint16_t pressedColor;
     bool isEnabled;
     bool isPressed;
 public:
-    Button(ScreenButtonId btn, uint8_t x, uint8_t y, uint16_t normalColor, uint16_t pressedColor):
-        x(x), y(y), btn(btn), normalColor(normalColor), pressedColor(pressedColor), isEnabled(true) {};
+    Button(ScreenButtonId btn, uint8_t x, uint8_t y, uint8_t normalColorR, uint8_t normalColorG, uint8_t normalColorB, uint16_t pressedColor):
+        x(x), y(y), btn(btn), normalColor({normalColorR, normalColorG, normalColorB}), pressedColor(pressedColor), isEnabled(true) {};
     void setEnabled(bool on) {
         isEnabled = on;
     }
-    uint16_t getNormalColor() {
+    uint8_t* getNormalColor() {
         return normalColor;
     }
     bool getIsPressed() {
@@ -143,20 +143,20 @@ public:
     DuinoSays():
         mode(DSMODE_MAINMENU),
         display(0),
-        btnTopLeft(SCREENBUTTON_TOPLEFT, 2, 16, buffer.rgb(192,0,0), buffer.rgb(255,0,0)),
-        btnTopRight(SCREENBUTTON_TOPRIGHT, 94, 16, buffer.rgb(0,192,0), buffer.rgb(0,255,0)),
-        btnBottomLeft(SCREENBUTTON_BOTTOMLEFT, 2, 48, buffer.rgb(192,192,0), buffer.rgb(255,255,0)),
-        btnBottomRight(SCREENBUTTON_BOTTOMRIGHT, 94, 48, buffer.rgb(0,0,192), buffer.rgb(64,64,255))
+        btnTopLeft(SCREENBUTTON_TOPLEFT, 2, 16, 192,0,0, buffer.rgb(255,0,0)),
+        btnTopRight(SCREENBUTTON_TOPRIGHT, 94, 16, 0,192,0, buffer.rgb(0,255,0)),
+        btnBottomLeft(SCREENBUTTON_BOTTOMLEFT, 2, 48, 192,192,0, buffer.rgb(255,255,0)),
+        btnBottomRight(SCREENBUTTON_BOTTOMRIGHT, 94, 48, 0,0,192, buffer.rgb(64,64,255))
     {
 
     }
 
     Button* getButton(uint8_t n) {
         switch (n%4) {
-        case 0: return &btnTopLeft;
-        case 1: return &btnTopRight;
-        case 2: return &btnBottomLeft;
-        case 3: return &btnBottomRight;
+        case SCREENBUTTON_TOPLEFT: return &btnTopLeft;
+        case SCREENBUTTON_TOPRIGHT: return &btnTopRight;
+        case SCREENBUTTON_BOTTOMLEFT: return &btnBottomLeft;
+        case SCREENBUTTON_BOTTOMRIGHT: return &btnBottomRight;
         }
         return 0;
     }
@@ -249,17 +249,29 @@ public:
     void loopPlaying() {
         drawButtons();
         if (isShowingColors) {
+            const uint8_t progressCounterMaxBit = 2;
             if (currentStep == 0) {
                 buffer.drawText(stringBuffer.start()->load(PSTR("duino says ..."))->get(),16,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
             }
             if (currentStep <= currentLevel && currentStep > 0) {
-                const uint8_t w = 4 + progressCounter, h = 4 + progressCounter;
+                const uint8_t w = 4 + progressCounter, h = w;
                 uint8_t col = getColor(currentStep);
-                Button *button = getButton(col);
-                buffer.drawRect(48-w/2,32-h/2,w,h)->filledRect(button->getNormalColor());
-                buffer.drawText(stringBuffer.start()->put(currentStep)->get(),44,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                Button* button = getButton(col);
+                uint8_t* btnColor = button->getNormalColor();
+                uint16_t rectColor = buffer.rgb(
+                                                btnColor[0] * progressCounter >> progressCounterMaxBit,
+                                                btnColor[1] * progressCounter >> progressCounterMaxBit,
+                                                btnColor[2] * progressCounter >> progressCounterMaxBit);
+                buffer.drawRect(48-w/2,32-h/2,w,h)->filledRect(rectColor);
+                buffer.drawText(stringBuffer.start()->put(currentStep)->put(":")->put(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                if (progressCounter == 0) {
+                    particleSystem.spawn(4|col, 48,32,800,800, 24);
+                    particleSystem.spawn(4|col, 48,32,800,-800, 24);
+                    particleSystem.spawn(4|col, 48,32,-800,-800, 24);
+                    particleSystem.spawn(4|col, 48,32,-800,800, 24);
+                }
             }
-            if (progressCounter++ > 30) {
+            if (progressCounter++ > (1<<progressCounterMaxBit)) {
                 currentStep += 1;
                 progressCounter = 0;
                 if (currentStep > currentLevel) {
@@ -283,7 +295,7 @@ public:
             if (currentStep > currentLevel) {
                 nextLevel();
             } else {
-                buffer.drawText(stringBuffer.start()->put(currentStep)->get(),44,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                buffer.drawText(stringBuffer.start()->put(currentStep)->put(":")->put(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
             }
         }
 
@@ -291,8 +303,8 @@ public:
     }
 
     void loopGameOver() {
-        buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),16,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(currentLevel)->get(),24,38,buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(currentLevel)->get(),28,38,buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
         if (progressCounter < 50) {
             progressCounter++;
         } else {
@@ -329,14 +341,15 @@ public:
 };
 
 void Particle::draw(DuinoSays* duinoSays) {
-    const int height = 24;
+    const uint8_t rel = 255 - frameAge * 255 / maxAge;
+    const bool isButtonParticle = type < 4;
+    const int height = isButtonParticle ? 24 : 8 * rel >> 8;
     frameAge+=1;
 
-    const uint8_t rel = 255 - frameAge * 255 / maxAge;
-    const int width = 16 * rel >> 8;
+    const int width = isButtonParticle ? 16 * rel >> 8 : height;
 
     uint8_t r = 255, g = 0, b = 255;
-    switch (type) {
+    switch (type & 3) {
         case ParticleType::topLeftButton: r = 255, g = 64, b = 32; break;
         case ParticleType::bottomLeftButton: r = 255, g = 255, b = 64; break;
         case ParticleType::topRightButton: r = 32, g = 255, b = 32; break;
@@ -346,8 +359,14 @@ void Particle::draw(DuinoSays* duinoSays) {
     duinoSays->buffer.drawRect((x>>8) - width / 2,(y>>8) - height / 2,width,height)->filledRect(duinoSays->buffer.rgb(rel * r >> 8,rel * g >> 8,rel * b >> 8));
     x+=vx;
     y+=vy;
-    vx -= vx>>2;
-    vy -= vy>>2;
+    if ( isButtonParticle) {
+        vx -= vx>>2;
+        vy -= vy>>2;
+    } else {
+        vx -= (vy>>2) + (vx >> 5);
+        vy -= (-vx>>2) + (vy >> 5);
+    }
+
 }
 
 template<uint8_t maxParticles>
@@ -367,8 +386,9 @@ void Button::draw(DuinoSays* duinoSays) {
     const int width = on ? 8 : 6;
     const int height = on ? 24 : 26;
     const int xOffset = isEnabled ? 0 : ((x > 48) * 2 - 1) * 3;
+    const uint16_t normalColor565 = duinoSays->buffer.rgb(normalColor[0], normalColor[1], normalColor[2]);
 
-    duinoSays->buffer.drawRect(x - width / 2 + xOffset,y - height / 2,width,height)->filledRect(on ? pressedColor : normalColor);
+    duinoSays->buffer.drawRect(x - width / 2 + xOffset,y - height / 2,width,height)->filledRect(on ? pressedColor : normalColor565);
     if (on && ScreenButtonState::isButtonActivated(btn)) {
         isPressed = true;
         duinoSays->particleSystem.spawn(btn, x,y,x<48?4000:-4000,0, 8);
