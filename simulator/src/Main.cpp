@@ -88,6 +88,7 @@ void TinyScreen::endTransfer(void) {
     }
 }
     void TinyScreen::begin(void) {}
+    void TinyScreen::begin(uint8_t) {}
     void TinyScreen::on(void) {}
     void TinyScreen::off(void) {}
     void TinyScreen::setFlip(uint8_t) {}

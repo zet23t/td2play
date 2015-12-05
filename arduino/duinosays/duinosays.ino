@@ -108,7 +108,7 @@ private:
     bool isPressed;
 public:
     Button(ScreenButtonId btn, uint8_t x, uint8_t y, uint8_t normalColorR, uint8_t normalColorG, uint8_t normalColorB, uint16_t pressedColor):
-        x(x), y(y), btn(btn), normalColor({normalColorR, normalColorG, normalColorB}), pressedColor(pressedColor), isEnabled(true) {};
+        x(x), y(y), btn(btn), normalColor{normalColorR, normalColorG, normalColorB}, pressedColor(pressedColor), isEnabled(true) {};
     void setEnabled(bool on) {
         isEnabled = on;
     }
@@ -163,7 +163,11 @@ public:
 
     void setup() {
         Wire.begin();
+        #if defined(ARDUINO_ARCH_SAMD)
+        display.begin(TinyScreenPlus);
+        #else
         display.begin();
+        #endif
         display.setFlip(0);
         display.setBrightness(8);
         display.setBitDepth(buffer.is16bit()? 1:0);

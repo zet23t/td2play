@@ -11,6 +11,13 @@
 #include <time.h>
 unsigned long millis();
 
+// TinyScreen types
+const uint8_t TinyScreenDefault   = 1;
+const uint8_t TinyScreenAlternate = 2;
+const uint8_t TinyScreenPlus      = 3;
+const uint8_t TinyScreenGamepad   = 4;
+
+
 typedef struct
 {
 	const uint8_t width;
@@ -35,6 +42,7 @@ public:
     void startCommand(void);
     void endTransfer(void);
     void begin(void);
+    void begin(uint8_t);
     void on(void);
     void off(void);
     void setFlip(uint8_t);
