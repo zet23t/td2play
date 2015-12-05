@@ -124,7 +124,6 @@ void TinyScreen::endTransfer(void) {
                 r = (r << 3 | r >> 2);
                 g = (g << 2 | g >> 4);
                 b = (b << 3 | b >> 2);
-
                 i+=1;
             } else {
                 uint8_t rgb233 = rgb[i];
@@ -135,6 +134,8 @@ void TinyScreen::endTransfer(void) {
                 b = rgb233 >> 5 & 7;
                 b = b << 5 | b << 2 | b >> 1;
             }
+            // my gif screencsat program doesn't like 00ff00
+            if (r == 0 && g >= 250 && b == 0) g = 250;
             emulator.screenData[idx*3+0] = r;
             emulator.screenData[idx*3+1] = g;
             emulator.screenData[idx*3+2] = b;

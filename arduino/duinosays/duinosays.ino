@@ -11,6 +11,16 @@ enum ScreenButtonId {
     SCREENBUTTON_TOPRIGHT = 2,
     SCREENBUTTON_BOTTOMRIGHT = 3
 };
+
+enum DuinoSaysGameMode {
+    DSMODE_MAINMENU,
+    DSMODE_PLAYING,
+    DSMODE_GAMEOVER,
+    DSMODE_SHOWSCORES,
+    DSMODE_SHOWHELP,
+    DSMODE_SHOWABOUT
+};
+
 class ScreenButtonState {
 private:
     static uint8_t buttonState;
@@ -53,11 +63,6 @@ namespace ParticleType {
     const uint8_t bottomRightButton = 3;
 }
 
-enum DuinoSaysGameMode {
-    DSMODE_MAINMENU,
-    DSMODE_PLAYING,
-    DSMODE_GAMEOVER
-};
 class DuinoSays;
 
 class Particle {
@@ -128,6 +133,7 @@ private:
     uint16_t currentLevel;
     uint16_t currentStep;
     uint16_t progressCounter;
+    uint16_t currentScore;
     bool isShowingColors;
     DuinoSaysGameMode mode;
     TinyScreen display;
@@ -191,14 +197,69 @@ public:
         btnBottomRight.draw(this);
     }
 
+    void loopHelp() {
+        buffer.drawText(stringBuffer.start()->load(PSTR("got it"))->get(),60,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("duino says a"))->get(),1,1,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("sequence of"))->get(),1,9,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("colors."))->get(),1,17,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("push the buttons"))->get(),1,25,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("and repeat it."))->get(),1,33,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+
+        btnBottomRight.draw(this);
+        if (btnBottomRight.getIsPressed()) {
+            switchToMainMenu();
+        }
+    }
+
+    void drawDuinoSaysTitle(int8_t yOffset) {
+        progressCounter+=1;
+        uint8_t step = progressCounter % 64;
+        for (int i=-8;i<=8;i+=1) {
+
+            //buffer.drawRect(i*12 + 48 + (step),27,10,1)->filledRect(buffer.rgb(255 - abs(step*8-255),0,0));
+            int8_t x = (i*16 - (step))%64+68;
+            int16_t tone = 255 - abs(x*8-320);
+            if (tone > 255) tone = 255;
+            else if (tone <= 0) continue;
+            Button *btn = getButton(i&3);
+            uint8_t *rgb = btn->getNormalColor();
+            uint16_t color = buffer.rgb((uint8_t)(tone * rgb[0] >> 8),(uint8_t)(tone * rgb[1] >> 8),(uint8_t)(tone * rgb[2] >> 8));
+
+            buffer.drawRect(x,35 + yOffset,8,1)->filledRect(color);
+            buffer.drawRect(80-x,27 + yOffset,8,1)->filledRect(color);
+        }
+
+        buffer.drawText(stringBuffer.start()->load(PSTR("duino says ..."))->get(),16,28 + yOffset,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+    }
+
     void loopMainMenu() {
-        buffer.drawText(stringBuffer.start()->load(PSTR("duino says ..."))->get(),16,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("push button"))->get(),16,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("to <start>"))->get(),20,55,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        drawDuinoSaysTitle(0);
+        //buffer.drawText(stringBuffer.start()->load(PSTR("push button"))->get(),16,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("start"))->get(),60,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("scores"))->get(),7,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+
+        buffer.drawText(stringBuffer.start()->load(PSTR("help"))->get(),7,13,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("about"))->get(),60,13,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         drawButtons();
-        if (ScreenButtonState::wasAnyButtonReleased())
+        if (progressCounter++%21 == 0) {
+            //spawnQuadParticles((progressCounter%4), 48, 32, 1000, 40);
+        }
+
+        if (btnBottomRight.getIsPressed())
         {
             switchToPlaying();
+        }
+        if (btnTopLeft.getIsPressed())
+        {
+            switchToHelp();
+        }
+        if (btnTopRight.getIsPressed())
+        {
+            switchToAbout();
+        }
+        if (btnBottomLeft.getIsPressed())
+        {
+            switchToScores();
         }
     }
 
@@ -213,11 +274,22 @@ public:
         btnBottomRight.setEnabled(false);
     }
 
+    void switchToHelp() {
+        mode = DSMODE_SHOWHELP;
+    }
+    void switchToAbout() {
+        mode = DSMODE_SHOWABOUT;
+    }
+    void switchToScores() {
+        mode = DSMODE_SHOWSCORES;
+    }
+
     void switchToPlaying() {
         mode = DSMODE_PLAYING;
         currentLevel = 0;
         seed = millis();
         nextLevel();
+        currentScore = 0;
     }
 
     void switchToGameOver() {
@@ -250,6 +322,13 @@ public:
         return c % 4;
     }
 
+    void spawnQuadParticles(uint8_t col, uint8_t x, uint8_t y, int16_t speed, uint8_t age) {
+        particleSystem.spawn(col, x,y, speed, speed, age);
+        particleSystem.spawn(col, x,y, speed,-speed, age);
+        particleSystem.spawn(col, x,y,-speed,-speed, age);
+        particleSystem.spawn(col, x,y,-speed, speed, age);
+    }
+
     void loopPlaying() {
         drawButtons();
         if (isShowingColors) {
@@ -269,10 +348,7 @@ public:
                 buffer.drawRect(48-w/2,32-h/2,w,h)->filledRect(rectColor);
                 buffer.drawText(stringBuffer.start()->put(currentStep)->put(":")->put(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
                 if (progressCounter == 0) {
-                    particleSystem.spawn(4|col, 48,32,800,800, 24);
-                    particleSystem.spawn(4|col, 48,32,800,-800, 24);
-                    particleSystem.spawn(4|col, 48,32,-800,-800, 24);
-                    particleSystem.spawn(4|col, 48,32,-800,800, 24);
+                    spawnQuadParticles(4|col, 48,32,800,24);
                 }
             }
             if (progressCounter++ > (1<<progressCounterMaxBit)) {
@@ -291,6 +367,7 @@ public:
                 if (button->getIsPressed()) {
                     if (i == col) {
                         currentStep+=1;
+                        currentScore += 1;
                     } else {
                         switchToGameOver();
                     }
@@ -308,7 +385,7 @@ public:
 
     void loopGameOver() {
         buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(currentLevel)->get(),28,38,buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(currentScore)->get(),28,38,buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
         if (progressCounter < 50) {
             progressCounter++;
         } else {
@@ -316,6 +393,27 @@ public:
             if (ScreenButtonState::wasAnyButtonReleased()) {
                 switchToMainMenu();
             }
+        }
+    }
+
+    void loopAbout() {
+        drawDuinoSaysTitle(-24);
+        buffer.drawText(stringBuffer.start()->load(PSTR("by eike decker"))->get(),10,15,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("tinyduinogames.de"))->get(),2,25,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start()->load(PSTR("cool"))->get(),67,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        btnBottomRight.draw(this);
+        if (btnBottomRight.getIsPressed()) {
+            switchToMainMenu();
+        }
+    }
+
+    void loopScores() {
+        buffer.drawText(stringBuffer.start()->load(PSTR("scores"))->get(),30,2,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawRect(8,10,80,1)->filledRect(buffer.rgb(255,255,255));
+        buffer.drawText(stringBuffer.start()->load(PSTR("beat it"))->get(),53,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        btnBottomRight.draw(this);
+        if (btnBottomRight.getIsPressed()) {
+            switchToMainMenu();
         }
     }
 
@@ -331,6 +429,9 @@ public:
         case DSMODE_MAINMENU: loopMainMenu(); break;
         case DSMODE_PLAYING: loopPlaying(); break;
         case DSMODE_GAMEOVER: loopGameOver(); break;
+        case DSMODE_SHOWHELP: loopHelp(); break;
+        case DSMODE_SHOWABOUT: loopAbout(); break;
+        case DSMODE_SHOWSCORES: loopScores(); break;
         }
 
         particleSystem.draw(this);
