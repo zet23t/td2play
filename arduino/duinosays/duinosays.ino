@@ -126,24 +126,75 @@ public:
     void draw(DuinoSays *duinoSays);
 };
 
+class Scores {
+private:
+    uint16_t score[3];
+    char tags[3][3];
+    uint8_t trackCount;
+public:
+    Scores():trackCount(0) {
+
+    }
+
+    char* getTag(uint8_t n) {
+        if (n < trackCount) return tags[n];
+        return 0;
+    }
+    uint16_t getScore(uint8_t n) {
+        if (n < trackCount) return score[n];
+        return 0;
+    }
+    bool isHighEnough(uint8_t points) {
+        return trackCount < 3 || points > score[2];
+    }
+    void putScore(uint8_t points, char* tag) {
+        for (int i=0;i<3;i+=1) {
+            if (i >= trackCount || score[i] < points) {
+                uint16_t tmpPoints = score[i];
+                char tmp[3] = {tags[i][0],tags[i][1],tags[i][2]};
+                score[i] = points;
+                tags[i][0] = tag[0];
+                tags[i][1] = tag[1];
+                tags[i][2] = tag[2];
+                if (trackCount == i) {
+                    trackCount += 1;
+                }
+                // carry over
+                points = tmpPoints;
+                tag[0] = tmp[0];
+                tag[1] = tmp[1];
+                tag[2] = tmp[2];
+            }
+        }
+    }
+
+};
+
+class GameOverScreen {
+public:
+    void loop(DuinoSays* ds);
+};
+
 
 class DuinoSays {
 private:
     uint16_t seed;
     uint16_t currentLevel;
     uint16_t currentStep;
-    uint16_t progressCounter;
-    uint16_t currentScore;
     bool isShowingColors;
     DuinoSaysGameMode mode;
     TinyScreen display;
+    GameOverScreen gameOverScreen;
+public:
+    uint16_t progressCounter;
+    uint16_t currentScore;
+    Scores scores;
+    RenderBuffer<uint16_t,40> buffer;
+    ParticleSystem<28> particleSystem;
     Button btnTopLeft;
     Button btnTopRight;
     Button btnBottomLeft;
     Button btnBottomRight;
-public:
-    RenderBuffer<uint16_t,40> buffer;
-    ParticleSystem<28> particleSystem;
 
 public:
     DuinoSays():
@@ -383,18 +434,6 @@ public:
 
     }
 
-    void loopGameOver() {
-        buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(currentScore)->get(),28,38,buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
-        if (progressCounter < 50) {
-            progressCounter++;
-        } else {
-            drawButtons();
-            if (ScreenButtonState::wasAnyButtonReleased()) {
-                switchToMainMenu();
-            }
-        }
-    }
 
     void loopAbout() {
         drawDuinoSaysTitle(-24);
@@ -428,7 +467,7 @@ public:
         switch (mode) {
         case DSMODE_MAINMENU: loopMainMenu(); break;
         case DSMODE_PLAYING: loopPlaying(); break;
-        case DSMODE_GAMEOVER: loopGameOver(); break;
+        case DSMODE_GAMEOVER: gameOverScreen.loop(this); break;
         case DSMODE_SHOWHELP: loopHelp(); break;
         case DSMODE_SHOWABOUT: loopAbout(); break;
         case DSMODE_SHOWSCORES: loopScores(); break;
@@ -444,6 +483,33 @@ public:
         throttle = millis();
     }
 };
+
+
+void GameOverScreen::loop(DuinoSays* ds) {
+    ds->buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,18,ds->buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+    ds->buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(ds->currentScore)->get(),32,38,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+    if (ds->progressCounter < 50) {
+        ds->progressCounter++;
+    } else {
+        if (ds->scores.isHighEnough(ds->currentScore)) {
+            ds->buffer.drawText(stringBuffer.start()->put("a")->get(),7,13,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->put("a")->get(),7,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->load(PSTR(">"))->get(),86,13,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->load(PSTR("ok"))->get(),78,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            ds->drawButtons();
+        } else {
+            ds->buffer.drawText(stringBuffer.start()->load(PSTR("OK"))->get(),85,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            ds->btnBottomRight.draw(ds);
+
+
+            if (ds->btnBottomRight.getIsPressed()) {
+                ds->switchToMainMenu();
+            }
+        }
+
+    }
+
+}
 
 void Particle::draw(DuinoSays* duinoSays) {
     const uint8_t rel = 255 - frameAge * 255 / maxAge;
