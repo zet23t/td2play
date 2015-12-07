@@ -34,7 +34,7 @@ public:
         if (bufferPos < STRINGBUFFER_SIZE) buffer[bufferPos++] = letter;
         return this;
     }
-    StringBuffer* put(int32_t num) {
+    StringBuffer* putDec(int32_t num) {
         const char digit[] = "0123456789";
         char decs[32];
         uint8_t pos = 0;
