@@ -397,7 +397,7 @@ public:
                                                 btnColor[1] * progressCounter >> progressCounterMaxBit,
                                                 btnColor[2] * progressCounter >> progressCounterMaxBit);
                 buffer.drawRect(48-w/2,32-h/2,w,h)->filledRect(rectColor);
-                buffer.drawText(stringBuffer.start()->put(currentStep)->put(":")->put(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                buffer.drawText(stringBuffer.start()->putDec(currentStep)->put(":")->putDec(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
                 if (progressCounter == 0) {
                     spawnQuadParticles(4|col, 48,32,800,24);
                 }
@@ -427,7 +427,7 @@ public:
             if (currentStep > currentLevel) {
                 nextLevel();
             } else {
-                buffer.drawText(stringBuffer.start()->put(currentStep)->put(":")->put(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                buffer.drawText(stringBuffer.start()->putDec(currentStep)->put(":")->putDec(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
             }
         }
 
@@ -449,7 +449,18 @@ public:
     void loopScores() {
         buffer.drawText(stringBuffer.start()->load(PSTR("scores"))->get(),30,2,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         buffer.drawRect(8,10,80,1)->filledRect(buffer.rgb(255,255,255));
+
+        for (int i=0;i<3;i+=1) {
+            char *tag = scores.getTag(i);
+            if (tag == 0) break;
+            uint16_t score = scores.getScore(i);
+            buffer.drawText(stringBuffer.start()->putDec(i)->put(')')->get(),10,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            buffer.drawText(stringBuffer.start()->put(tag)->get(),38,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            buffer.drawText(stringBuffer.start()->putDec(score)->get(),81 - score / 10 * 5,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        }
+
         buffer.drawText(stringBuffer.start()->load(PSTR("beat it"))->get(),53,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+
         btnBottomRight.draw(this);
         if (btnBottomRight.getIsPressed()) {
             switchToMainMenu();
@@ -487,7 +498,7 @@ public:
 
 void GameOverScreen::loop(DuinoSays* ds) {
     ds->buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,16,ds->buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
-    ds->buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(ds->currentScore)->get(),
+    ds->buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->putDec(ds->currentScore)->get(),
                         28 - (ds->currentScore / 10) * 5,40,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
     if (ds->progressCounter < 50) {
         ds->progressCounter++;
@@ -495,10 +506,10 @@ void GameOverScreen::loop(DuinoSays* ds) {
         if (ds->scores.isHighEnough(ds->currentScore)) {
             static uint8_t tag[3] = {0, 0, 0};
             static uint8_t tagPos = 0;
-            const char* alpha = " abcdefghijklmnopqrstuvwxyz0123456789";
+            const char* alpha = " abcdefghijklmnopqrstuvwxyz.-!?0123456789";
             uint8_t currentPos = tag[tagPos];
-            char prevIdx = (currentPos + 37 - 1) % (37);
-            char nextIdx = (currentPos + 37 + 1) % (37);
+            char prevIdx = (currentPos + 41 - 1) % (41);
+            char nextIdx = (currentPos + 41 + 1) % (41);
 
             const uint8_t grey = 128;
 
