@@ -486,17 +486,53 @@ public:
 
 
 void GameOverScreen::loop(DuinoSays* ds) {
-    ds->buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,18,ds->buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
-    ds->buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(ds->currentScore)->get(),32,38,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+    ds->buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,16,ds->buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+    ds->buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->put(ds->currentScore)->get(),
+                        28 - (ds->currentScore / 10) * 5,40,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
     if (ds->progressCounter < 50) {
         ds->progressCounter++;
     } else {
         if (ds->scores.isHighEnough(ds->currentScore)) {
-            ds->buffer.drawText(stringBuffer.start()->put("a")->get(),7,13,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->put("a")->get(),7,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->load(PSTR(">"))->get(),86,13,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->load(PSTR("ok"))->get(),78,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            static uint8_t tag[3] = {0, 0, 0};
+            static uint8_t tagPos = 0;
+            const char* alpha = " abcdefghijklmnopqrstuvwxyz0123456789";
+            uint8_t currentPos = tag[tagPos];
+            char prevIdx = (currentPos + 37 - 1) % (37);
+            char nextIdx = (currentPos + 37 + 1) % (37);
+
+            const uint8_t grey = 128;
+
+            ds->buffer.drawText(stringBuffer.start()->put(alpha[prevIdx])->get(),7,13,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->put(alpha[nextIdx])->get(),7,45,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->load(PSTR(">"))->get(),86,13,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->load(PSTR("ok"))->get(),78,45,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+
+            ds->buffer.drawText(stringBuffer.start()->put(alpha[tag[0]])->get(),39,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->put(alpha[tag[1]])->get(),46,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start()->put(alpha[tag[2]])->get(),53,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+
+            ds->buffer.drawRect(39,35,5,tagPos == 0 ? 2 : 1)->filledRect(ds->buffer.rgb(255,255,255));
+            ds->buffer.drawRect(46,35,5,tagPos == 1 ? 2 : 1)->filledRect(ds->buffer.rgb(255,255,255));
+            ds->buffer.drawRect(53,35,5,tagPos == 2 ? 2 : 1)->filledRect(ds->buffer.rgb(255,255,255));
+
+
             ds->drawButtons();
+            if (ds->btnTopLeft.getIsPressed()) {
+                tag[tagPos] = prevIdx;
+            }
+            if (ds->btnBottomLeft.getIsPressed()) {
+                tag[tagPos] = nextIdx;
+            }
+            if (ds->btnTopRight.getIsPressed()) {
+                tagPos = (tagPos + 1) % 3;
+            }
+
+            if (ds->btnBottomRight.getIsPressed()) {
+                char tagName[3] = {alpha[tag[0]],alpha[tag[1]],alpha[tag[2]]};
+                ds->scores.putScore(ds->currentScore, tagName);
+                ds->switchToScores();
+            }
+
         } else {
             ds->buffer.drawText(stringBuffer.start()->load(PSTR("OK"))->get(),85,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
             ds->btnBottomRight.draw(ds);
