@@ -8,7 +8,9 @@
 #include "game.h"
 
 static TinyScreen display(0);
-static RenderBuffer<uint16_t,40> renderBuffer;
+RenderBuffer<uint16_t,40> renderBuffer;
+
+Game game;
 
 void setup() {
     Wire.begin();
@@ -25,9 +27,9 @@ void setup() {
 void loop() {
     static unsigned long throttle = millis();
 
-    renderBuffer.drawRect(39,35,5,5)->filledRect(renderBuffer.rgb(255,255,255));
+    //renderBuffer.drawRect(39,35,5,5)->filledRect(renderBuffer.rgb(255,255,255));
 
-
+    game.update();
 
     renderBuffer.flush(display);
     stringBuffer.reset();
