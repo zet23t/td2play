@@ -1,8 +1,14 @@
 #ifndef __STRINGBUFFER_H__
 #define STRINGBUFFER_SIZE 100
 
-#ifdef WIN32
 #include <string.h>
+#include <inttypes.h>
+
+#ifndef WIN32
+#include <avr/pgmspace.h>
+#endif // WIN32
+
+#ifdef WIN32
 #define PSTR
 #define strlen_P strlen
 #define strcpy_P strcpy
@@ -65,6 +71,6 @@ public:
     }
 };
 
-StringBuffer stringBuffer;
+extern StringBuffer stringBuffer;
 
 #endif

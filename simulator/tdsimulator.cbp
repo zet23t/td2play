@@ -100,6 +100,7 @@
 		<Unit filename="../arduino/tinytino/tinytino.ino" />
 		<Unit filename="../srclib/lib_RenderBuffer.cpp" />
 		<Unit filename="../srclib/lib_RenderBuffer.h" />
+		<Unit filename="../srclib/lib_StringBuffer.cpp" />
 		<Unit filename="../srclib/lib_StringBuffer.h" />
 		<Unit filename="arduino_wrappers/TinyScreenRaycaster/TinyScreenRaycaster.cpp">
 			<Option target="TinyScreenRaycaster (Debug)" />
