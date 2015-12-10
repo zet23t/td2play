@@ -1,4 +1,5 @@
 #ifndef __STRINGBUFFER_H__
+#define __STRINGBUFFER_H__
 #define STRINGBUFFER_SIZE 100
 
 #include <string.h>
