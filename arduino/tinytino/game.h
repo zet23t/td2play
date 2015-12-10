@@ -17,8 +17,9 @@ public:
 
     }
     void update() {
-        FixedNumber<4> fix(42,15);
-        renderBuffer.drawText(fix.toString(),16,8,renderBuffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        FixedNumber<4> fixA(42,15);
+        FixedNumber<4> fixB(17,3);
+        renderBuffer.drawText((fixA + fixB).toString(),16,8,renderBuffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         renderBuffer.drawRect(39,35,5,5)->filledRect(renderBuffer.rgb(255,255,255));
     }
 };

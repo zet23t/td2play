@@ -43,7 +43,7 @@ void loop(void) {
     buffer.setClearBackground(false);
     buffer.drawRect(-yoffset%4,-yoffset,100,128)->sprite(&_skyBackground);
     buffer.drawRect(0,(-yoffset>>1)*0 + 40, 96, 8)->sprite(&_clouds)->blend(RenderCommandBlendMode::average);
-    buffer.drawText(stringBuffer.start()->put("")->put(t2-t)->put("ms")->get(),
+    buffer.drawText(stringBuffer.start().put("").putDec(t2-t).put("ms").get(),
                     0,0,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
 
     t = t2;

@@ -26,22 +26,22 @@ public:
         bufferPos = 0;
         memset(buffer,0,STRINGBUFFER_SIZE);
     }
-    StringBuffer* start() {
+    StringBuffer& start() {
         currentPos = bufferPos;
-        return this;
+        return *this;
     }
-    StringBuffer* put(const char* str) {
+    StringBuffer& put(const char* str) {
         while (*str && bufferPos < STRINGBUFFER_SIZE) {
             buffer[bufferPos++] = *str;
             str+=1;
         }
-        return this;
+        return *this;
     }
-    StringBuffer* put(char letter) {
+    StringBuffer& put(char letter) {
         if (bufferPos < STRINGBUFFER_SIZE) buffer[bufferPos++] = letter;
-        return this;
+        return *this;
     }
-    StringBuffer* putDec(int32_t num) {
+    StringBuffer& putDec(int32_t num) {
         const char digit[] = "0123456789";
         char decs[32];
         uint8_t pos = 0;
@@ -54,9 +54,9 @@ public:
         } while (num != 0);
         if (neg) decs[pos++]= '-';
         while (pos-- > 0 && bufferPos < STRINGBUFFER_SIZE) buffer[bufferPos++] = decs[pos];
-        return this;
+        return *this;
     }
-    StringBuffer* load(const char *src) {
+    StringBuffer& load(const char *src) {
         int len = strlen_P(src);
 		if (STRINGBUFFER_SIZE - bufferPos > len) {
 			char *str = &buffer[bufferPos];
@@ -64,7 +64,7 @@ public:
 			strcpy_P(str, src);
 		} else {
 		}
-		return this;
+		return *this;
     }
     char* get() {
         bufferPos+=1;

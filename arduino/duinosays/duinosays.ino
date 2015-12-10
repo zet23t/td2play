@@ -249,12 +249,12 @@ public:
     }
 
     void loopHelp() {
-        buffer.drawText(stringBuffer.start()->load(PSTR("got it"))->get(),60,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("duino says a"))->get(),1,1,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("sequence of"))->get(),1,9,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("colors."))->get(),1,17,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("push the buttons"))->get(),1,25,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("and repeat it."))->get(),1,33,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("got it")).get(),60,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("duino says a")).get(),1,1,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("sequence of")).get(),1,9,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("colors.")).get(),1,17,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("push the buttons")).get(),1,25,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("and repeat it.")).get(),1,33,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
 
         btnBottomRight.draw(this);
         if (btnBottomRight.getIsPressed()) {
@@ -280,17 +280,17 @@ public:
             buffer.drawRect(80-x,27 + yOffset,8,1)->filledRect(color);
         }
 
-        buffer.drawText(stringBuffer.start()->load(PSTR("duino says ..."))->get(),16,28 + yOffset,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("duino says ...")).get(),16,28 + yOffset,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
     }
 
     void loopMainMenu() {
         drawDuinoSaysTitle(0);
-        //buffer.drawText(stringBuffer.start()->load(PSTR("push button"))->get(),16,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("start"))->get(),60,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("scores"))->get(),7,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        //buffer.drawText(stringBuffer.start().load(PSTR("push button")).get(),16,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("start")).get(),60,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("scores")).get(),7,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
 
-        buffer.drawText(stringBuffer.start()->load(PSTR("help"))->get(),7,13,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("about"))->get(),60,13,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("help")).get(),7,13,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("about")).get(),60,13,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         drawButtons();
         if (progressCounter++%21 == 0) {
             //spawnQuadParticles((progressCounter%4), 48, 32, 1000, 40);
@@ -385,7 +385,7 @@ public:
         if (isShowingColors) {
             const uint8_t progressCounterMaxBit = 2;
             if (currentStep == 0) {
-                buffer.drawText(stringBuffer.start()->load(PSTR("duino says ..."))->get(),16,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                buffer.drawText(stringBuffer.start().load(PSTR("duino says ...")).get(),16,28,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
             }
             if (currentStep <= currentLevel && currentStep > 0) {
                 const uint8_t w = 4 + progressCounter, h = w;
@@ -397,7 +397,7 @@ public:
                                                 btnColor[1] * progressCounter >> progressCounterMaxBit,
                                                 btnColor[2] * progressCounter >> progressCounterMaxBit);
                 buffer.drawRect(48-w/2,32-h/2,w,h)->filledRect(rectColor);
-                buffer.drawText(stringBuffer.start()->putDec(currentStep)->put(":")->putDec(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                buffer.drawText(stringBuffer.start().putDec(currentStep).put(":").putDec(currentLevel).get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
                 if (progressCounter == 0) {
                     spawnQuadParticles(4|col, 48,32,800,24);
                 }
@@ -427,7 +427,7 @@ public:
             if (currentStep > currentLevel) {
                 nextLevel();
             } else {
-                buffer.drawText(stringBuffer.start()->putDec(currentStep)->put(":")->putDec(currentLevel)->get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+                buffer.drawText(stringBuffer.start().putDec(currentStep).put(":").putDec(currentLevel).get(),42,52,buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
             }
         }
 
@@ -437,9 +437,9 @@ public:
 
     void loopAbout() {
         drawDuinoSaysTitle(-24);
-        buffer.drawText(stringBuffer.start()->load(PSTR("by eike decker"))->get(),10,15,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("tinyduinogames.de"))->get(),2,25,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-        buffer.drawText(stringBuffer.start()->load(PSTR("cool"))->get(),67,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("by eike decker")).get(),10,15,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("tinyduinogames.de")).get(),2,25,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("cool")).get(),67,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         btnBottomRight.draw(this);
         if (btnBottomRight.getIsPressed()) {
             switchToMainMenu();
@@ -447,19 +447,19 @@ public:
     }
 
     void loopScores() {
-        buffer.drawText(stringBuffer.start()->load(PSTR("scores"))->get(),30,2,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("scores")).get(),30,2,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         buffer.drawRect(8,10,80,1)->filledRect(buffer.rgb(255,255,255));
 
         for (int i=0;i<3;i+=1) {
             char *tag = scores.getTag(i);
             if (tag == 0) break;
             uint16_t score = scores.getScore(i);
-            buffer.drawText(stringBuffer.start()->putDec(i)->put(')')->get(),10,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-            buffer.drawText(stringBuffer.start()->put(tag)->get(),38,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-            buffer.drawText(stringBuffer.start()->putDec(score)->get(),81 - score / 10 * 5,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            buffer.drawText(stringBuffer.start().putDec(i).put(')').get(),10,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            buffer.drawText(stringBuffer.start().put(tag).get(),38,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            buffer.drawText(stringBuffer.start().putDec(score).get(),81 - score / 10 * 5,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         }
 
-        buffer.drawText(stringBuffer.start()->load(PSTR("beat it"))->get(),53,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        buffer.drawText(stringBuffer.start().load(PSTR("beat it")).get(),53,45,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
 
         btnBottomRight.draw(this);
         if (btnBottomRight.getIsPressed()) {
@@ -474,7 +474,7 @@ public:
         static unsigned long t = millis();
         unsigned long t2 = millis();
 
-        //buffer.drawText(stringBuffer.start()->put(t2-t)->put("ms")->get(),2,2,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+        //buffer.drawText(stringBuffer.start().put(t2-t).put("ms").get(),2,2,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         switch (mode) {
         case DSMODE_MAINMENU: loopMainMenu(); break;
         case DSMODE_PLAYING: loopPlaying(); break;
@@ -497,8 +497,8 @@ public:
 
 
 void GameOverScreen::loop(DuinoSays* ds) {
-    ds->buffer.drawText(stringBuffer.start()->load(PSTR("game over"))->get(),20,16,ds->buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
-    ds->buffer.drawText(stringBuffer.start()->load(PSTR("score: "))->putDec(ds->currentScore)->get(),
+    ds->buffer.drawText(stringBuffer.start().load(PSTR("game over")).get(),20,16,ds->buffer.rgb(255,128,32), &virtualDJ_5ptFontInfo);
+    ds->buffer.drawText(stringBuffer.start().load(PSTR("score: ")).putDec(ds->currentScore).get(),
                         28 - (ds->currentScore / 10) * 5,40,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
     if (ds->progressCounter < 50) {
         ds->progressCounter++;
@@ -513,14 +513,14 @@ void GameOverScreen::loop(DuinoSays* ds) {
 
             const uint8_t grey = 128;
 
-            ds->buffer.drawText(stringBuffer.start()->put(alpha[prevIdx])->get(),7,13,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->put(alpha[nextIdx])->get(),7,45,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->load(PSTR(">"))->get(),86,13,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->load(PSTR("ok"))->get(),78,45,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().put(alpha[prevIdx]).get(),7,13,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().put(alpha[nextIdx]).get(),7,45,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().load(PSTR(">")).get(),86,13,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().load(PSTR("ok")).get(),78,45,ds->buffer.rgb(grey,grey,grey), &virtualDJ_5ptFontInfo);
 
-            ds->buffer.drawText(stringBuffer.start()->put(alpha[tag[0]])->get(),39,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->put(alpha[tag[1]])->get(),46,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
-            ds->buffer.drawText(stringBuffer.start()->put(alpha[tag[2]])->get(),53,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().put(alpha[tag[0]]).get(),39,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().put(alpha[tag[1]]).get(),46,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().put(alpha[tag[2]]).get(),53,28,ds->buffer.rgb(192,192,192), &virtualDJ_5ptFontInfo);
 
             ds->buffer.drawRect(39,35,5,tagPos == 0 ? 2 : 1)->filledRect(ds->buffer.rgb(255,255,255));
             ds->buffer.drawRect(46,35,5,tagPos == 1 ? 2 : 1)->filledRect(ds->buffer.rgb(255,255,255));
@@ -545,7 +545,7 @@ void GameOverScreen::loop(DuinoSays* ds) {
             }
 
         } else {
-            ds->buffer.drawText(stringBuffer.start()->load(PSTR("OK"))->get(),85,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            ds->buffer.drawText(stringBuffer.start().load(PSTR("OK")).get(),85,45,ds->buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
             ds->btnBottomRight.draw(ds);
 
 

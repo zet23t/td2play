@@ -98,6 +98,7 @@
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/tinytino.ino" />
+		<Unit filename="../srclib/lib_FixedMath.h" />
 		<Unit filename="../srclib/lib_RenderBuffer.cpp" />
 		<Unit filename="../srclib/lib_RenderBuffer.h" />
 		<Unit filename="../srclib/lib_StringBuffer.cpp" />
