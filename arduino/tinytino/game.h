@@ -11,6 +11,37 @@ public:
     virtual void update() {}
 };
 
+class Body {
+protected:
+    Fixed2D4 position;
+    Fixed2D4 velocity;
+public:
+    Body():position(0,0), velocity(0,0) {}
+};
+
+class Camera : public Body {
+public:
+    Camera currentCamera;
+};
+
+template<uint16_t width, uint16_t height>
+class TileMap {
+private:
+    uint8_t tiles[width * height];
+    uint16_t offsetX;
+public:
+    void update() {
+    }
+};
+
+class Pawn : public Body {
+private:
+public:
+
+    void update() {
+    }
+};
+
 class MainMenuScreen : public Screen {
 public:
     MainMenuScreen() {
