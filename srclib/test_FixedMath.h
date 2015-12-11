@@ -14,6 +14,9 @@ public:
         testDivision();
 
         test2DCompare();
+        test2DAdd();
+        test2DSubtract();
+        test2DScale();
     }
 
     void testCompares() {
@@ -50,5 +53,17 @@ public:
         assert(Fixed2D4(4,2) != Fixed2D4(4,1));
         assert(Fixed2D4(5,1) != Fixed2D4(4,1));
         assert(!(Fixed2D4(4,2) != Fixed2D4(4,2)));
+    }
+
+    void test2DAdd() {
+        assert(Fixed2D4(5,2,8,1) == Fixed2D4(3,2,4,0) + Fixed2D4(2,0,4,1));
+    }
+
+    void test2DSubtract() {
+        assert(Fixed2D4(5,2,7,6) == Fixed2D4(10,4,9,6) - Fixed2D4(5,2,2,0));
+    }
+
+    void test2DScale() {
+        assert(Fixed2D4(1,2) == Fixed2D4(2,1).scale(Fixed2D4(0,8,2,0)));
     }
 };
