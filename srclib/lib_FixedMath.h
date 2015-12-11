@@ -56,4 +56,20 @@ public:
     }
 };
 
+
+class Fixed2D4 {
+private:
+    FixedNumber16<4> x, y;
+public:
+    Fixed2D4(int16_t intX, int16_t intY):x(intX,0),y(intY,0) {
+    }
+
+    bool operator ==(const Fixed2D4& b) const {
+        return x == b.x && y == b.y;
+    }
+    bool operator !=(const Fixed2D4& b) const {
+        return x != b.x || y != b.y;
+    }
+};
+
 #endif // __FIXEDMATH_H__
