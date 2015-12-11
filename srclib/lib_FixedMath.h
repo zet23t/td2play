@@ -43,6 +43,10 @@ public:
         return FixedNumber16<shiftNum>((int16_t)((int32_t)number * (int32_t)b.number >> shiftNum));
     }
 
+    FixedNumber16<shiftNum> operator /(const FixedNumber16<shiftNum>& b) const {
+        return FixedNumber16<shiftNum>((int16_t)(((int32_t)number << shiftNum) / (int32_t)b.number));
+    }
+
     bool operator ==(const FixedNumber16<shiftNum>& b) const {
         return number == b.number;
     }

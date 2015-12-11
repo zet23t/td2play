@@ -11,6 +11,7 @@ public:
         testAddition();
         testSubtraction();
         testMultiplication();
+        testDivision();
     }
 
     void testCompares() {
@@ -30,6 +31,11 @@ public:
     void testMultiplication() {
         assert(F4(1,0) == F4(0,8) * F4(2,0));
         assert(F4() == F4(0,0) * F4(2,0));
+    }
+
+    void testDivision() {
+        assert(F4(1,0) == F4(1,0) / F4(1,0));
+        assert(F4(2,0) == F4(1,0) / F4(0,8));
     }
 
 };
