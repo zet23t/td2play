@@ -8,6 +8,7 @@ private:
     int16_t number;
 public:
     FixedNumber16() {
+        number = 0;
     }
     FixedNumber16(uint16_t rawNumber) {
         number = rawNumber;
@@ -31,8 +32,15 @@ public:
     }
 
     FixedNumber16<shiftNum> operator +(const FixedNumber16<shiftNum>& b) const {
-        FixedNumber16<shiftNum> result(number + b.number);
-        return result;
+        return FixedNumber16<shiftNum>(number + b.number);
+    }
+
+    FixedNumber16<shiftNum> operator -(const FixedNumber16<shiftNum>& b) const {
+        return FixedNumber16<shiftNum>(number - b.number);
+    }
+
+    FixedNumber16<shiftNum> operator *(const FixedNumber16<shiftNum>& b) const {
+        return FixedNumber16<shiftNum>((int16_t)((int32_t)number * (int32_t)b.number >> shiftNum));
     }
 
     bool operator ==(const FixedNumber16<shiftNum>& b) const {
