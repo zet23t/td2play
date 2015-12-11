@@ -3,32 +3,44 @@
 #include "lib_StringBuffer.h"
 
 template <uint8_t shiftNum>
-class FixedNumber {
+class FixedNumber16 {
 private:
     int16_t number;
 public:
-    FixedNumber() {
+    FixedNumber16() {
     }
-    FixedNumber(int16_t full, int16_t frac) {
-        setNumber(full,frac);
+    FixedNumber16(uint16_t rawNumber) {
+        number = rawNumber;
     }
-    FixedNumber& setNumber(int16_t full, int16_t frac) {
-        number = full << shiftNum | (frac & ((1<<shiftNum) - 1));
+    FixedNumber16(int16_t numerator, int16_t frac) {
+        setNumber(numerator,frac);
+    }
+    FixedNumber16& setNumber(int16_t numerator, int16_t frac) {
+        number = numerator << shiftNum | (frac & ((1<<shiftNum) - 1));
         return *this;
     }
-    inline uint16_t getFractionPart() {
+    inline uint16_t getFractionPart() const {
         return number & ((1<<shiftNum)-1);
     }
-    char* toString() {
+    char* toString() const {
         return toString(10000);
     }
-    FixedNumber<shiftNum>& operator+(FixedNumber<shiftNum>& b) {
-        // actual increment takes place here
-        return *this;
-    }
-    char* toString(uint32_t fractionPrecission) {
+    char* toString(uint32_t fractionPrecission) const {
         return stringBuffer.putDec(number >> shiftNum).put('.')
             .putDec((getFractionPart() * fractionPrecission) >> shiftNum ).get();
+    }
+
+    FixedNumber16<shiftNum> operator +(const FixedNumber16<shiftNum>& b) const {
+        FixedNumber16<shiftNum> result(number + b.number);
+        return result;
+    }
+
+    bool operator ==(const FixedNumber16<shiftNum>& b) const {
+        return number == b.number;
+    }
+
+    bool operator !=(const FixedNumber16<shiftNum>& b) const {
+        return number != b.number;
     }
 };
 

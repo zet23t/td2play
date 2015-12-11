@@ -11,6 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -20,6 +21,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-DSCREEN_16BITS" />
@@ -27,13 +29,15 @@
 			</Target>
 			<Target title="Test Text (Debug)">
 				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 			</Target>
 			<Target title="TinyScreenRaycaster (Debug)">
 				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 			</Target>
 			<Target title="Test Textures - 8bit (Debug)">
 				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
@@ -68,6 +72,15 @@
 					<Add option="-DSCREEN_16BITS" />
 				</Compiler>
 			</Target>
+			<Target title="Test">
+				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="../srclib" />
+				</Compiler>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -85,9 +98,36 @@
 			<Add before="..\arduino\sync_lib_files.bat" />
 			<Mode after="always" />
 		</ExtraCommands>
-		<Unit filename="../arduino/duinosays/duinosays.ino" />
-		<Unit filename="../arduino/test/test.ino" />
-		<Unit filename="../arduino/test_text/test_text.ino" />
+		<Unit filename="../arduino/duinosays/duinosays.ino">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/test/test.ino">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/test_text/test_text.ino">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/test_textures/test_textures.ino">
 			<Option target="Test Textures - 8bit (Debug)" />
 			<Option target="Test Textures - 16bit (Debug)" />
@@ -97,12 +137,24 @@
 		<Unit filename="../arduino/tinytino/game.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
-		<Unit filename="../arduino/tinytino/tinytino.ino" />
+		<Unit filename="../arduino/tinytino/tinytino.ino">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../srclib/lib_FixedMath.h" />
 		<Unit filename="../srclib/lib_RenderBuffer.cpp" />
 		<Unit filename="../srclib/lib_RenderBuffer.h" />
 		<Unit filename="../srclib/lib_StringBuffer.cpp" />
 		<Unit filename="../srclib/lib_StringBuffer.h" />
+		<Unit filename="../srclib/test_FixedMath.h">
+			<Option target="Test" />
+		</Unit>
 		<Unit filename="arduino_wrappers/TinyScreenRaycaster/TinyScreenRaycaster.cpp">
 			<Option target="TinyScreenRaycaster (Debug)" />
 		</Unit>
@@ -123,10 +175,49 @@
 		<Unit filename="arduino_wrappers/tinytino/tinytino.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
-		<Unit filename="include/SPI.h" />
-		<Unit filename="include/TinyScreen.h" />
-		<Unit filename="include/Wire.h" />
-		<Unit filename="src/Main.cpp" />
+		<Unit filename="include/SPI.h">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="include/TinyScreen.h">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="include/Wire.h">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="src/Main.cpp">
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="src/Test.cpp">
+			<Option target="Test" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
