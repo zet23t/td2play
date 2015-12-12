@@ -27,12 +27,12 @@ public:
 template<uint8_t width, uint8_t height, uint8_t tileSizeBits>
 class TileMap {
 private:
-    uint8_t tiles[width * height];
+    uint16_t *tiles;
     int16_t offsetX, offsetY;
     uint8_t paralax;
 public:
-    TileMap(uint16_t offsetX, uint16_t offsetY, uint8_t paralax)
-        : offsetX(offsetX), offsetY(offsetY), paralax(paralax)
+    TileMap(uint16_t offsetX, uint16_t offsetY, uint8_t paralax, uint16_t *tiles)
+        : offsetX(offsetX), offsetY(offsetY), paralax(paralax), tiles(tiles)
     {
 
     }
@@ -49,9 +49,15 @@ public:
         for (int16_t y = minY; y < maxY; y += 1 << tileSizeBits) {
             for (int16_t x = minX; x < maxX; x += 1 << tileSizeBits) {
                 if (y < 0 || x < 0 || x >= width << tileSizeBits || y >= height << tileSizeBits) continue;
+                const uint8_t tileX = x >> tileSizeBits;
+                const uint8_t tileY = y >> tileSizeBits;
+                const uint16_t tileIndex = tiles[tileX + tileY * width];
+
                 renderBuffer.drawRect(x + (RenderBufferConst::screenWidth>>1) - centerX,
                                       y + (RenderBufferConst::screenHeight>>1) - centerY,8,8)
-                                      ->sprite(&texture::beastlands, x, y);
+                                      ->sprite(&texture::beastlands,
+                                               (tileIndex & 0xff) << tileSizeBits,
+                                               (tileIndex >> 8) << tileSizeBits);
                                       //->filledRect(renderBuffer.rgb(255&(x+64),255&(y+64),0));
             }
         }
@@ -67,11 +73,23 @@ public:
     }
 };
 
+static uint16_t levelMap[] = {
+    0,1,2,0, 0,0,0,0,
+    1,3,4,5, 0,0,0,0,
+    0x108,0,0,0, 0,0,0,0,
+    0,0,0,0, 0,0,0,0,
+
+    0,0,0,0, 0,0,0,0,
+    0,0,0,0, 0,0,0,0,
+    0,0,0,0, 0,0,0,0,
+    0,0,0,0, 0,0,0,0,
+};
+
 class LevelMapScreen : public Screen {
-    TileMap<128,32,3> tileMap;
+    TileMap<8,8,3> tileMap;
     Camera camera;
 public:
-    LevelMapScreen(): tileMap(0,0,0), camera() {
+    LevelMapScreen(): tileMap(0,0,0,levelMap), camera() {
     }
     void update() {
         camera.position += Fixed2D4(0,8,0,8);
