@@ -137,13 +137,13 @@ void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uin
 template<class TColor>
 void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
     int offset = (v & heightMod) * this->width;
-    uint8_t *rgb233Line = &rgb233[offset];
+    const uint8_t *rgb233Line = &rgb233[offset];
 
     int pos = u;
     if (transparentColorMask) {
         if (sizeof(TColor) == 1) {
-            uint8_t* rgb233LineEnd = rgb233Line + this->width;
-            uint8_t* rgb233LineStart = rgb233Line;
+            const uint8_t* rgb233LineEnd = rgb233Line + this->width;
+            const uint8_t* rgb233LineStart = rgb233Line;
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 //uint8_t rgb = rgb233Line[pos++ & widthMod];
@@ -178,8 +178,8 @@ void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uin
             // 24 memcpy calls. Though there's more logic, it is in deed faster this way for
             // many cases, especially when the source texture is very narrow. Memcpy is very fast.
             lineX+=rest;
-            uint8_t* src = rgb233Line;
-            uint8_t* cpStarted = (uint8_t*)&lineBuffer[lineX];
+            const uint8_t* src = rgb233Line;
+            const uint8_t* cpStarted = (uint8_t*)&lineBuffer[lineX];
             uint8_t cpWidth = this->width;
             while (lineX < x2) {
                 rest = x2 - lineX;
@@ -203,7 +203,7 @@ void Texture<TColor>::fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, 
 }
 
 template<class TColor>
-Texture<TColor>::Texture (uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
+Texture<TColor>::Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
     this->data = data;
     this->type = type;
     this->width = width;
@@ -280,7 +280,15 @@ RenderCommand<TColor>* RenderCommand<TColor>::filledRect(TColor color)
 template<class TColor>
 RenderCommand<TColor>* RenderCommand<TColor>::sprite(const Texture<TColor> *texture)
 {
+    return sprite(texture,0,0);
+}
+
+template<class TColor>
+RenderCommand<TColor>* RenderCommand<TColor>::sprite(const Texture<TColor> *texture, uint8_t u, uint8_t v)
+{
     this->rect.texture = texture;
+    this->rect.u += u;
+    this->rect.v += v;
     this->type = RenderCommandType::textured;
     return this;
 }

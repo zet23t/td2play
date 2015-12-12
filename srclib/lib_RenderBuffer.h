@@ -1,6 +1,8 @@
 #ifndef __RENDERBUFFER_H__
 #define __RENDERBUFFER_H__
 
+#include <inttypes.h>
+#include <TinyScreen.h>
 #include <assert.h>
 #include <stdio.h>
 
@@ -52,9 +54,9 @@ template<class TColor>
 class Texture {
 private:
     union {
-        uint8_t *data;
-        uint16_t *rgb565;
-        uint8_t *rgb233;
+        const uint8_t *data;
+        const uint16_t *rgb565;
+        const uint8_t *rgb233;
     };
     uint8_t type;
     uint16_t width;
@@ -67,7 +69,7 @@ private:
     void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
     void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
 public:
-    Texture (uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
+    Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
     void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
 };
 
@@ -126,6 +128,7 @@ public:
     RenderCommand() {};
     RenderCommand* filledRect(TColor color);
     RenderCommand* sprite(const Texture<TColor> *texture);
+    RenderCommand* sprite(const Texture<TColor> *texture, uint8_t u, uint8_t v);
     RenderCommand* blend(uint8_t blendMode);
     void fillLine(TColor *line, uint8_t y);
 };

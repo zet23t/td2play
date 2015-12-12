@@ -137,6 +137,12 @@
 		<Unit filename="../arduino/tinytino/game.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/tinytino/sprites.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/sprites.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/tinytino.ino">
 			<Option target="Test - 8bit (Debug)" />
 			<Option target="Test - 16bit (Debug)" />

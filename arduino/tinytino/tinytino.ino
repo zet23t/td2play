@@ -8,7 +8,7 @@
 #include "game.h"
 
 static TinyScreen display(0);
-RenderBuffer<uint16_t,40> renderBuffer;
+RenderBuffer<uint16_t,128> renderBuffer;
 
 Game game;
 
