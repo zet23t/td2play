@@ -1,5 +1,7 @@
 #ifndef __FIXEDMATH_H__
 #define __FIXEDMATH_H__
+
+#include <inttypes.h>
 #include "lib_StringBuffer.h"
 
 template <uint8_t shiftNum>

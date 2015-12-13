@@ -56,8 +56,8 @@ public:
                 renderBuffer.drawRect(x + (RenderBufferConst::screenWidth>>1) - centerX,
                                       y + (RenderBufferConst::screenHeight>>1) - centerY,8,8)
                                       ->sprite(&texture::beastlands,
-                                               (tileIndex & 0xff) << tileSizeBits,
-                                               (tileIndex >> 8) << tileSizeBits);
+                                               (tileIndex & 0xf) << tileSizeBits,
+                                               (tileIndex >> 4) << tileSizeBits);
                                       //->filledRect(renderBuffer.rgb(255&(x+64),255&(y+64),0));
             }
         }
@@ -73,23 +73,13 @@ public:
     }
 };
 
-static uint16_t levelMap[] = {
-    0,1,2,0, 0,0,0,0,
-    1,3,4,5, 0,0,0,0,
-    0x108,0,0,0, 0,0,0,0,
-    0,0,0,0, 0,0,0,0,
-
-    0,0,0,0, 0,0,0,0,
-    0,0,0,0, 0,0,0,0,
-    0,0,0,0, 0,0,0,0,
-    0,0,0,0, 0,0,0,0,
-};
+extern uint16_t data_level[];
 
 class LevelMapScreen : public Screen {
-    TileMap<8,8,3> tileMap;
+    TileMap<128,32,3> tileMap;
     Camera camera;
 public:
-    LevelMapScreen(): tileMap(0,0,0,levelMap), camera() {
+    LevelMapScreen(): tileMap(0,0,0,data_level), camera() {
     }
     void update() {
         camera.position += Fixed2D4(0,8,0,8);
