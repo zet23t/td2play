@@ -5,6 +5,7 @@
 #include <TinyScreen.h>
 #include <assert.h>
 #include <stdio.h>
+#include "lib_font_virtualdj.h"
 
 namespace RenderBufferConst {
     const uint8_t screenWidth = 96;

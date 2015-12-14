@@ -7,6 +7,8 @@ configuration file in the same directory as the executable, and copy and paste
 the output to the end of this file. Fonts that are not used are not included by
 the compiler and do not take up any space on the microcontroller flash.
 */
+#ifndef __LIB_FONT_VIRTUALDJ_H__
+#define __LIB_FONT_VIRTUALDJ_H__
 
 /*
 **  Font data for Virtual DJ 5pt
@@ -477,3 +479,5 @@ static const FONT_INFO virtualDJ_5ptFontInfo =
 	virtualDJ_5ptBitmaps, /*  Character bitmap array */
 };
 
+
+#endif // __LIB_FONT_VIRTUALDJ_H__

@@ -134,13 +134,25 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/tinytino/LevelMapScreen.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/data_level.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/game.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/game_types.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/sprites.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/sprites.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/tilemap.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/tinytino.ino">
@@ -158,6 +170,7 @@
 		<Unit filename="../srclib/lib_RenderBuffer.h" />
 		<Unit filename="../srclib/lib_StringBuffer.cpp" />
 		<Unit filename="../srclib/lib_StringBuffer.h" />
+		<Unit filename="../srclib/lib_font_virtualdj.h" />
 		<Unit filename="../srclib/test_FixedMath.h">
 			<Option target="Test" />
 		</Unit>
