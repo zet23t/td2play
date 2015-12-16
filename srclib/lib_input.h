@@ -10,19 +10,16 @@ enum ScreenButtonId {
     SCREENBUTTON_BOTTOMRIGHT = 3
 };
 
-class ScreenButtonState {
-private:
-    static uint8_t buttonState;
-public:
-    static void updateButtonState(uint8_t newState);
-    static bool isButtonOn(ScreenButtonId btn);
-    static bool wasButtonOn(ScreenButtonId btn);
-    static bool isButtonActivated(ScreenButtonId btn);
-    static bool wasButtonReleased(ScreenButtonId btn);
-    static bool isAnyButtonOn();
-    static bool wasAnyButtonOn();
-    static bool isAnyButtonActivated();
-    static bool wasAnyButtonReleased();
+namespace ScreenButtonState {
+    void updateButtonState(uint8_t newState);
+    bool isButtonOn(ScreenButtonId btn);
+    bool wasButtonOn(ScreenButtonId btn);
+    bool isButtonActivated(ScreenButtonId btn);
+    bool wasButtonReleased(ScreenButtonId btn);
+    bool isAnyButtonOn();
+    bool wasAnyButtonOn();
+    bool isAnyButtonActivated();
+    bool wasAnyButtonReleased();
 };
 
 
