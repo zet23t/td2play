@@ -455,7 +455,7 @@ public:
             if (tag == 0) break;
             uint16_t score = scores.getScore(i);
             buffer.drawText(stringBuffer.start().putDec(i).put(')').get(),10,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
-            buffer.drawText(stringBuffer.start().put(tag).get(),38,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+            buffer.drawText(stringBuffer.start().put(tag[0]).put(tag[1]).put(tag[2]).get(),38,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
             buffer.drawText(stringBuffer.start().putDec(score).get(),81 - score / 10 * 5,15 + i * 8,buffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
         }
 
