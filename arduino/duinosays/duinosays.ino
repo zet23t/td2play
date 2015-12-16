@@ -4,13 +4,8 @@
 #include "lib_font_virtualdj.h"
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
+#include "lib_input.h"
 
-enum ScreenButtonId {
-    SCREENBUTTON_BOTTOMLEFT = 0,
-    SCREENBUTTON_TOPLEFT = 1,
-    SCREENBUTTON_TOPRIGHT = 2,
-    SCREENBUTTON_BOTTOMRIGHT = 3
-};
 
 enum DuinoSaysGameMode {
     DSMODE_MAINMENU,
@@ -21,40 +16,6 @@ enum DuinoSaysGameMode {
     DSMODE_SHOWABOUT
 };
 
-class ScreenButtonState {
-private:
-    static uint8_t buttonState;
-public:
-    static void updateButtonState(uint8_t newState) {
-        buttonState = buttonState << 4 | newState;
-    }
-    static bool isButtonOn(ScreenButtonId btn) {
-        return buttonState >> btn & 1 ? true : false;
-    }
-    static bool wasButtonOn(ScreenButtonId btn) {
-        return buttonState >> (4 + btn) & 1? true : false;
-    }
-    static bool isButtonActivated(ScreenButtonId btn) {
-        return isButtonOn(btn) && !wasButtonOn(btn);
-    }
-    static bool wasButtonReleased(ScreenButtonId btn) {
-        return !isButtonOn(btn) && wasButtonOn(btn);
-    }
-    static bool isAnyButtonOn() {
-        return buttonState & 15 ? true : false;
-    }
-    static bool wasAnyButtonOn() {
-        return buttonState & 0xf0 ? true : false;
-    }
-    static bool isAnyButtonActivated() {
-        return isAnyButtonOn() && !wasAnyButtonOn();
-    }
-    static bool wasAnyButtonReleased() {
-        return !isAnyButtonOn() && wasAnyButtonOn();
-    }
-
-};
-uint8_t ScreenButtonState::buttonState;
 
 namespace ParticleType {
     const uint8_t bottomLeftButton = 0;

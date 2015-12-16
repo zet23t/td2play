@@ -171,6 +171,8 @@
 		<Unit filename="../srclib/lib_StringBuffer.cpp" />
 		<Unit filename="../srclib/lib_StringBuffer.h" />
 		<Unit filename="../srclib/lib_font_virtualdj.h" />
+		<Unit filename="../srclib/lib_input.cpp" />
+		<Unit filename="../srclib/lib_input.h" />
 		<Unit filename="../srclib/test_FixedMath.h">
 			<Option target="Test" />
 		</Unit>
