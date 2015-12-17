@@ -1,10 +1,8 @@
 /**
  * Visually testing if text output is actually working and not corrupting anything
  */
-#include <TinyScreen.h>
 #include <SPI.h>
 #include <Wire.h>
-#include "lib_font_virtualdj.h"
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
 
@@ -12,11 +10,16 @@ TinyScreen display = TinyScreen(0);
 RenderBuffer<uint8_t,20> buffer;
 
 void setup() {
-  Wire.begin();
-  display.begin();
-  display.setFlip(0);
-  display.setBrightness(8);
-  display.setBitDepth(0);
+    Wire.begin();
+    #if defined(ARDUINO_ARCH_SAMD)
+    display.begin(TinyScreenPlus);
+    #else
+    display.begin();
+    #endif
+
+    display.setFlip(0);
+    display.setBrightness(8);
+    display.setBitDepth(0);
 }
 
 void loop(void) {

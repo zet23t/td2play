@@ -13,11 +13,15 @@ RenderBuffer<uint8_t,20> buffer;
 #endif // SCREEN_16BITS
 
 void setup() {
-  Wire.begin();
-  display.begin();
-  display.setFlip(0);
-  display.setBrightness(8);
-  display.setBitDepth(buffer.is16bit() ? 1 : 0);
+    Wire.begin();
+    #if defined(ARDUINO_ARCH_SAMD)
+    display.begin(TinyScreenPlus);
+    #else
+    display.begin();
+    #endif
+    display.setFlip(0);
+    display.setBrightness(8);
+    display.setBitDepth(buffer.is16bit() ? 1 : 0);
 }
 uint16_t rgb565[] = {
     RGB565(0,0,255),RGB565(0,0,127), RGB565(127,0,0),RGB565(255,0,0),
