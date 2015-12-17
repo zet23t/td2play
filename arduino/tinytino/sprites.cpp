@@ -1,11 +1,13 @@
-#ifdef WIN32
+
+#ifndef PROGMEM
 #define PROGMEM
-#endif // WIN32
+#endif // PROGMEM
+
 #include "lib_RenderBuffer.h"
 #include "sprites.h"
 
 namespace texture {
-    extern const Texture<uint16_t> beastlands(_image_beastlands, TextureType::rgb565sram, 128, 64, 0);
+    extern const Texture<uint16_t> beastlands(_image_beastlands, TextureType::rgb565progmem, 128, 64, 0);
 }
 
 

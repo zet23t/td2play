@@ -3,7 +3,6 @@
 
 #include "lib_FixedMath.h"
 #include "lib_RenderBuffer.h"
-#include <algorithm>
 #include "sprites.h"
 
 #include "game_types.h"
@@ -11,7 +10,6 @@
 
 class Screen {
 public:
-
     virtual void update() {}
 };
 

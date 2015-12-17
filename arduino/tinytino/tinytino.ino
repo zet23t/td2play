@@ -1,7 +1,5 @@
-#include <TinyScreen.h>
 #include <SPI.h>
 #include <Wire.h>
-#include "lib_font_virtualdj.h"
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
 
@@ -26,13 +24,17 @@ void setup() {
 
 void loop() {
     static unsigned long throttle = millis();
-
-    //renderBuffer.drawRect(39,35,5,5)->filledRect(renderBuffer.rgb(255,255,255));
+    static unsigned long t = 0;
+    unsigned long t0 = millis();
 
     game.update();
 
+//    renderBuffer.drawText(stringBuffer.start().putDec(t).put("ms").get(),2,2,renderBuffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+
+
     renderBuffer.flush(display);
     stringBuffer.reset();
+    t = millis() - t0;
 
     while (millis() - throttle < 50) continue;
     throttle = millis();
