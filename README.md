@@ -17,6 +17,13 @@ This project is still in a very early stage!
 
 For more information, please read the readme files in the respective directories.
 
+## Requirements
+
+* The simulator depends on GLFW3 which is crossplatform
+* Codeblocks project files are provided to compile the simulator and projects on windows - this could be adapted quite easily however
+* The image converter is written in HTML/JavaScript and allows converting images to C code quite easily
+* Other scripts and tools use Lua in combination with the gd library. You'd need to install a Lua interpreter together with the required libraries in order to run these tools
+
 ## Regarding tests
 
 There are a few tests around the math libraries that can be compiled and run
