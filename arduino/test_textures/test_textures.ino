@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
+#include "texture_data.h"
 
 TinyScreen display = TinyScreen(0);
 
@@ -31,14 +32,10 @@ void setup() {
     display.setBitDepth(buffer.is16bit());
 }
 #ifndef SCREEN_16BITS
-extern const unsigned char _image_sky_background_8bit_data[512];
-extern const unsigned char _image_clouds_8bit_data[256];
 Texture<uint8_t> _skyBackground((uint8_t*) _image_sky_background_8bit_data, TextureType::rgb233sram, 4,128, 0);
 Texture<uint8_t> _clouds((uint8_t*) _image_clouds_8bit_data, TextureType::rgb233sram, 32, 8, 0xe3); // 0x1ff8
 #else
-extern const unsigned char _image_sky_background_data[256];
-extern const unsigned char _image_clouds_data[512];
-Texture<uint16_t> _skyBackground((uint8_t*) _image_sky_background_data, TextureType::rgb565sram, 1,128, 0);
+Texture<uint16_t> _skyBackground((uint8_t*) _image_sky_background_data, TextureType::rgb565progmem, 1,128, 0);
 Texture<uint16_t> _clouds((uint8_t*) _image_clouds_data, TextureType::rgb565sram, 32, 8, 0); // 0x1ff8
 #endif
 

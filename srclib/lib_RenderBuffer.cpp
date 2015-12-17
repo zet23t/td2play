@@ -1,8 +1,11 @@
 #include <stdint.h>
 #include "lib_RenderBuffer.h"
+#ifndef WIN32
+#include <avr/pgmspace.h>
+#endif // WIN32
 
 template<class TColor>
-void Texture<TColor>::fillLineRgb565sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
+inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
     int offset = (v & heightMod) * this->width;
     int pos = u;
     if (transparentColorMask) {
@@ -217,7 +220,8 @@ Texture<TColor>::Texture (const uint8_t *data, uint8_t type, uint16_t width, uin
 template<class TColor>
 void Texture<TColor>::fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const {
     switch (type) {
-    case TextureType::rgb565sram: fillLineRgb565sram(lineBuffer,lineX,u,v,width, blendMode); break;
+    case TextureType::rgb565sram: fillLineRgb565(true, lineBuffer,lineX,u,v,width, blendMode); break;
+    case TextureType::rgb565progmem: fillLineRgb565(false, lineBuffer,lineX,u,v,width, blendMode); break;
     case TextureType::rgb233sram: fillLineRgb233sram(lineBuffer,lineX,u,v,width, blendMode); break;
     case TextureType::rgb233progmem: fillLineRgb233progmem(lineBuffer,lineX,u,v,width, blendMode); break;
     }
