@@ -29,7 +29,7 @@ void loop() {
 
     game.update();
 
-//    renderBuffer.drawText(stringBuffer.start().putDec(t).put("ms").get(),2,2,renderBuffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
+    renderBuffer.drawText(stringBuffer.start().putDec(t).put("ms").get(),2,2,renderBuffer.rgb(255,255,255), &virtualDJ_5ptFontInfo);
 
 
     renderBuffer.flush(display);

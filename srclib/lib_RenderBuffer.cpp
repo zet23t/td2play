@@ -7,7 +7,7 @@
 #endif // WIN32
 
 template<class TColor>
-inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
+void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
     int offset = (v & heightMod) * this->width;
     int pos = u;
     if (transparentColorMask) {
@@ -85,7 +85,7 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
 
     } else {
         switch(blendMode) {
-        case RenderCommandBlendMode::opaque:
+            case RenderCommandBlendMode::opaque:
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
@@ -134,6 +134,12 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
                     lineBuffer[lineX++] = (r >> 3) | (g & 034) | (b << 3 & 0340);
                 }
             }
+            break;
+        default:
+#ifdef WIN32
+    assert(0);
+#endif // WIN32
+            for (uint8_t x = lineX; x < lineX+width; x+=1) lineBuffer[x] = 0xff;
             break;
         }
     }
@@ -296,6 +302,7 @@ RenderCommand<TColor>* RenderCommand<TColor>::sprite(const Texture<TColor> *text
     this->rect.u += u;
     this->rect.v += v;
     this->type = RenderCommandType::textured;
+    this->rect.blendMode = RenderCommandBlendMode::opaque;
     return this;
 }
 

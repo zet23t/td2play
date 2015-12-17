@@ -65,7 +65,7 @@ private:
     uint16_t widthMod;
     uint16_t heightMod;
     uint16_t transparentColorMask;
-    inline void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
+    void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
     void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
     void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
 public:
@@ -214,7 +214,7 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
     #endif
     display.startData();
 
-    const uint8_t stepSize = 4;
+    const uint8_t stepSize = 8;
 
     for (uint8_t yg=0; yg<RenderBufferConst::screenHeight; yg+=stepSize)
     {
