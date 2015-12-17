@@ -33,3 +33,21 @@ the test if the outcome is wrong).
 Next to that there are some basic testing projects that demonstrate one or two
 functionalities that can be compiled and run via simulator or tiny screen. Sadly
 I don't know how to automate testing the functionalities in a better way yet.
+
+## Regarding code quality
+
+I deem this project's code quality as low by my own standards:
+
+* Naming of files is inconsistent
+* Naming of classes is inconsistent
+* No meaningful namespacing
+* Bad architecture / organization
+
+Here are my excuses:
+
+* I'm really new to C++
+* I'm quite new to Arduino & Embedded programming
+* The Arduino IDE (compiler) doesn't allow subdirectories in a project to be used. This makes organization difficult. 
+* I have very little time to work out things, let alone denting out previously made decissions.
+
+Please share your thoughts of concern how to improve this. 
