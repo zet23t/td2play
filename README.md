@@ -16,3 +16,13 @@ This project is still in a very early stage!
 * ./pagebufferscript: A scripting language for TD environment - concept only so far
 
 For more information, please read the readme files in the respective directories.
+
+## Regarding tests
+
+There are a few tests around the math libraries that can be compiled and run
+quite easily (no fancy frameworks needed, just a bunch of asserts that crash
+the test if the outcome is wrong).
+
+Next to that there are some basic testing projects that demonstrate one or two
+functionalities that can be compiled and run via simulator or tiny screen. Sadly
+I don't know how to automate testing the functionalities in a better way yet.
