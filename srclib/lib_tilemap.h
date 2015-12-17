@@ -13,24 +13,25 @@ private:
     Texture<TColor> backgroundTexture;
     Texture<TColor> foregroundTexture;
     uint16_t width, height;
+    uint8_t tileSizeBits;
     const char *backgroundTileMap;
     const char *foregroundTileMap;
 public:
     TileDataMap(Texture<TColor> backgroundTexture,
                 Texture<TColor> foregroundTexture,
-                uint16_t width, uint16_t height,
+                uint16_t width, uint16_t height, uint8_t tileSizeBits,
                 const char *backgroundTileMap,
                 const char *foregroundTileMap):
                     backgroundTexture(backgroundTexture),
                     foregroundTexture(foregroundTexture),
-                    width(width), height(height),
+                    width(width), height(height), tileSizeBits(tileSizeBits),
                     backgroundTileMap(backgroundTileMap),
                     foregroundTileMap(foregroundTileMap)
     {
 
     }
 
-    void update(RenderBuffer<TColor, maxCommands>& buffer, const uint16_t cameraX, const uint16_t cameraY) const;
+    void update(RenderBuffer<TColor, maxCommands>& buffer, const int16_t centerX, const int16_t centerY) const;
 };
 
 #endif // __LIB_TILEMAP_H__

@@ -11,6 +11,16 @@ local width = tonumber(content:match 'width="(%d+)"')
 local height = tonumber(content:match 'height="(%d+)"')
 local tilewidth = tonumber(content:match 'tilewidth="(%d+)"')
 local tileheight = tonumber(content:match 'tileheight="(%d+)"')
+assert(tilewidth == tileheight, "tile size must be square")
+
+local tilesizebits
+for i=1,5 do 
+	if 2^i == tilewidth then
+		tilesizebits = i
+		break
+	end
+end
+assert(tilesizebits, "tile size must be power of 2") 
 
 local tilesets = {}
 local tileset_by_id = {}
@@ -92,14 +102,14 @@ static const char _foreground[] PROGMEM = {
   %s};
 static const char _background[] PROGMEM = {
   %s};
-TileDataMap %s = {
-  TextureData::%s, TextureData::%s, %d, %d, _background, _foreground
-};
+TileDataMap %s = TileDataMap(
+  TextureData::%s, TextureData::%s, %d, %d, %d, _background, _foreground
+);
 ]]):format(
 	to_c(foreground), to_c(background),
 	-- tiledatamap
 	file:match "[^%.]+", 
 	background.usedtileset.source:match "([^/]+).png$":gsub("[%- ]+","_"), 
 	foreground.usedtileset.source:match "([^/]+).png$":gsub("[%- ]+","_"), 
-	width, height
+	width, height, tilesizebits
 ))
