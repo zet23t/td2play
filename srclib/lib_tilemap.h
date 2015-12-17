@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include "lib_RenderBuffer.h"
 
-template<class TColor>
+template<class TColor, int maxCommands>
 class TileDataMap {
 private:
     // Not sure if packing back- and foreground into same class is wise
@@ -30,7 +30,7 @@ public:
 
     }
 
-    void update(RenderBuffer<TColor>& buffer, const uint16_t cameraX, const uint16_t cameraY) const;
+    void update(RenderBuffer<TColor, maxCommands>& buffer, const uint16_t cameraX, const uint16_t cameraY) const;
 };
 
 #endif // __LIB_TILEMAP_H__
