@@ -134,6 +134,14 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/test_textures/texture_data.cpp">
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/test_textures/texture_data.h">
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/LevelMapScreen.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
