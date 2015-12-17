@@ -2,6 +2,8 @@
 #include "lib_RenderBuffer.h"
 #ifndef WIN32
 #include <avr/pgmspace.h>
+#else
+#define pgm_read_word_far(x) *(x)
 #endif // WIN32
 
 template<class TColor>
@@ -14,7 +16,7 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
-                uint16_t col = rgb565[index];
+                uint16_t col = sram ? rgb565[index] : pgm_read_word_far(&rgb565[index]);
                 if (col != transparentColorMask) {
                     if (sizeof(TColor) == 2) {
                         lineBuffer[lineX] = col;
@@ -34,7 +36,7 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
-                uint16_t col = rgb565[index];
+                uint16_t col = sram ? rgb565[index] : pgm_read_word_far(&rgb565[index]);
                 if (col != transparentColorMask) {
                     lineBuffer[lineX] |= col;
                 }
@@ -45,7 +47,7 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
-                uint16_t col = rgb565[index];
+                uint16_t col = sram ? rgb565[index] : pgm_read_word_far(&rgb565[index]);
                 if (col != transparentColorMask) {
                     lineBuffer[lineX] &= col;
                 }
@@ -56,7 +58,7 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
-                uint16_t src = rgb565[index];
+                uint16_t src = sram ? rgb565[index] : pgm_read_word_far(&rgb565[index]);
                 if (src == transparentColorMask) {
                     lineX+=1;
                     continue;
@@ -87,10 +89,11 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
+                uint16_t src = sram ? rgb565[index] : pgm_read_word_far(&rgb565[index]);
                 if (sizeof(TColor) == 2) {
-                    lineBuffer[lineX++] = rgb565[index];
+                    lineBuffer[lineX++] = src;
                 } else {
-                    uint16_t col = data[index*2+1] | (data[index*2] << 8);
+                    uint16_t col = src << 8 | src >> 8;//data[index*2+1] | (data[index*2] << 8);
                     uint8_t r = (col & 31);
                     uint8_t g = (col >> 5 & 63);
                     uint8_t b = (col >> 11 & 31);
@@ -103,14 +106,14 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
-                lineBuffer[lineX++] |= rgb565[index];
+                lineBuffer[lineX++] |= sram ? rgb565[index] : pgm_read_word_far(&rgb565[index]);
             }
             break;
         case RenderCommandBlendMode::bitwiseAnd:
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
-                lineBuffer[lineX++] &= rgb565[index];
+                lineBuffer[lineX++] &= sram ? rgb565[index] : pgm_read_word_far(&rgb565[index]);
             }
             break;
         case RenderCommandBlendMode::average:
@@ -118,7 +121,7 @@ inline void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8
             {
                 int index = (pos++ & widthMod) + offset;
                 uint16_t dst = lineBuffer[lineX] & ~(RGB565(1,1,1)) >> 1;
-                uint16_t col = rgb565[index] & ~(RGB565(1,1,1)) >> 1;
+                uint16_t col = (sram ? rgb565[index] : pgm_read_word_far(&rgb565[index])) & ~(RGB565(1,1,1)) >> 1;
                 uint16_t result = col + dst;
                 if (sizeof(TColor) == 2) {
                     lineBuffer[lineX++] = result;
