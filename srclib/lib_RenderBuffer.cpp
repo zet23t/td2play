@@ -85,7 +85,7 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
 
     } else {
         switch(blendMode) {
-            case RenderCommandBlendMode::opaque:
+        case RenderCommandBlendMode::opaque:
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;

@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
+#include "lib_input.h"
 
 #include "game.h"
 
@@ -26,6 +27,7 @@ void loop() {
     static unsigned long throttle = millis();
     static unsigned long t = 0;
     unsigned long t0 = millis();
+    ScreenButtonState::updateButtonState(display.getButtons());
 
     game.update();
 

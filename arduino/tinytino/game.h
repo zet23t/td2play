@@ -10,6 +10,7 @@
 
 class Screen {
 public:
+    virtual void init() {}
     virtual void update() {}
 };
 
@@ -40,6 +41,7 @@ class LevelMapScreen : public Screen {
 public:
     LevelMapScreen(TileMap *tileMap): tileMap(tileMap), camera() {
     }
+    void init();
     void update();
 
 };
@@ -48,6 +50,8 @@ class MainMenuScreen : public Screen {
 public:
     MainMenuScreen() {
 
+    }
+    void init() {
     }
     void update() {
         FixedNumber16<4> fixA(42,15);
@@ -64,6 +68,7 @@ private:
     Screen* currentScreen;
 public:
     Game():mainMenuScreen(), levelMapScreen(&map_0), currentScreen(&levelMapScreen) {
+        currentScreen->init();
     }
     void update() {
         currentScreen->update();

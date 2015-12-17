@@ -12,7 +12,7 @@ private:
 public:
     TileMap(uint8_t width, uint8_t height, uint8_t tileSizeBits, int16_t offsetX, int16_t offsetY, uint8_t paralax, uint16_t *tiles)
         : width(width), height(height), tileSizeBits(tileSizeBits),
-        offsetX(offsetX), offsetY(offsetY), paralax(paralax), tiles(tiles)
+         tiles(tiles), offsetX(offsetX), offsetY(offsetY), paralax(paralax)
     {
 
     }
