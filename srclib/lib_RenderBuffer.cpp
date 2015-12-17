@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <TinyScreen.h>
 #include "lib_RenderBuffer.h"
 
 template<class TColor>

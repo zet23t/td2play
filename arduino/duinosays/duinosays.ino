@@ -1,7 +1,5 @@
-#include <TinyScreen.h>
 #include <SPI.h>
 #include <Wire.h>
-#include "lib_font_virtualdj.h"
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
 #include "lib_input.h"
