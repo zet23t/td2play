@@ -181,6 +181,8 @@
 		<Unit filename="../srclib/lib_font_virtualdj.h" />
 		<Unit filename="../srclib/lib_input.cpp" />
 		<Unit filename="../srclib/lib_input.h" />
+		<Unit filename="../srclib/lib_tilemap.cpp" />
+		<Unit filename="../srclib/lib_tilemap.h" />
 		<Unit filename="../srclib/test_FixedMath.h">
 			<Option target="Test" />
 		</Unit>
