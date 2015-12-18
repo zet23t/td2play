@@ -95,12 +95,13 @@ local filename = file:match "[^%.]+"
 local outfp = assert(io.open(filename..".cpp","wb"))
 outfp:write(([[
 // This file is generated from a tiled tilemap!
+#include <inttypes.h>
 #include "lib_tilemap.h"
 #include "texturemap.h"
 
-static const char _foreground[] PROGMEM = {
+static const uint8_t _foreground[] PROGMEM = {
   %s};
-static const char _background[] PROGMEM = {
+static const uint8_t _background[] PROGMEM = {
   %s};
 TileDataMap %s = TileDataMap(
   TextureData::%s, TextureData::%s, %d, %d, %d, _background, _foreground

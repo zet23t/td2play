@@ -1,10 +1,11 @@
 #include "lib_tilemap.h"
 
 template<class TColor, int maxCommands>
-void TileDataMap<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, const int16_t centerX, const int16_t centerY) const
+void TileDataMap<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, SceneBgFg<TColor>& scene, const int16_t centerX, const int16_t centerY) const
 {
-    int16_t topLeftX = (centerX & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
-    int16_t topLeftY = (centerY  & ~((1<<tileSizeBits)-1))- (RenderBufferConst::screenHeight >> 1);
+    const uint8_t tileSizeBits = tileset.tileSizeBits;
+    const int16_t topLeftX = (centerX & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
+    const int16_t topLeftY = (centerY  & ~((1<<tileSizeBits)-1))- (RenderBufferConst::screenHeight >> 1);
     const int16_t minX = topLeftX;
     const int16_t maxX = topLeftX + RenderBufferConst::screenWidth + (1 << tileSizeBits);
     const int16_t minY = topLeftY;

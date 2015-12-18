@@ -154,10 +154,16 @@
 		<Unit filename="../arduino/tinytino/game_types.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/tinytino/level_test2.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/sprites.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/sprites.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/texturemap.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/tilemap.h">
