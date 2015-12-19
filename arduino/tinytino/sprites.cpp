@@ -5,6 +5,7 @@
 
 #include "lib_RenderBuffer.h"
 #include "sprites.h"
+#include "texturemap.h"
 
 namespace texture {
     extern const Texture<uint16_t> beastlands(_image_beastlands, TextureType::rgb565progmem, 128, 64, 0);

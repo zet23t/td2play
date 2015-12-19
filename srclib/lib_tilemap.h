@@ -36,6 +36,8 @@ namespace TileMap {
             }
             assert(widthBits != 0xff);
         }
+        inline uint8_t getWidth() const { return width; }
+        inline uint8_t getHeight() const { return height; }
         inline uint8_t get(const uint8_t x, const uint8_t y) const {
             return pgm_read_byte_far(&tiles[x + (y << widthBits)]);
         }
@@ -69,7 +71,7 @@ namespace TileMap {
         TileSetBgFg<TColor> tileset;
         SceneBgFg(ProgmemData background, ProgmemData foreground, TileSetBgFg<TColor> tileset):
             background(background), foreground(foreground), tileset(tileset) {
-            assert(background.width == foreground.width && background.height == foreground.height);
+            assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
         }
     };
 
