@@ -3,6 +3,8 @@
 
 #include "lib_FixedMath.h"
 #include "lib_RenderBuffer.h"
+#include "lib_tilemap.h"
+#include "level_test2.h"
 #include "sprites.h"
 
 #include "game_types.h"
@@ -36,10 +38,11 @@ public:
 
 
 class LevelMapScreen : public Screen {
-    TileMap* tileMap;
+    TileMap::SceneBgFg<uint16_t> scene;
+    TileMap::SceneBgFgRenderer<uint16_t, 128> renderer;
     Camera camera;
 public:
-    LevelMapScreen(TileMap *tileMap): tileMap(tileMap), camera() {
+    LevelMapScreen(TileMap::SceneBgFg<uint16_t> &scene): scene(scene), camera() {
     }
     void init();
     void update();
@@ -67,7 +70,7 @@ private:
     LevelMapScreen levelMapScreen;
     Screen* currentScreen;
 public:
-    Game():mainMenuScreen(), levelMapScreen(&map_0), currentScreen(&levelMapScreen) {
+    Game():mainMenuScreen(), levelMapScreen(Level_test2::scene), currentScreen(&levelMapScreen) {
         currentScreen->init();
     }
     void update() {

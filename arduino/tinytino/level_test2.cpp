@@ -2,6 +2,8 @@
 #include "lib_tilemap.h"
 #include "texturemap.h"
 #include <inttypes.h>
+#include "level_test2.h"
+
 namespace Level_test2 {
 
 static const uint8_t _foreground[] PROGMEM = {
