@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include "lib_font_virtualdj.h"
+#include "lib_StringBuffer.h"
 
 namespace RenderBufferConst {
     const uint8_t screenWidth = 96;
@@ -69,6 +70,7 @@ private:
     void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
     void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
 public:
+    Texture():data(0),type(0),width(0),height(0),widthMod(0),heightMod(0),transparentColorMask(0){}
     Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
     void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
 };
@@ -140,12 +142,17 @@ private:
     RenderCommand<TColor> commandList[maxCommands];
     uint8_t commandCount;
     RenderCommand<TColor> noCommand;
+    TColor clearColor;
     bool clearBackground;
 public:
     RenderBuffer() {
         clearBackground = true;
     };
     void setClearBackground(bool clearB) {
+        clearBackground = clearB;
+    };
+    void setClearBackground(bool clearB, TColor color) {
+        clearColor = color;
         clearBackground = clearB;
     };
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
@@ -196,6 +203,8 @@ RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text,
 template<class TCol, int maxCommands>
 void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
 {
+    drawText(stringBuffer.start().putDec(commandCount).put("cmd").get(),32,2,rgb(255,255,255), &virtualDJ_5ptFontInfo);
+
     int remainingCount = commandCount;
     RenderCommand<TCol>* remaining[maxCommands];
     RenderCommand<TCol>* active[maxCommands];
@@ -235,8 +244,18 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
         }
         remainingCount = newRemainingCount;
         for (uint8_t y=yg;y < yLimit; y += 1) {
-            if (clearBackground)
-                memset(line,0,RenderBufferConst::screenWidth * sizeof(TCol));
+            if (sizeof(TCol) == 1) {
+                if (clearBackground) {
+                    memset(line,clearColor,RenderBufferConst::screenWidth * sizeof(TCol));
+
+                }
+
+            } else {
+                if (clearBackground) {
+                    for (uint8_t x=0;x<RenderBufferConst::screenWidth;x+=1)
+                        line[x] = clearColor;
+                }
+            }
             int newActiveCount = 0;
             for (uint8_t i=0; i<activeCount; i+=1)
             {

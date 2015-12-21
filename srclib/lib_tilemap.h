@@ -24,6 +24,9 @@ namespace TileMap {
         uint8_t widthBits;
         const uint8_t *tiles;
     public:
+        ProgmemData():width(0),height(0),widthBits(0),tiles(0) {
+
+        }
         ProgmemData(uint8_t width, uint8_t height, const uint8_t *tiles):
             width(width),height(height),tiles(tiles)
         {
@@ -59,6 +62,8 @@ namespace TileMap {
         Texture<TColor> background;
         Texture<TColor> foreground;
         uint8_t tileSizeBits;
+        TileSetBgFg():tileSizeBits(0) {
+        }
         TileSetBgFg(Texture<TColor> background, Texture<TColor> foreground, uint8_t tileSizeBits):
             background(background), foreground(foreground), tileSizeBits(tileSizeBits) {}
     };
@@ -70,6 +75,8 @@ namespace TileMap {
         ProgmemData background;
         ProgmemData foreground;
         TileSetBgFg<TColor> tileset;
+        SceneBgFg() {
+        }
         SceneBgFg(ProgmemData background, ProgmemData foreground, TileSetBgFg<TColor> tileset):
             background(background), foreground(foreground), tileset(tileset) {
             assert(this->background.getWidth() > 0 && background.getHeight() > 0);
@@ -115,6 +122,7 @@ namespace TileMap {
                 const uint8_t tileIndexFg = scene.foreground.get(index);
                 if (tileIndexBg != 0xff)
                     buffer.drawRect(rectX, rectY,8,8)
+                                    //->filledRect(buffer.rgb(80,90,30));
                                       ->sprite(&scene.tileset.background,
                                                (tileIndexBg & 0xf) << tileSizeBits,
                                                (tileIndexBg >> 4) << tileSizeBits);

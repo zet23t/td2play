@@ -4,7 +4,8 @@
 #include "lib_tilemap.h"
 
 void LevelMapScreen::init() {
-    camera.position = Fixed2D4(100,164);
+    camera.position = Fixed2D4(100,104);
+    renderBuffer.setClearBackground(true,renderBuffer.rgb(80,60,70));
 }
 
 void LevelMapScreen::update() {
