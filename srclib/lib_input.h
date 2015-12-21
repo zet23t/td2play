@@ -2,6 +2,7 @@
 #define __LIB_INPUT_H__
 
 #include <inttypes.h>
+#include "lib_FixedMath.h"
 
 enum ScreenButtonId {
     SCREENBUTTON_BOTTOMLEFT = 0,
@@ -21,6 +22,11 @@ namespace ScreenButtonState {
     bool isAnyButtonActivated();
     bool wasAnyButtonReleased();
 };
+
+namespace Joystick {
+    void updateJoystick();
+    Fixed2D4 getJoystick();
+}
 
 
 #endif // __LIB_INPUT_H__
