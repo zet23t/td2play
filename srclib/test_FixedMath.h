@@ -12,6 +12,7 @@ public:
         testSubtraction();
         testMultiplication();
         testDivision();
+        testCompare();
 
         test2DCompare();
         test2DAdd();
@@ -32,6 +33,7 @@ public:
     void testSubtraction() {
         assert(F4(1,12) == F4(9,3) - F4(7,7));
         assert(F4(-2,4) == F4(7,7) - F4(9,3));
+        assert(F4(0,8) == F4(0,15) - F4(0,7));
     }
 
     void testMultiplication() {
@@ -39,6 +41,8 @@ public:
         assert(F4() == F4(0,0) * F4(2,0));
         assert(F4(-1,0) == F4(0,8) * F4(-2,0));
         assert(F4(1,0) == F4(-1,8) * F4(-2,0));
+        assert(F4(2,0) == F4(1,0) * 2);
+        assert(F4(-2,0) == F4(1,0) * -2);
     }
 
     void testDivision() {
@@ -65,5 +69,14 @@ public:
 
     void test2DScale() {
         assert(Fixed2D4(1,2) == Fixed2D4(2,1).scale(Fixed2D4(0,8,2,0)));
+    }
+
+    void testCompare() {
+        assert(F4(0,8) < F4(0,10));
+        assert(!(F4(0,8) > F4(0,10)));
+        assert(F4(-1,8) < F4(-1,10));
+        assert(F4(-1,8) >= F4(-1,8));
+        assert(F4(-1,8) < F4(1,8));
+        assert(F4(2,8) >= F4(1,8));
     }
 };
