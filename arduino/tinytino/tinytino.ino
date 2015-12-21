@@ -13,6 +13,7 @@ Game game;
 
 void setup() {
     Wire.begin();
+
     #if defined(ARDUINO_ARCH_SAMD)
     display.begin(TinyScreenPlus);
     #else
@@ -28,6 +29,7 @@ void loop() {
     static unsigned long t = 0;
     unsigned long t0 = millis();
     ScreenButtonState::updateButtonState(display.getButtons());
+    Joystick::updateJoystick();
 
     game.update();
 
