@@ -153,9 +153,19 @@ void TinyScreen::endTransfer(void) {
         emulator.x = x;
         emulator.y = y;
     }
+
+    int analogRead(int pin) {
+        GLFWwindow* window = emulator.window;
+        switch (pin) {
+            case 2: return (glfwGetKey(window, GLFW_KEY_RIGHT) ? 511 : 0) - (glfwGetKey(window, GLFW_KEY_LEFT) ? 511 : 0)+511;
+            case 3: return (glfwGetKey(window, GLFW_KEY_UP) ? 511 : 0) - (glfwGetKey(window, GLFW_KEY_DOWN) ? 511 : 0)+511;
+            default: return 0;
+        }
+        return 0;
+    }
     //I2C GPIO related
     uint8_t TinyScreen::getButtons(void) {
-    GLFWwindow* window = emulator.window;
+        GLFWwindow* window = emulator.window;
         int tr = (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS);
         int br = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS);
         int tl = (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS);
