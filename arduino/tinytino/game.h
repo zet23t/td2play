@@ -39,10 +39,13 @@ public:
 
 class LevelMapScreen : public Screen {
     TileMap::SceneBgFg<uint16_t> scene;
-    TileMap::SceneBgFgRenderer<uint16_t, 128> renderer;
+    TileMap::SceneBgFgRenderer<uint16_t, 200> renderer;
     Camera camera;
 public:
     LevelMapScreen(TileMap::SceneBgFg<uint16_t> &scene): scene(scene), camera() {
+    }
+    void load(TileMap::SceneBgFg<uint16_t>& scene) {
+        this->scene = scene;
     }
     void init();
     void update();
@@ -70,10 +73,15 @@ private:
     LevelMapScreen levelMapScreen;
     Screen* currentScreen;
 public:
-    Game():mainMenuScreen(), levelMapScreen(Level_test2::scene), currentScreen(&levelMapScreen) {
-        currentScreen->init();
+    Game():mainMenuScreen(), levelMapScreen(Level_test2::scene), currentScreen(0) {
+
     }
     void update() {
+        if (currentScreen == 0) {
+            levelMapScreen.load(Level_test2::scene);
+            currentScreen = &levelMapScreen;
+            currentScreen->init();
+        }
         currentScreen->update();
     }
 };

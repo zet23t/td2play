@@ -37,7 +37,7 @@ namespace TileMap {
             }
             assert(widthBits != 0xff);
         }
-        inline uint8_t getWidth() const { assert(width > 0); return width; }
+        inline uint8_t getWidth() const { return width; }
         inline uint8_t getHeight() const { return height; }
         inline uint8_t get(const uint8_t x, const uint8_t y) const {
             return pgm_read_byte_far(&tiles[x + (y << widthBits)]);
@@ -72,7 +72,7 @@ namespace TileMap {
         TileSetBgFg<TColor> tileset;
         SceneBgFg(ProgmemData background, ProgmemData foreground, TileSetBgFg<TColor> tileset):
             background(background), foreground(foreground), tileset(tileset) {
-            assert(background.getWidth() > 0 && background.getHeight() > 0);
+            assert(this->background.getWidth() > 0 && background.getHeight() > 0);
             assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
         }
     };
@@ -102,7 +102,6 @@ namespace TileMap {
         const int16_t maxY = topLeftY + RenderBufferConst::screenHeight + (1 << tileSizeBits);
         const uint8_t width = scene.background.getWidth();
         const uint8_t height = scene.background.getHeight();
-printf("%d %d\n%d %d\n %d %d\n",minX,maxX,minY,maxY, width,height);
 
         for (int16_t y = minY; y < maxY; y += 1 << tileSizeBits) {
             for (int16_t x = minX; x < maxX; x += 1 << tileSizeBits) {
