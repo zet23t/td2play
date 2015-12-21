@@ -203,7 +203,9 @@ RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text,
 template<class TCol, int maxCommands>
 void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
 {
+    #ifdef DEBUG
     drawText(stringBuffer.start().putDec(commandCount).put("cmd").get(),32,2,rgb(255,255,255), &virtualDJ_5ptFontInfo);
+    #endif
 
     int remainingCount = commandCount;
     RenderCommand<TCol>* remaining[maxCommands];
