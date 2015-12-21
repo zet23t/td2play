@@ -157,6 +157,9 @@
 		<Unit filename="../arduino/tinytino/level_test2.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/tinytino/level_test2.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/sprites.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
