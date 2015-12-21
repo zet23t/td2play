@@ -157,8 +157,8 @@ void TinyScreen::endTransfer(void) {
     int analogRead(int pin) {
         GLFWwindow* window = emulator.window;
         switch (pin) {
-            case 2: return (glfwGetKey(window, GLFW_KEY_RIGHT) ? 511 : 0) - (glfwGetKey(window, GLFW_KEY_LEFT) ? 511 : 0)+511;
-            case 3: return (glfwGetKey(window, GLFW_KEY_UP) ? 511 : 0) - (glfwGetKey(window, GLFW_KEY_DOWN) ? 511 : 0)+511;
+            case 2: return (glfwGetKey(window, GLFW_KEY_RIGHT) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_LEFT) ? 511 : 0)+511;
+            case 3: return (glfwGetKey(window, GLFW_KEY_UP) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_DOWN) ? 511 : 0)+511;
             default: return 0;
         }
         return 0;
