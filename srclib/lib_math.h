@@ -4,6 +4,9 @@
 #include <inttypes.h>
 
 namespace Math {
+    void setSeed(int na, int nb);
+    unsigned int randInt();
+
     class Vector2D16 {
     public:
         int16_t x, y;

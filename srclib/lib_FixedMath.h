@@ -28,6 +28,11 @@ public:
     inline int16_t getIntegerPart() const {
         return number >> shiftNum;
     }
+
+    inline FixedNumber16<shiftNum>& setIntegerPart(int16_t x) {
+        number = x << shiftNum | number & ((1<<shiftNum) - 1);
+        return *this;
+    }
     char* toString() const {
         return toString(10000);
     }
@@ -42,6 +47,10 @@ public:
 
     FixedNumber16<shiftNum> operator -(const FixedNumber16<shiftNum>& b) const {
         return FixedNumber16<shiftNum>(number - b.number);
+    }
+
+    FixedNumber16<shiftNum> operator -() const {
+        return FixedNumber16<shiftNum>(-number);
     }
 
     FixedNumber16<shiftNum> operator *(const FixedNumber16<shiftNum>& b) const {
@@ -104,9 +113,28 @@ public:
         x(fx),y(fy) {
     }
 
+    Fixed2D4& setXY(int16_t intX, int16_t intY) {
+        x.setNumber(intX,0);
+        y.setNumber(intY,0);
+        return *this;
+    }
+
     Fixed2D4& scale(const Fixed2D4& b) {
         x *= b.x;
         y *= b.y;
+        return *this;
+    }
+
+    Fixed2D4& setIntegerPart(const Fixed2D4& b) {
+        x.setIntegerPart(b.x.getIntegerPart());
+        y.setIntegerPart(b.y.getIntegerPart());
+        return *this;
+    }
+
+    Fixed2D4& scale(int16_t integer, int16_t frac) {
+        FixedNumber16<4> n = FixedNumber16<4>(integer,frac);
+        x *= n;
+        y *= n;
         return *this;
     }
 
@@ -118,6 +146,10 @@ public:
         return Fixed2D4(x * b, y * b);
     }
 
+    Fixed2D4 operator *(const FixedNumber16<4>& b) const {
+        return Fixed2D4(x * b, y * b);
+    }
+
     Fixed2D4& operator += (const Fixed2D4& b) {
         x += b.x;
         y += b.y;
@@ -126,6 +158,10 @@ public:
 
     Fixed2D4 operator -(const Fixed2D4& b) const {
         return Fixed2D4(x - b.x, y - b.y);
+    }
+
+    Fixed2D4 operator -() const {
+        return Fixed2D4(-x, -y);
     }
 
     bool operator ==(const Fixed2D4& b) const {
