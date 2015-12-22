@@ -4,7 +4,13 @@ This is my 2nd library for the TinyDuino that is specifically targeting
 the TinyScreen+ which is a much more potent processor with more RAM and
 processing power.
 
-This project is still in a very early stage!
+## Project state
+
+This project is still in a very early stage! I'm new to C++ and I make lots of
+mistakes. Implementations change and there's right now only one branch (master) - 
+which happens to be unstable. Once the core functionality has reached a certain 
+level, I intend to work on a develop branch and keeping the master branch stable.
+Right now this doesn't make sense.
 
 ## Project structure
 
@@ -23,6 +29,18 @@ For more information, please read the readme files in the respective directories
 * Codeblocks project files are provided to compile the simulator and projects on windows - this could be adapted quite easily however
 * The image converter is written in HTML/JavaScript and allows converting images to C code quite easily
 * Other scripts and tools use Lua in combination with the gd library. You'd need to install a Lua interpreter together with the required libraries in order to run these tools
+
+## Feature list
+
+* (stable) Rendering via command buffer list, which is less memory consuming than offscreen buffering
+* (stable) Color depth support for 8bit and 16bit coloring
+* (stable) Fixed point math library
+* (stable) Textures (must have power of two sizes, can be non-square)
+* (stable/not all modes) Textures with transparency mask
+* (experimental/not all modes) blend modes for sprite drawings
+* (work in progress) Tilemap rendering
+* (work in progress) Tiled .tmx import script
+* (stable) Javascript image conversion tool
 
 ## Regarding tests
 
