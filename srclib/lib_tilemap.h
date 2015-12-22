@@ -75,10 +75,11 @@ namespace TileMap {
         ProgmemData background;
         ProgmemData foreground;
         TileSetBgFg<TColor> tileset;
+        uint8_t *progMemTileTypeFlags;
         SceneBgFg() {
         }
-        SceneBgFg(ProgmemData background, ProgmemData foreground, TileSetBgFg<TColor> tileset):
-            background(background), foreground(foreground), tileset(tileset) {
+        SceneBgFg(ProgmemData background, ProgmemData foreground, TileSetBgFg<TColor> tileset, uint8_t* progMemTileTypeFlags):
+            background(background), foreground(foreground), tileset(tileset), progMemTileTypeFlags(progMemTileTypeFlags) {
             assert(this->background.getWidth() > 0 && background.getHeight() > 0);
             assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
         }
@@ -120,18 +121,24 @@ namespace TileMap {
                 const int8_t rectY = y + (RenderBufferConst::screenHeight>>1) - centerY;
                 const uint8_t tileIndexBg = scene.background.get(index);
                 const uint8_t tileIndexFg = scene.foreground.get(index);
-                if (tileIndexBg != 0xff)
+                if (tileIndexBg != 0xff) {
                     buffer.drawRect(rectX, rectY,8,8)
-                                    //->filledRect(buffer.rgb(80,90,30));
                                       ->sprite(&scene.tileset.background,
                                                (tileIndexBg & 0xf) << tileSizeBits,
                                                (tileIndexBg >> 4) << tileSizeBits);
-                if (tileIndexFg != 0xff)
+                }
+
+                if (tileIndexFg != 0xff) {
                     buffer.drawRect(rectX, rectY,8,8)
                                       ->sprite(&scene.tileset.foreground,
                                                (tileIndexFg & 0xf) << tileSizeBits,
                                                (tileIndexFg >> 4) << tileSizeBits);
-                                      //->filledRect(renderBuffer.rgb(255&(x+64),255&(y+64),0));
+
+                    #ifdef DEBUG
+                    buffer.drawRect(rectX+2, rectY+2,4,4)
+                                    ->filledRect(buffer.rgb(80,90,30));
+                    #endif // DEBUG
+                }
             }
         }
     }
