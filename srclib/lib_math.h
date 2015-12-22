@@ -6,6 +6,7 @@
 namespace Math {
     void setSeed(int na, int nb);
     unsigned int randInt();
+    void getSeed(int& na, int& nb);
 
     class Vector2D16 {
     public:
