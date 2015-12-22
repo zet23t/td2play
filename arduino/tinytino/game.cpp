@@ -10,6 +10,10 @@ void World::addBody(Body &body) {
     body.world = this;
     bodyList[bodyCount++] = body;
 }
+Body* World::getBody(int i) {
+    if (i >= bodyCount) return 0;
+    return &bodyList[i];
+}
 void World::updateStep(Camera& camera) {
     for (uint8_t i = 0; i < bodyCount;i+=1) {
         bodyList[i].updateStep(camera);

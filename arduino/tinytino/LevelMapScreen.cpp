@@ -11,9 +11,9 @@ void LevelMapScreen::init() {
         Body player;
         player.id = 1;
         player.position.setXY(100,100);
+        player.velocity.setXY((Math::randInt()&0xf) - 7, (Math::randInt()&0xf)-7);
 
         world.addBody(player);
-
     }
     world.scene = &scene;
     camera.position = Fixed2D4(100,104);
@@ -21,6 +21,17 @@ void LevelMapScreen::init() {
 }
 
 void LevelMapScreen::update() {
+    static int frame = 0;
+    frame += 1;
+
+    if (frame % 50 == 0) {
+        for (int i=0;i<10;i+=1) {
+            Body* player = world.getBody(i);
+            player->position.setXY(100,100);
+            player->velocity.setXY((Math::randInt()&7) - 3, (Math::randInt()&7)-3);
+        }
+    }
+
     Fixed2D4 offset =
         (ScreenButtonState::isButtonOn(SCREENBUTTON_BOTTOMRIGHT) ? Fixed2D4(0,8,0,8) : Fixed2D4(0,0)) +
         (ScreenButtonState::isButtonOn(SCREENBUTTON_BOTTOMLEFT) ? Fixed2D4(-1,8,0,8) : Fixed2D4(0,0)) +

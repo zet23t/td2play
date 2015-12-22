@@ -149,6 +149,9 @@
 		<Unit filename="../arduino/tinytino/data_level.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/tinytino/game.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/game.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
@@ -191,10 +194,14 @@
 		<Unit filename="../srclib/lib_font_virtualdj.h" />
 		<Unit filename="../srclib/lib_input.cpp" />
 		<Unit filename="../srclib/lib_input.h" />
+		<Unit filename="../srclib/lib_math.cpp" />
 		<Unit filename="../srclib/lib_math.h" />
 		<Unit filename="../srclib/lib_tilemap.cpp" />
 		<Unit filename="../srclib/lib_tilemap.h" />
 		<Unit filename="../srclib/test_FixedMath.h">
+			<Option target="Test" />
+		</Unit>
+		<Unit filename="../srclib/test_math.h">
 			<Option target="Test" />
 		</Unit>
 		<Unit filename="arduino_wrappers/TinyScreenRaycaster/TinyScreenRaycaster.cpp">

@@ -44,6 +44,7 @@ public:
     World():scene(0),bodyCount(0){}
     void init();
     void addBody(Body &body);
+    Body* getBody(int i);
     void updateStep(Camera &camera);
     bool isFree(const Fixed2D4& pos) const;
     Fixed2D4 moveOut(const Fixed2D4& pos) const;
