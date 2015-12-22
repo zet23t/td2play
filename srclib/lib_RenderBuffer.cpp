@@ -4,11 +4,12 @@
 #include <avr/pgmspace.h>
 #else
 #define pgm_read_word_far(x) *(x)
+#define pgm_read_byte_far(x) *(x)
 #endif // WIN32
 
 template<class TColor>
 void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
-    int offset = (v & heightMod) * this->width;
+    int offset = (v & heightMod) << widthBits;
     int pos = u;
     if (transparentColorMask) {
         switch(blendMode) {
@@ -146,6 +147,23 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
 }
 
 template<class TColor>
+bool Texture<TColor>::isTransparent(uint16_t x, uint16_t y) const {
+    if (transparentColorMask == 0) return false;
+
+    x &= widthMod;
+    y &= heightMod;
+
+    int index = x + (y << widthBits);
+    const bool sram = (type == TextureType::rgb233sram || TextureType::rgb565sram);
+    TColor col = sizeof(TColor) == 2 ?
+        sram ? rgb565[index] : pgm_read_word_far(&rgb565[index])
+        :
+        sram ? rgb233[index] : pgm_read_byte_far(&rgb233[index]);
+
+    return col == transparentColorMask;
+}
+
+template<class TColor>
 void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
     int offset = (v & heightMod) * this->width;
     const uint8_t *rgb233Line = &rgb233[offset];
@@ -221,9 +239,12 @@ Texture<TColor>::Texture (const uint8_t *data, uint8_t type, uint16_t width, uin
     this->height = height;
     this->widthMod = width - 1;
     this->heightMod = height - 1;
+    widthBits = 0;
     this->transparentColorMask = transparentColorMask;
     assert((this->width & this->widthMod) == 0);
     assert((this->height & this->heightMod) == 0);
+    while ((1<<widthBits) & widthMod) widthBits+=1;
+
 }
 
 template<class TColor>

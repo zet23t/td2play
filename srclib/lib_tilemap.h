@@ -84,7 +84,8 @@ namespace TileMap {
             assert(this->background.getWidth() > 0 && background.getHeight() > 0);
             assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
         }
-        Math::Vector2D16 moveOut(const Math::Vector2D16& pos);
+        bool isPixelFree(const int x, const int y, uint8_t& tileIndex) const;
+        Math::Vector2D16 moveOut(const Math::Vector2D16& pos) const;
     };
 
 
