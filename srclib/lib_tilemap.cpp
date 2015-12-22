@@ -38,8 +38,8 @@ namespace TileMap {
         uint8_t rightIndex = 0, leftIndex = 0, upIndex = 0, downIndex = 0;
         while (right < 32 && !isPixelFree(pos.x + right, pos.y, rightIndex)) right += 1;
         while (left < 32 && !isPixelFree(pos.x - left, pos.y, leftIndex)) left += 1;
-        while (up < 32 && !isPixelFree(pos.x, pos.y - up, rightIndex)) up += 1;
-        while (down < 32 && !isPixelFree(pos.x, pos.y + down, rightIndex)) down += 1;
+        while (up < 32 && !isPixelFree(pos.x, pos.y - up, upIndex)) up += 1;
+        while (down < 32 && !isPixelFree(pos.x, pos.y + down, downIndex)) down += 1;
 
         if (right < left && right < down && right < up) return pos + Math::Vector2D16(right, 0);
         if (left < down && left < up) return pos + Math::Vector2D16(-left, 0);

@@ -9,6 +9,7 @@
 
 #include "game_types.h"
 
+#define MAX_BODIES 64
 
 class Screen {
 public:
@@ -16,16 +17,40 @@ public:
     virtual void update() {}
 };
 
+class World;
+class Camera;
+
 class Body {
 public:
+    World *world;
     Fixed2D4 position;
     Fixed2D4 velocity;
-    Body():position(0,0), velocity(0,0) {}
+    int id;
+    Body():world(0),position(0,0), velocity(0,0), id(0) {}
+    void updateStep(Camera &camera);
 };
+
 
 class Camera : public Body {
 public:
 };
+
+class World {
+public:
+    TileMap::SceneBgFg<uint16_t> *scene;
+    Body bodyList[MAX_BODIES];
+    uint8_t bodyCount;
+
+    World():scene(0),bodyCount(0){}
+    void init();
+    void addBody(Body &body);
+    void updateStep(Camera &camera);
+    bool isFree(const Fixed2D4& pos) const;
+    Fixed2D4 moveOut(const Fixed2D4& pos) const;
+};
+
+
+
 
 
 class Pawn : public Body {
@@ -40,12 +65,13 @@ public:
 class LevelMapScreen : public Screen {
     TileMap::SceneBgFg<uint16_t> scene;
     TileMap::SceneBgFgRenderer<uint16_t, 200> renderer;
+    World world;
     Camera camera;
 public:
     LevelMapScreen() {
 
     }
-    LevelMapScreen(TileMap::SceneBgFg<uint16_t> &scene): scene(scene), camera() {
+    LevelMapScreen(TileMap::SceneBgFg<uint16_t> &scene): scene(scene), world(), camera() {
     }
     void load(TileMap::SceneBgFg<uint16_t>& scene) {
         this->scene = scene;

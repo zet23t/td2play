@@ -5,6 +5,17 @@
 #include "lib_math.h"
 
 void LevelMapScreen::init() {
+
+    world.init();
+    for (int i=0;i<10;i+=1) {
+        Body player;
+        player.id = 1;
+        player.position.setXY(100,100);
+
+        world.addBody(player);
+
+    }
+    world.scene = &scene;
     camera.position = Fixed2D4(100,104);
     renderBuffer.setClearBackground(true,renderBuffer.rgb(80,60,70));
 }
@@ -18,6 +29,7 @@ void LevelMapScreen::update() {
 
     camera.position += offset + Joystick::getJoystick()*8;
     renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
+    world.updateStep(camera);
 
     Math::Vector2D16 pos(camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
     Math::Vector2D16 result = scene.moveOut(pos);
