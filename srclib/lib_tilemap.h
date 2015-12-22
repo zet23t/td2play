@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include "lib_RenderBuffer.h"
+#include "lib_math.h"
 
 #ifndef WIN32
 #include <avr/pgmspace.h>
@@ -83,6 +84,7 @@ namespace TileMap {
             assert(this->background.getWidth() > 0 && background.getHeight() > 0);
             assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
         }
+        Math::Vector2D16 moveOut(const Math::Vector2D16& pos);
     };
 
 
@@ -135,8 +137,8 @@ namespace TileMap {
                                                (tileIndexFg >> 4) << tileSizeBits);
 
                     #ifdef DEBUG
-                    buffer.drawRect(rectX+2, rectY+2,4,4)
-                                    ->filledRect(buffer.rgb(80,90,30));
+                    //buffer.drawRect(rectX+2, rectY+2,4,4)
+                    //                ->filledRect(buffer.rgb(80,90,30));
                     #endif // DEBUG
                 }
             }

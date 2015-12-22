@@ -2,6 +2,7 @@
 #include "tilemap.h"
 #include "lib_input.h"
 #include "lib_tilemap.h"
+#include "lib_math.h"
 
 void LevelMapScreen::init() {
     camera.position = Fixed2D4(100,104);
@@ -17,5 +18,10 @@ void LevelMapScreen::update() {
 
     camera.position += offset + Joystick::getJoystick()*8;
     renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
+
+    Math::Vector2D16 pos(camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
+    Math::Vector2D16 result = scene.moveOut(pos);
+    renderBuffer.drawRect(result.x - pos.x + 48 - 2, result.y - pos.y + 32 - 2,4,4)
+                                    ->filledRect(renderBuffer.rgb(255,90,30));
     //tileMap->update(camera);
 }

@@ -1,6 +1,8 @@
 #ifndef __LIB_MATH_H__
 #define __LIB_MATH_H__
 
+#include <inttypes.h>
+
 namespace Math {
     class Vector2D16 {
     public:
