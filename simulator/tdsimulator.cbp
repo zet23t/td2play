@@ -70,6 +70,7 @@
 				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-DSCREEN_16BITS" />
+					<Add option="-DDEBUG" />
 				</Compiler>
 			</Target>
 			<Target title="Test">
@@ -190,6 +191,7 @@
 		<Unit filename="../srclib/lib_font_virtualdj.h" />
 		<Unit filename="../srclib/lib_input.cpp" />
 		<Unit filename="../srclib/lib_input.h" />
+		<Unit filename="../srclib/lib_math.h" />
 		<Unit filename="../srclib/lib_tilemap.cpp" />
 		<Unit filename="../srclib/lib_tilemap.h" />
 		<Unit filename="../srclib/test_FixedMath.h">
