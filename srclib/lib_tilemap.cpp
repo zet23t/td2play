@@ -25,6 +25,7 @@ namespace TileMap {
                                          ((tileIndex & 0xf) << tileSizeBits) + subX,
                                          ((tileIndex >> 4) << tileSizeBits) + subY);
         if (transparent) return true;
+        tileIndexOut = tileIndex;
         return false;
     }
 
@@ -33,9 +34,17 @@ namespace TileMap {
         uint8_t tileIndex;
         if (isPixelFree(pos.x,pos.y,tileIndex)) return pos;
 
-        // there's a hit
+        uint8_t right = 0, left = 0, up = 0, down = 0;
+        uint8_t rightIndex = 0, leftIndex = 0, upIndex = 0, downIndex = 0;
+        while (right < 32 && !isPixelFree(pos.x + right, pos.y, rightIndex)) right += 1;
+        while (left < 32 && !isPixelFree(pos.x - left, pos.y, leftIndex)) left += 1;
+        while (up < 32 && !isPixelFree(pos.x, pos.y - up, rightIndex)) up += 1;
+        while (down < 32 && !isPixelFree(pos.x, pos.y + down, rightIndex)) down += 1;
 
-        return pos + Math::Vector2D16(2,2);
+        if (right < left && right < down && right < up) return pos + Math::Vector2D16(right, 0);
+        if (left < down && left < up) return pos + Math::Vector2D16(-left, 0);
+        if (up < down) return pos + Math::Vector2D16(0, -up);
+        return pos + Math::Vector2D16(0, down);
     }
     template class SceneBgFg<uint8_t>;
     template class SceneBgFg<uint16_t>;

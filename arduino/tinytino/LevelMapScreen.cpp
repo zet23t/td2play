@@ -20,10 +20,10 @@ void LevelMapScreen::update() {
     renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
 
     Math::Vector2D16 pos(camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
-    //Math::Vector2D16 result = scene.moveOut(pos);
+    Math::Vector2D16 result = scene.moveOut(pos);
     uint8_t index;
-    bool isFree = scene.isPixelFree(pos.x,pos.y,index);
-    renderBuffer.drawRect(pos.x - pos.x + 48, pos.y - pos.y + 32,1,1)
+    bool isFree = true; //scene.isPixelFree(pos.x,pos.y,index);
+    renderBuffer.drawRect(result.x - pos.x + 48, result.y - pos.y + 32,1,1)
                                     ->filledRect(renderBuffer.rgb(isFree ? 255 : 0,90,30));
     //tileMap->update(camera);
 }
