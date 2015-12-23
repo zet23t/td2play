@@ -18,6 +18,7 @@ public:
         test2DAdd();
         test2DSubtract();
         test2DScale();
+        test2DRandomCircle();
     }
 
     void testCompares() {
@@ -71,6 +72,27 @@ public:
         assert(Fixed2D4(1,2) == Fixed2D4(2,1).scale(Fixed2D4(0,8,2,0)));
     }
 
+    void test2DRandomCircle() {
+        int hit[400];
+        memset(hit,0,sizeof(hit));
+        printf("--- test2DRandomCircle ---\n");
+        for (int i=0;i<200;i+=1) {
+            Fixed2D4 f;
+            f.randomCircle(FixedNumber16<4>(8,0));
+            int x = f.x.getIntegerPart() + 10;
+            int y = f.y.getIntegerPart() + 10;
+            if (x < 0 || x >= 20 || y < 0 || y >= 20) {
+            //    assert(0);
+            } else {
+                hit[x + y * 20] = 1;
+            }
+        }
+        for (int i=0;i<400;i+=1) {
+            printf(hit[i] ? "x" : " ");
+            if (i % 20 == 19) printf("\n");
+        }
+    }
+
     void testCompare() {
         assert(F4(0,8) < F4(0,10));
         assert(!(F4(0,8) > F4(0,10)));
@@ -79,4 +101,5 @@ public:
         assert(F4(-1,8) < F4(1,8));
         assert(F4(2,8) >= F4(1,8));
     }
+
 };
