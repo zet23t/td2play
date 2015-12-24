@@ -186,6 +186,7 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../srclib/lib_FixedMath.cpp" />
 		<Unit filename="../srclib/lib_FixedMath.h" />
 		<Unit filename="../srclib/lib_RenderBuffer.cpp" />
 		<Unit filename="../srclib/lib_RenderBuffer.h" />

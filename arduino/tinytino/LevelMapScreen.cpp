@@ -28,7 +28,8 @@ void LevelMapScreen::update() {
         for (int i=0;i<10;i+=1) {
             Body* player = world.getBody(i);
             player->position.setXY(100,100);
-            player->velocity.setXY((Math::randInt()&7) - 3, (Math::randInt()&7)-3);
+            player->velocity.randomCircle(FixedNumber16<4>(3,0));
+            //player->velocity.setXY((Math::randInt()&7) - 3, (Math::randInt()&7)-3);
         }
     }
 
