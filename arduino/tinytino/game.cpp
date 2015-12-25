@@ -31,8 +31,10 @@ Fixed2D4 World::moveOut(const Fixed2D4& pos) const {
     Math::Vector2D16 res = scene->moveOut(p);
     if (p.x == res.x && p.y == res.y) return pos;
     Fixed2D4 correct;
-    correct.x.setIntegerPart(res.x);
-    correct.y.setIntegerPart(res.y);
+    int fx = correct.x.getFractionPart();
+    int fy = correct.y.getFractionPart();
+    correct.x.setIntegerPart(res.x).setFractionPart(fx);
+    correct.y.setIntegerPart(res.y).setFractionPart(fy);
     //printf("%s %s\n",correct.x.toString(), correct.y.toString());
     return correct;
 }

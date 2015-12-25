@@ -24,7 +24,7 @@ void LevelMapScreen::update() {
     static int frame = 0;
     frame += 1;
 
-    if (frame % 50 == 0) {
+    if (frame % 100 == 0) {
         for (int i=0;i<10;i+=1) {
             Body* player = world.getBody(i);
             player->position.setXY(100,100);

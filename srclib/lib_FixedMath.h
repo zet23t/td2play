@@ -33,6 +33,10 @@ public:
         number = (x << shiftNum) | (number & ((1<<shiftNum) - 1));
         return *this;
     }
+    inline FixedNumber16<shiftNum>& setFractionPart(int16_t x) {
+        number = (number & ~((1<<shiftNum) - 1)) | (x & ((1<<shiftNum) - 1));
+        return *this;
+    }
     char* toString() const {
         return toString(10000);
     }
