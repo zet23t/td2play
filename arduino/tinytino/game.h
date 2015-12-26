@@ -25,8 +25,13 @@ public:
     World *world;
     Fixed2D4 position;
     Fixed2D4 velocity;
+    Texture<uint16_t>* sprite;
+    uint8_t spriteX;
+    uint8_t spriteY;
+    uint8_t spriteW;
+    uint8_t spriteH;
     int id;
-    Body():world(0),position(0,0), velocity(0,0), id(0) {}
+    Body():world(0),position(0,0), velocity(0,0),sprite(0),spriteX(0),spriteY(0),spriteW(1),spriteH(1), id(0) {}
     void updateStep(Camera &camera);
 };
 
