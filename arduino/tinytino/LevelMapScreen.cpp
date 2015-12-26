@@ -7,7 +7,7 @@
 void LevelMapScreen::init() {
 
     world.init();
-    for (int i=0;i<10;i+=1) {
+    for (int i=0;i<20;i+=1) {
         Body player;
         player.id = 1;
         player.position.setXY(100,100);
@@ -25,7 +25,7 @@ void LevelMapScreen::update() {
     frame += 1;
 
     if (frame % 100 == 0) {
-        for (int i=0;i<10;i+=1) {
+        for (int i=0;i<20;i+=1) {
             Body* player = world.getBody(i);
             player->position.setXY(100,100);
             player->velocity.randomCircle(FixedNumber16<4>(3,0));

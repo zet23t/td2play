@@ -33,8 +33,8 @@ Fixed2D4 World::moveOut(const Fixed2D4& pos) const {
     Fixed2D4 correct;
     int fx = correct.x.getFractionPart();
     int fy = correct.y.getFractionPart();
-    correct.x.setIntegerPart(res.x).setFractionPart(fx);
-    correct.y.setIntegerPart(res.y).setFractionPart(fy);
+    correct.x.setIntegerPart(res.x).setFractionPart(pos.x.getFractionPart());
+    correct.y.setIntegerPart(res.y).setFractionPart(pos.y.getFractionPart());
     //printf("%s %s\n",correct.x.toString(), correct.y.toString());
     return correct;
 }
@@ -42,6 +42,8 @@ Fixed2D4 World::moveOut(const Fixed2D4& pos) const {
 void Body::updateStep(Camera& camera) {
     int16_t oldPosX = position.x.getIntegerPart();
     int16_t oldPosY = position.y.getIntegerPart();
+    int16_t oldFracX = position.x.getFractionPart();
+    int16_t oldFracY = position.y.getFractionPart();
     velocity = velocity *  FixedNumber16<4>(0,15) + Fixed2D4(0,0,0,4);
     position+= velocity;
     int16_t posX = position.x.getIntegerPart();
@@ -50,7 +52,9 @@ void Body::updateStep(Camera& camera) {
         Fixed2D4 correct = world->moveOut(position);
         if (position != correct) {
             velocity = -velocity.scale(0,12);
-            position.setIntegerPart(correct);
+            position = correct;
+            position.x.setFractionPart(oldFracX);
+            position.y.setFractionPart(oldFracY);
             posX = position.x.getIntegerPart();
             posY = position.y.getIntegerPart();
         }
