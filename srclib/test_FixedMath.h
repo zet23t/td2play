@@ -12,6 +12,7 @@ public:
         testSubtraction();
         testMultiplication();
         testDivision();
+        testGettersAndSetters();
         testCompare();
 
         test2DCompare();
@@ -70,6 +71,15 @@ public:
 
     void test2DScale() {
         assert(Fixed2D4(1,2) == Fixed2D4(2,1).scale(Fixed2D4(0,8,2,0)));
+    }
+
+    void testGettersAndSetters() {
+        assert(F4(5,9).getIntegerPart() == 5);
+        assert(F4(5,9).getFractionPart() == 9);
+        assert(F4(5,9).setFractionPart(3).getFractionPart() == 3);
+        assert(F4(5,9).setFractionPart(3).getIntegerPart() == 5);
+        assert(F4(5,9).setIntegerPart(2).getFractionPart() == 9);
+        assert(F4(5,9).setIntegerPart(2).getIntegerPart() == 2);
     }
 
     void test2DRandomCircle() {
