@@ -61,7 +61,11 @@ void Body::updateStep(Camera& camera) {
     }
     int16_t camX = camera.position.x.getIntegerPart();
     int16_t camY = camera.position.y.getIntegerPart();
-    renderBuffer.drawRect(posX-camX + 48, posY-camY + 32,1,1)
-                                    ->filledRect(renderBuffer.rgb(255,255,30));
+    RenderCommand<uint16_t>* cmd = renderBuffer.drawRect(posX-camX + 48 - (spriteW / 2), posY-camY + 32 - spriteH/ 2,spriteW,spriteH);
+    if (sprite) {
+        cmd->sprite(sprite, spriteX, spriteY);
+    } else {
+        cmd->filledRect(renderBuffer.rgb(255,255,30));
+    }
 
 }

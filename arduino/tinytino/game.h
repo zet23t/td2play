@@ -25,7 +25,7 @@ public:
     World *world;
     Fixed2D4 position;
     Fixed2D4 velocity;
-    Texture<uint16_t>* sprite;
+    const Texture<uint16_t>* sprite;
     uint8_t spriteX;
     uint8_t spriteY;
     uint8_t spriteW;
