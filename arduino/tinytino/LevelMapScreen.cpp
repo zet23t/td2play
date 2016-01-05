@@ -11,6 +11,8 @@ void LevelMapScreen::init() {
     for (int i=0;i<20;i+=1) {
         Body player;
         player.id = 1;
+        player.spriteW = 2;
+        player.spriteH = 2;
         player.position.setXY(100,100);
         player.velocity.setXY((Math::randInt()&0xf) - 7, (Math::randInt()&0xf)-7);
 
@@ -26,7 +28,7 @@ void LevelMapScreen::update() {
     frame += 1;
 
     if (frame % 100 == 0) {
-        for (int i=0;i<1;i+=1) {
+        for (int i=0;i<5;i+=1) {
             Body* player = world.getBody(i);
             player->sprite = &TextureData::ztiles_foreground;
             player->spriteW = 8;

@@ -56,23 +56,24 @@ void Body::updateStep(Camera& camera) {
     int16_t posX = position.x.getIntegerPart();
     int16_t posY = position.y.getIntegerPart();
     if ((posX != oldPosX || posY != oldPosY) && (spriteW > 0 && spriteH > 0)) {
+        Fixed2D4 before = position;
+        int w = (spriteW - 1) >> 1;
+        int h = (spriteH - 1) >> 1;
         bool hit = checkForCollission(0,0,oldFracX, oldFracY)
-            || checkForCollission(0,spriteH>>1,oldFracX, oldFracY)
-            || checkForCollission(0,-(spriteH>>1),oldFracX, oldFracY)
-            || checkForCollission(spriteW>>1,0,oldFracX, oldFracY)
-            || checkForCollission(-(spriteW>>1),0,oldFracX, oldFracY)
-            || checkForCollission(spriteW>>1,-(spriteH>>1),oldFracX, oldFracY)
-            || checkForCollission(-(spriteW>>1),-(spriteH>>1),oldFracX, oldFracY)
-            || checkForCollission(spriteW>>1,(spriteH>>1),oldFracX, oldFracY)
-            || checkForCollission(-(spriteW>>1),(spriteH>>1),oldFracX, oldFracY);
-        for (int x=-spriteW/2;x<=spriteW/2;x+=1) {
-        }
+            || checkForCollission(0,h,oldFracX, oldFracY)
+            || checkForCollission(0,-h,oldFracX, oldFracY)
+            || checkForCollission(w,0,oldFracX, oldFracY)
+            || checkForCollission(-w,0,oldFracX, oldFracY)
+            || checkForCollission(w,-h,oldFracX, oldFracY)
+            || checkForCollission(-w,-h,oldFracX, oldFracY)
+            || checkForCollission(w,h,oldFracX, oldFracY)
+            || checkForCollission(-w,h,oldFracX, oldFracY);
 
         if (hit) {
             posX = position.x.getIntegerPart();
             posY = position.y.getIntegerPart();
 
-            velocity = -velocity.scale(0,12);
+            velocity = -velocity.scale(0,12) - (before - position).scale(0,2);
         }
 
     }
