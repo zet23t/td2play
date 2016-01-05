@@ -43,7 +43,7 @@ namespace TileMap {
 
         if (right < left && right < down && right < up) return pos + Math::Vector2D16(right, 0);
         if (left < down && left < up) return pos + Math::Vector2D16(-left, 0);
-        if (up < down) return pos + Math::Vector2D16(0, -up);
+        if (up <= down) return pos + Math::Vector2D16(0, -up);
         return pos + Math::Vector2D16(0, down);
     }
     template class SceneBgFg<uint8_t>;
