@@ -21,6 +21,8 @@ class World;
 class Camera;
 
 class Body {
+private:
+    bool checkForCollission(const int8_t relX, const int8_t relY, const int16_t oldFracX, const int16_t oldFracY);
 public:
     World *world;
     Fixed2D4 position;

@@ -30,13 +30,20 @@ Fixed2D4 World::moveOut(const Fixed2D4& pos) const {
     Math::Vector2D16 p = Math::Vector2D16(pos.x.getIntegerPart(), pos.y.getIntegerPart());
     Math::Vector2D16 res = scene->moveOut(p);
     if (p.x == res.x && p.y == res.y) return pos;
-    Fixed2D4 correct;
-    int fx = correct.x.getFractionPart();
-    int fy = correct.y.getFractionPart();
-    correct.x.setIntegerPart(res.x).setFractionPart(pos.x.getFractionPart());
-    correct.y.setIntegerPart(res.y).setFractionPart(pos.y.getFractionPart());
-    //printf("%s %s\n",correct.x.toString(), correct.y.toString());
-    return correct;
+    return Fixed2D4(res.x,res.y);
+}
+
+bool Body::checkForCollission(const int8_t relX, const int8_t relY, const int16_t oldFracX, const int16_t oldFracY) {
+    Fixed2D4 rel = Fixed2D4(relX,relY);
+    Fixed2D4 expected = position + rel;
+    Fixed2D4 correct = world->moveOut(position + rel);
+    if (expected != correct) {
+        position = correct - rel;
+        position.x.setFractionPart(oldFracX);
+        position.y.setFractionPart(oldFracY);
+        return true;
+    }
+    return false;
 }
 
 void Body::updateStep(Camera& camera) {
@@ -48,16 +55,26 @@ void Body::updateStep(Camera& camera) {
     position+= velocity;
     int16_t posX = position.x.getIntegerPart();
     int16_t posY = position.y.getIntegerPart();
-    if (posX != oldPosX || posY != oldPosY) {
-        Fixed2D4 correct = world->moveOut(position);
-        if (position != correct) {
-            velocity = -velocity.scale(0,12);
-            position = correct;
-            position.x.setFractionPart(oldFracX);
-            position.y.setFractionPart(oldFracY);
+    if ((posX != oldPosX || posY != oldPosY) && (spriteW > 0 && spriteH > 0)) {
+        bool hit = checkForCollission(0,0,oldFracX, oldFracY)
+            || checkForCollission(0,spriteH>>1,oldFracX, oldFracY)
+            || checkForCollission(0,-(spriteH>>1),oldFracX, oldFracY)
+            || checkForCollission(spriteW>>1,0,oldFracX, oldFracY)
+            || checkForCollission(-(spriteW>>1),0,oldFracX, oldFracY)
+            || checkForCollission(spriteW>>1,-(spriteH>>1),oldFracX, oldFracY)
+            || checkForCollission(-(spriteW>>1),-(spriteH>>1),oldFracX, oldFracY)
+            || checkForCollission(spriteW>>1,(spriteH>>1),oldFracX, oldFracY)
+            || checkForCollission(-(spriteW>>1),(spriteH>>1),oldFracX, oldFracY);
+        for (int x=-spriteW/2;x<=spriteW/2;x+=1) {
+        }
+
+        if (hit) {
             posX = position.x.getIntegerPart();
             posY = position.y.getIntegerPart();
+
+            velocity = -velocity.scale(0,12);
         }
+
     }
     int16_t camX = camera.position.x.getIntegerPart();
     int16_t camY = camera.position.y.getIntegerPart();

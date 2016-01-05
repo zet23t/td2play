@@ -26,14 +26,14 @@ void LevelMapScreen::update() {
     frame += 1;
 
     if (frame % 100 == 0) {
-        for (int i=0;i<3;i+=1) {
+        for (int i=0;i<1;i+=1) {
             Body* player = world.getBody(i);
             player->sprite = &TextureData::ztiles_foreground;
             player->spriteW = 8;
             player->spriteH = 8;
             player->spriteX = 104;
             player->spriteY = 0;
-            player->position.setXY(100,100);
+            player->position.setXY(110,100);
             player->velocity.randomCircle(FixedNumber16<4>(3,0));
             //player->velocity.setXY((Math::randInt()&7) - 3, (Math::randInt()&7)-3);
         }
