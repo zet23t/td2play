@@ -30,7 +30,7 @@ namespace TileMap {
     }
 
     template<class TColor>
-    Math::Vector2D16 SceneBgFg<TColor>::moveOut(const Math::Vector2D16& pos) const {
+    Math::Vector2D16 SceneBgFg<TColor>::moveOut(const Math::Vector2D16& pos, const uint8_t distleft, const uint8_t distright, const uint8_t disttop, const uint8_t distbottom) const {
         uint8_t tileIndex;
         if (isPixelFree(pos.x,pos.y,tileIndex)) return pos;
 
@@ -41,10 +41,15 @@ namespace TileMap {
         while (up < 32 && !isPixelFree(pos.x, pos.y - up, upIndex)) up += 1;
         while (down < 32 && !isPixelFree(pos.x, pos.y + down, downIndex)) down += 1;
 
-        if (right < left && right < down && right < up) return pos + Math::Vector2D16(right, 0);
-        if (left < down && left < up) return pos + Math::Vector2D16(-left, 0);
-        if (up <= down) return pos + Math::Vector2D16(0, -up);
+        if (right - distleft < left - distright && right - distleft < down - disttop && right - distleft < up - distbottom) return pos + Math::Vector2D16(right, 0);
+        if (left - distright < down - disttop && left - distright < up - distbottom) return pos + Math::Vector2D16(-left, 0);
+        if (up - distbottom <= down - disttop) return pos + Math::Vector2D16(0, -up);
         return pos + Math::Vector2D16(0, down);
+    }
+
+    template<class TColor>
+    Math::Vector2D16 SceneBgFg<TColor>::moveOut(const Math::Vector2D16& pos) const {
+        return moveOut(pos,0,0,0,0);
     }
     template class SceneBgFg<uint8_t>;
     template class SceneBgFg<uint16_t>;

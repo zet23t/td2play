@@ -86,6 +86,7 @@ namespace TileMap {
         }
         bool isPixelFree(const int x, const int y, uint8_t& tileIndex) const;
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos) const;
+        Math::Vector2D16 moveOut(const Math::Vector2D16& pos, const uint8_t distleft, const uint8_t distright, const uint8_t disttop, const uint8_t distbottom) const;
     };
 
 

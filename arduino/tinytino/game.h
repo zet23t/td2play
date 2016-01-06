@@ -55,6 +55,7 @@ public:
     void updateStep(Camera &camera);
     bool isFree(const Fixed2D4& pos) const;
     Fixed2D4 moveOut(const Fixed2D4& pos) const;
+    Fixed2D4 moveOut(const Fixed2D4& pos, uint8_t distleft, uint8_t distright, uint8_t disttop, uint8_t distbottom) const;
 };
 
 

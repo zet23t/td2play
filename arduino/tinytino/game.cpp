@@ -26,9 +26,12 @@ bool World::isFree(const Fixed2D4& pos) const {
     return scene->isPixelFree(p.x,p.y, tileType);
 }
 Fixed2D4 World::moveOut(const Fixed2D4& pos) const {
+    moveOut(pos,0,0,0,0);
+}
+Fixed2D4 World::moveOut(const Fixed2D4& pos, uint8_t distleft, uint8_t distright, uint8_t disttop, uint8_t distbottom) const {
     if (!scene) return pos;
     Math::Vector2D16 p = Math::Vector2D16(pos.x.getIntegerPart(), pos.y.getIntegerPart());
-    Math::Vector2D16 res = scene->moveOut(p);
+    Math::Vector2D16 res = scene->moveOut(p, distleft, distright, disttop, distbottom);
     if (p.x == res.x && p.y == res.y) return pos;
     return Fixed2D4(res.x,res.y);
 }
@@ -36,7 +39,7 @@ Fixed2D4 World::moveOut(const Fixed2D4& pos) const {
 bool Body::checkForCollission(const int8_t relX, const int8_t relY, const int16_t oldFracX, const int16_t oldFracY) {
     Fixed2D4 rel = Fixed2D4(relX,relY);
     Fixed2D4 expected = position + rel;
-    Fixed2D4 correct = world->moveOut(position + rel);
+    Fixed2D4 correct = world->moveOut(position + rel, relX, spriteW - relX, relY, spriteH - relY);
     if (expected != correct) {
         position = correct - rel;
         position.x.setFractionPart(oldFracX);
