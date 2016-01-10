@@ -76,7 +76,8 @@ static const uint8_t _background[] PROGMEM = {
   };
 TileMap::ProgmemData getForeground() { return TileMap::ProgmemData(128,32, _foreground); }
 TileMap::ProgmemData getBackground() { return TileMap::ProgmemData(128,32, _background); }
-TileMap::TileSetBgFg<uint16_t> getTileset() {return TileMap::TileSetBgFg<uint16_t>(TextureData::ztiles_background, TextureData::ztiles_foreground, 3); }
+TileMap::TileSetBgFg<uint16_t> getTileset() {
+    return TileMap::TileSetBgFg<uint16_t>(*TextureData::ztiles_background(), *TextureData::ztiles_foreground(), 3); }
 TileMap::SceneBgFg<uint16_t> getScene() { return TileMap::SceneBgFg<uint16_t>(getBackground(), getForeground(), getTileset(), 0);}
 
 }

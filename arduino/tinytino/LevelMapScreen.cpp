@@ -30,7 +30,7 @@ void LevelMapScreen::update() {
     if (frame % 100 == 0) {
         for (int i=0;i<5;i+=1) {
             Body* player = world.getBody(i);
-            player->sprite = &TextureData::ztiles_foreground;
+            player->sprite = TextureData::ztiles_foreground();
             player->spriteW = 8;
             player->spriteH = 8;
             player->spriteX = 104;
@@ -50,6 +50,10 @@ void LevelMapScreen::update() {
     camera.position += offset + Joystick::getJoystick()*8;
     renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
     world.updateStep(camera);
+    //renderBuffer.drawRect(48, 32,16,16)
+      //  ->sprite(&texture::beastlands);
+        //->sprite(TextureData::ztiles_foreground(),16,0);
+        //->filledRect(0);
 
     Math::Vector2D16 pos(camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
     Math::Vector2D16 result = scene.moveOut(pos);
