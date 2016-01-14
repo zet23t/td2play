@@ -146,6 +146,9 @@
 		<Unit filename="../arduino/tinytino/LevelMapScreen.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/tinytino/LevelMapScreen.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/data_level.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
@@ -162,6 +165,15 @@
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/level_test2.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/physics.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/physics.h">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/screen.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/sprites.cpp">

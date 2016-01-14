@@ -8,7 +8,7 @@
 void LevelMapScreen::init() {
 
     world.init();
-    for (int i=0;i<20;i+=1) {
+    /*for (int i=0;i<20;i+=1) {
         Body player;
         player.id = 1;
         player.spriteW = 2;
@@ -17,7 +17,16 @@ void LevelMapScreen::init() {
         player.velocity.setXY((Math::randInt()&0xf) - 7, (Math::randInt()&0xf)-7);
 
         world.addBody(player);
-    }
+    }*/
+    Body player;
+    player.id = playerId;
+    player.spriteX = 104;
+    player.spriteY = 0;
+    player.spriteW = 8;
+    player.spriteH = 8;
+    player.position.setXY(100,100);
+    player.sprite = TextureData::ztiles_foreground();
+    world.addBody(player);
     world.scene = &scene;
     camera.position = Fixed2D4(100,104);
     renderBuffer.setClearBackground(true,renderBuffer.rgb(80,60,70));
@@ -27,7 +36,7 @@ void LevelMapScreen::update() {
     static int frame = 0;
     frame += 1;
 
-    if (frame % 100 == 0) {
+    /*if (frame % 100 == 0) {
         for (int i=0;i<5;i+=1) {
             Body* player = world.getBody(i);
             player->sprite = TextureData::ztiles_foreground();
@@ -39,7 +48,7 @@ void LevelMapScreen::update() {
             player->velocity.randomCircle(FixedNumber16<4>(3,0));
             //player->velocity.setXY((Math::randInt()&7) - 3, (Math::randInt()&7)-3);
         }
-    }
+    }*/
 
     Fixed2D4 offset =
         (ScreenButtonState::isButtonOn(SCREENBUTTON_BOTTOMRIGHT) ? Fixed2D4(0,8,0,8) : Fixed2D4(0,0)) +

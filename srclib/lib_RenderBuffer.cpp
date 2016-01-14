@@ -9,6 +9,7 @@
 
 static uint16_t read_word(const uint16_t* ptr) {
     return pgm_read_byte_far(ptr) | pgm_read_byte_far(((uint8_t*)ptr)+1)<<8;
+    //return pgm_read_word_far(ptr);
 }
 
 template<class TColor>
