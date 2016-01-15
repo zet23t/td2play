@@ -45,12 +45,12 @@ void LevelMapScreen::handle(Body *b) {
             //printf("yo\n");
             if (contact && jumpCounter > 5) {
                 jumpCounter = 0;
-                b->velocity.y = FixedNumber16<4>(-4,0);
+                b->velocity.y = FixedNumber16<4>(-3,0);
                 b->position.y.setFractionPart(0);
             }
         }
         if (contact) {
-            b->velocity.x = Joystick::getJoystick().x * 4;
+            b->velocity.x = Joystick::getJoystick().x * 2;
             if (Joystick::getJoystick().x.getFractionPart() != 0)
                 b->velocity.y += FixedNumber16<4>(-1,15);
         //    renderBuffer.setClearBackground(true,renderBuffer.rgb(80,60,70));
