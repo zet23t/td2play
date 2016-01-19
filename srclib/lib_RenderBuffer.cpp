@@ -235,9 +235,8 @@ void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uin
 template<class TColor>
 void Texture<TColor>::fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
 }
-
 template<class TColor>
-Texture<TColor>::Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
+void Texture<TColor>::init (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
     this->data = data;
     this->type = type;
     this->width = width;
@@ -249,7 +248,16 @@ Texture<TColor>::Texture (const uint8_t *data, uint8_t type, uint16_t width, uin
     assert((this->width & this->widthMod) == 0);
     assert((this->height & this->heightMod) == 0);
     while ((1<<widthBits) & widthMod) widthBits+=1;
+}
 
+template<class TColor>
+Texture<TColor>::Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
+    init(data,type,width,height,transparentColorMask);
+}
+
+template<class TColor>
+Texture<TColor>::Texture (const ImageData& img) {
+    init(img.data, img.format, img.width, img.height, (TColor)img.transparentColor);
 }
 
 template<class TColor>

@@ -6,6 +6,12 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
+			<Target title="TinyScreenRaycaster (Debug)">
+				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+			</Target>
 			<Target title="Test - 8bit (Debug)">
 				<Option output="bin/Debug/tdsimulator" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
@@ -33,12 +39,6 @@
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
 			</Target>
-			<Target title="TinyScreenRaycaster (Debug)">
-				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
-			</Target>
 			<Target title="Test Textures - 8bit (Debug)">
 				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
 				<Option type="1" />
@@ -46,6 +46,15 @@
 				<Option use_console_runner="0" />
 			</Target>
 			<Target title="Test Textures - 16bit (Debug)">
+				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-DSCREEN_16BITS" />
+				</Compiler>
+			</Target>
+			<Target title="Test Assetmanager (Debug)">
 				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -119,6 +128,13 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/test_assetmgr/image_data.cpp">
+			<Option target="Test Assetmanager (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/test_assetmgr/image_data.h">
+			<Option target="Test Assetmanager (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/test_assetmgr/test_assetmgr.ino" />
 		<Unit filename="../arduino/test_text/test_text.ino">
 			<Option target="Test - 8bit (Debug)" />
 			<Option target="Test - 16bit (Debug)" />
@@ -205,6 +221,7 @@
 		<Unit filename="../srclib/lib_StringBuffer.cpp" />
 		<Unit filename="../srclib/lib_StringBuffer.h" />
 		<Unit filename="../srclib/lib_font_virtualdj.h" />
+		<Unit filename="../srclib/lib_image.h" />
 		<Unit filename="../srclib/lib_input.cpp" />
 		<Unit filename="../srclib/lib_input.h" />
 		<Unit filename="../srclib/lib_math.cpp" />
@@ -227,6 +244,9 @@
 			<Option target="Test - 8bit (Debug)" />
 			<Option target="Test - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="arduino_wrappers/test_assetmgr/test_assetmgr.cpp">
+			<Option target="Test Assetmanager (Debug)" />
+		</Unit>
 		<Unit filename="arduino_wrappers/test_text/test_text.cpp">
 			<Option target="Test Text (Debug)" />
 		</Unit>
@@ -246,6 +266,7 @@
 			<Option target="Test Textures - 16bit (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
 		</Unit>
 		<Unit filename="include/TinyScreen.h">
 			<Option target="Test - 8bit (Debug)" />
@@ -256,6 +277,7 @@
 			<Option target="Test Textures - 16bit (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
 		</Unit>
 		<Unit filename="include/Wire.h">
 			<Option target="Test - 8bit (Debug)" />
@@ -266,6 +288,7 @@
 			<Option target="Test Textures - 16bit (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
 		</Unit>
 		<Unit filename="src/Main.cpp">
 			<Option target="Test - 8bit (Debug)" />
@@ -276,6 +299,7 @@
 			<Option target="Test Textures - 16bit (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
 		</Unit>
 		<Unit filename="src/Test.cpp">
 			<Option target="Test" />
