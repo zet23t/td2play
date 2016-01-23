@@ -75,6 +75,8 @@ private:
 public:
     Texture():data(0),type(0),width(0),height(0),widthMod(0),heightMod(0),transparentColorMask(0),widthBits(0){
     }
+    Texture(int):data(0),type(0),width(0),height(0),widthMod(0),heightMod(0),transparentColorMask(0),widthBits(0){
+    }
     Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
     Texture (const ImageData& data);
     void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;

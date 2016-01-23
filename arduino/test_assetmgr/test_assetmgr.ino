@@ -2,12 +2,14 @@
 #include <Wire.h>
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
-
+#include "asset_tilemap.h"
 #include "image_data.h"
 TinyScreen display = TinyScreen(0);
-
-RenderBuffer<uint16_t,5> buffer;
+#define RENDER_COMMAND_COUNT 120
+RenderBuffer<uint16_t,RENDER_COMMAND_COUNT> buffer;
 const Texture<uint16_t> tiles(ImageAsset::tilemap);
+TileMap::SceneBgFgRenderer<uint16_t,RENDER_COMMAND_COUNT> renderer;
+TileMap::SceneBgFg<uint16_t> tilemap;
 
 void setup() {
     Wire.begin();
@@ -20,10 +22,14 @@ void setup() {
     display.setFlip(0);
     display.setBrightness(8);
     display.setBitDepth(buffer.is16bit());
+
+
+    tilemap = TilemapAsset::testmap();
 }
 
 void loop() {
-    buffer.drawRect(4,4,100,128)->sprite(&tiles);
+    //buffer.drawRect(4,4,100,128)->sprite(&tiles);
+    renderer.update(buffer, tilemap, 48, 32);
     buffer.flush(display);
     stringBuffer.reset();
 }

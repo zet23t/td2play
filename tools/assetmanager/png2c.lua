@@ -22,6 +22,7 @@ namespace ImageAsset {
 ]]
 
 local function convertPNG(pngfile, config)
+	print("converting "..pngfile.." to "..config.format)
 	local img = assert(gd.createFromPng(pngfile))
 	local floor = math.floor
 	local min = math.min

@@ -128,6 +128,12 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/test_assetmgr/asset_tilemap.cpp">
+			<Option target="Test Assetmanager (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/test_assetmgr/asset_tilemap.h">
+			<Option target="Test Assetmanager (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/test_assetmgr/image_data.cpp">
 			<Option target="Test Assetmanager (Debug)" />
 		</Unit>

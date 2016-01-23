@@ -9,3 +9,4 @@
 ]]
 
 require "assetmanager.png2c"
+require "assetmanager.tiled"
