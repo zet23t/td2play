@@ -47,14 +47,19 @@ local function convertPNG(pngfile, config)
 		return ("0x%x"):format(rgbToRGB233(img,col))
 	end
 
-	local function rgbToString565(img, col)
-		byteCount = byteCount + 2
+	local function rgbToString565(img, col, as_short, no_count)
+		if not no_count then
+			byteCount = byteCount + 2
+		end
 
 		local short = rgbToRGB565(img, col)
 		local high = floor(short / 256)
 		local low = short % 256
-
-		return ("0x%02x,0x%02x"):format( high, low)
+		if as_short then
+			return ("0x%02x%02x"):format(low,high)
+		else
+			return ("0x%02x,0x%02x"):format( high, low)
+		end
 	end
 
 	local rgbToString
@@ -81,10 +86,12 @@ local function convertPNG(pngfile, config)
 const unsigned char %s_data[] PROGMEM = {
 	%s
 };
-const ImageData %s = { %d,%d, %s_data,%d, ImageFormat::%s };
+const ImageData %s = { %d,%d, %s_data,%s, ImageFormat::%s };
 
 ]]):format(name,table.concat(pixels,","),
-		name,width,height,name,img:getTransparent() and rgbToByte(img,img:getTransparent()) or -1,
+		name,width,height,name,
+		(img:getTransparent() and rgbToByte(img,img:getTransparent()))
+			or (config.transparent_color and rgbToString(img,config.transparent_color,true, true)) or -1,
 		config.format:upper()
 	))
 	outh:write(([[
