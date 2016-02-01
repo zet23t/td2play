@@ -48,7 +48,9 @@ namespace TileMap {
         }
         inline uint8_t get(const uint16_t index) const {
             #ifdef WIN32
-            assert(index < width * height);
+            if (index < width * height) {
+                    assert(index < width * height);
+            }
             #endif // WIN32
             return pgm_read_byte_far(&tiles[index]);
         }
@@ -58,31 +60,31 @@ namespace TileMap {
      * The tileset defines the graphical representation of tile map data.
      */
     template<class TColor>
-    class TileSetBgFg {
+    class TileSet {
     public:
-        Texture<TColor> background;
-        Texture<TColor> foreground;
+        Texture<TColor>* tileSets;
+        uint8_t tilesetCount;
         uint8_t tileSizeBits;
-        TileSetBgFg():tileSizeBits(0) {
+        TileSet():tileSets(0),tilesetCount(0),tileSizeBits(0) {
         }
-        TileSetBgFg(Texture<TColor> background, Texture<TColor> foreground, uint8_t tileSizeBits):
-            background(background), foreground(foreground), tileSizeBits(tileSizeBits) {}
+        TileSet(Texture<TColor>* tileSets, uint8_t tilesetCount, uint8_t tileSizeBits):
+            tileSets(tileSets), tilesetCount(tilesetCount), tileSizeBits(tileSizeBits) {}
     };
 
     /// All required data for rendering the tilemap
     template<class TColor>
-    class SceneBgFg {
+    class Scene {
     public:
-        ProgmemData background;
-        ProgmemData foreground;
-        TileSetBgFg<TColor> tileset;
+        ProgmemData* tilemaps;
+        uint8_t tilemapCount;
+        TileSet<TColor> tileset;
         uint8_t *progMemTileTypeFlags;
-        SceneBgFg() {
+        Scene() {
         }
-        SceneBgFg(ProgmemData background, ProgmemData foreground, TileSetBgFg<TColor> tileset, uint8_t* progMemTileTypeFlags):
-            background(background), foreground(foreground), tileset(tileset), progMemTileTypeFlags(progMemTileTypeFlags) {
-            assert(this->background.getWidth() > 0 && background.getHeight() > 0);
-            assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
+        Scene(ProgmemData* tilemaps, uint8_t tilemapCount, TileSet<TColor> tileset, uint8_t* progMemTileTypeFlags):
+            tilemaps(tilemaps), tilemapCount(tilemapCount), tileset(tileset), progMemTileTypeFlags(progMemTileTypeFlags) {
+            assert(this->tilemaps[0].getWidth() > 0 && tilemaps[0].getHeight() > 0);
+            //assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
         }
         bool isPixelFree(const int x, const int y, uint8_t& tileIndex) const;
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos) const;
@@ -92,18 +94,18 @@ namespace TileMap {
 
 
     template<class TColor, int maxCommands>
-    class SceneBgFgRenderer {
+    class SceneRenderer {
     public:
-        SceneBgFgRenderer()
+        SceneRenderer()
         {
 
         }
 
-        void update(RenderBuffer<TColor, maxCommands>& buffer, SceneBgFg<TColor>& scene, const int16_t centerX, const int16_t centerY) const;
+        void update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY) const;
     };
 
     template<class TColor, int maxCommands>
-    void TileMap::SceneBgFgRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, SceneBgFg<TColor>& scene, const int16_t centerX, const int16_t centerY) const
+    void TileMap::SceneRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY) const
     {
         const uint8_t tileSizeBits = scene.tileset.tileSizeBits;
         const int16_t topLeftX = (centerX & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
@@ -112,36 +114,25 @@ namespace TileMap {
         const int16_t maxX = topLeftX + RenderBufferConst::screenWidth + (1 << tileSizeBits);
         const int16_t minY = topLeftY;
         const int16_t maxY = topLeftY + RenderBufferConst::screenHeight + (1 << tileSizeBits);
-        const uint8_t width = scene.background.getWidth();
-        const uint8_t height = scene.background.getHeight();
+        const uint8_t width = scene.tilemaps[0].getWidth();
+        const uint8_t height = scene.tilemaps[0].getHeight();
 
-        for (int16_t y = minY; y < maxY; y += 1 << tileSizeBits) {
-            for (int16_t x = minX; x < maxX; x += 1 << tileSizeBits) {
-                if (y < 0 || x < 0 || x >= width << tileSizeBits || y >= height << tileSizeBits) continue;
-                const uint8_t tileX = x >> tileSizeBits;
-                const uint8_t tileY = y >> tileSizeBits;
-                const uint16_t index = tileX + tileY * width;
-                const int8_t rectX = x + (RenderBufferConst::screenWidth>>1) - centerX;
-                const int8_t rectY = y + (RenderBufferConst::screenHeight>>1) - centerY;
-                const uint8_t tileIndexBg = scene.background.get(index);
-                const uint8_t tileIndexFg = scene.foreground.get(index);
-                if (tileIndexBg != 0xff) {
-                    buffer.drawRect(rectX, rectY,8,8)
-                                      ->sprite(&scene.tileset.background,
-                                               (tileIndexBg & 0xf) << tileSizeBits,
-                                               (tileIndexBg >> 4) << tileSizeBits);
-                }
-
-                if (tileIndexFg != 0xff) {
-                    buffer.drawRect(rectX, rectY,8,8)
-                                      ->sprite(&scene.tileset.foreground,
-                                               (tileIndexFg & 0xf) << tileSizeBits,
-                                               (tileIndexFg >> 4) << tileSizeBits);
-
-                    #ifdef DEBUG
-                    //buffer.drawRect(rectX+2, rectY+2,4,4)
-                    //                ->filledRect(buffer.rgb(80,90,30));
-                    #endif // DEBUG
+        for (int layerIndex = 0; layerIndex < scene.tilemapCount; layerIndex+=1) {
+            for (int16_t y = minY; y < maxY; y += 1 << tileSizeBits) {
+                for (int16_t x = minX; x < maxX; x += 1 << tileSizeBits) {
+                    if (y < 0 || x < 0 || x >= width << tileSizeBits || y >= height << tileSizeBits) continue;
+                    const uint8_t tileX = x >> tileSizeBits;
+                    const uint8_t tileY = y >> tileSizeBits;
+                    const uint16_t index = tileX + tileY * width;
+                    const int8_t rectX = x + (RenderBufferConst::screenWidth>>1) - centerX;
+                    const int8_t rectY = y + (RenderBufferConst::screenHeight>>1) - centerY;
+                    const uint8_t tileIndex = scene.tilemaps[layerIndex].get(index);
+                    if (tileIndex != 0xff) {
+                        buffer.drawRect(rectX, rectY,8,8)
+                                          ->sprite(&scene.tileset.tileSets[layerIndex],
+                                                   (tileIndex & 0xf) << tileSizeBits,
+                                                   (tileIndex >> 4) << tileSizeBits);
+                    }
                 }
             }
         }

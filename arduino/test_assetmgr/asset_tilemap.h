@@ -2,6 +2,6 @@
 #include "lib_tilemap.h"
 
 namespace TilemapAsset {
-	TileMap::SceneBgFg<uint16_t> testmap();
+	TileMap::Scene<uint16_t> testmap();
 
 }

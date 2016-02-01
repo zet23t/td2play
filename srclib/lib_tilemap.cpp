@@ -3,18 +3,18 @@
 
 namespace TileMap {
     template<class TColor>
-    bool SceneBgFg<TColor>::isPixelFree(const int x, const int y, uint8_t& tileIndexOut) const {
+    bool Scene<TColor>::isPixelFree(const int x, const int y, uint8_t& tileIndexOut) const {
         const uint8_t tileSizeBits = tileset.tileSizeBits;
         const int16_t tileX = x >> tileSizeBits;
         const int16_t tileY = y >> tileSizeBits;
-        const uint8_t width = background.getWidth();
-        const uint8_t height = background.getHeight();
+        const uint8_t width = tilemaps[0].getWidth();
+        const uint8_t height = tilemaps[0].getHeight();
 
         if (tileX < 0 || tileY < 0 || tileX >= width || tileY >= height) {
             return true;
         }
 
-        const uint8_t tileIndex = foreground.get(tileX,tileY);
+        /*const uint8_t tileIndex = foreground.get(tileX,tileY);
         if (tileIndex == 255) {
             return true;
         }
@@ -25,12 +25,12 @@ namespace TileMap {
                                          ((tileIndex & 0xf) << tileSizeBits) + subX,
                                          ((tileIndex >> 4) << tileSizeBits) + subY);
         if (transparent) return true;
-        tileIndexOut = tileIndex;
+        tileIndexOut = tileIndex;*/
         return false;
     }
 
     template<class TColor>
-    Math::Vector2D16 SceneBgFg<TColor>::moveOut(const Math::Vector2D16& pos, const uint8_t distleft, const uint8_t distright, const uint8_t disttop, const uint8_t distbottom) const {
+    Math::Vector2D16 Scene<TColor>::moveOut(const Math::Vector2D16& pos, const uint8_t distleft, const uint8_t distright, const uint8_t disttop, const uint8_t distbottom) const {
         uint8_t tileIndex;
         if (isPixelFree(pos.x,pos.y,tileIndex)) return pos;
 
@@ -48,9 +48,9 @@ namespace TileMap {
     }
 
     template<class TColor>
-    Math::Vector2D16 SceneBgFg<TColor>::moveOut(const Math::Vector2D16& pos) const {
+    Math::Vector2D16 Scene<TColor>::moveOut(const Math::Vector2D16& pos) const {
         return moveOut(pos,0,0,0,0);
     }
-    template class SceneBgFg<uint8_t>;
-    template class SceneBgFg<uint16_t>;
+    template class Scene<uint8_t>;
+    template class Scene<uint16_t>;
 }
