@@ -28,8 +28,11 @@ void setup() {
 }
 
 void loop() {
+    static unsigned int x = 0;
+    x+=1;
     //buffer.drawRect(4,4,100,128)->sprite(&tiles);
-    renderer.update(buffer, tilemap, 48, 32);
+    renderer.update(buffer, tilemap, x%tilemap.calcWidth()+48, 32);
+    renderer.update(buffer, tilemap, x%tilemap.calcWidth()+48 - tilemap.calcWidth(), 32);
     buffer.flush(display);
     stringBuffer.reset();
 }
