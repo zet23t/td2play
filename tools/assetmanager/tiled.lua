@@ -102,7 +102,51 @@ function convertTiledXML(path, name)
 	local function to_c (tiledata)
 		local out = {}
 		local firstgid = tiledata.usedtileset and tiledata.usedtileset.firstgid or 0
+		local rle = {}
+		local current, currentCount, lineCount
+		for i=1,height do
+			rle[i*2-1] = 0
+			rle[i*2] = 0
+		end
+		lineCount = 0
+		local line = 1
 
+		for i=1,#tiledata do
+			local now = tiledata[i]
+			if now ~= current or currentCount >=255 then
+				if current then
+					rle[#rle+1] = currentCount
+					rle[#rle+1] = current
+					lineCount = lineCount + 2
+				end
+				currentCount = 0
+				current = now
+			end
+			currentCount = currentCount + 1
+			if i % width == 0 then
+				rle[#rle+1] = currentCount
+				rle[#rle+1] = current
+				currentCount,current = nil
+
+				local low = lineCount % 256
+				local high = (lineCount - low) / 256
+				rle[line] = high
+				rle[line+1] = low
+				line = line + 2
+			end
+		end
+		-- RLE contains run length encoded data - I'll have to write a 
+		-- decoder at some point and utilize this compression technique when 
+		-- needed
+		--[[print(tiledata.name,#rle,#tiledata)
+		for i=height*2+1,height*2+21 do
+			io.write(rle[i]..", ")
+		end
+		print()
+		for i=1,20 do
+			io.write(tiledata[i]..", ")
+		end
+		print()]]
 		for i=1,#tiledata do
 			local id = tiledata[i]
 			if id == 0 then id = 255 
