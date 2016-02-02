@@ -112,8 +112,11 @@ function convertTiledXML(path, name)
 
 		return table.concat(out)
 	end
+	local layers = {}
+	for name in content:gmatch '<layer name="(.-)"' do
+		layers[#layers+1] = getdata(name)
+	end
 
-	local background, foreground = getdata "background", getdata "foreground"
 	local filename = name
 
 	local function tilesetname(tileset )
@@ -124,39 +127,30 @@ function convertTiledXML(path, name)
 	end
 
 	outhpp:write(([[
-	TileMap::SceneBgFg<uint16_t> %s();
+	TileMap::Scene<uint16_t> %s();
 ]]):format(filename))
 
-	outfp:write(transform([[
-	
-	TileMap::SceneBgFg<uint16_t> {$name}() {
-		static const uint8_t {$name}_foreground[] PROGMEM = {
-			{$data_foreground}
-		};
-		static const uint8_t {$name}_background[] PROGMEM = {
-			{$data_background}
-		};
-		const ProgmemData foreground = ProgmemData({$width}, {$height}, {$name}_foreground);
-		const ProgmemData background = ProgmemData({$width}, {$height}, {$name}_background);
+	outfp:write("\n\tTileMap::Scene<uint16_t> "..filename.."() {\n")
+	outfp:write("\t\tstatic const uint8_t layerdata["..#layers.."]["..(width*height).."] PROGMEM = {\n")
+	for i,layer in ipairs(layers) do
+		outfp:write("\t\t\t{"..to_c(layer).."},\n")
+	end
+	outfp:write "\t\t};\n"
+	outfp:write("\t\tstatic ProgmemData layers[] = {\n")
+	for i,layer in ipairs(layers) do
+		outfp:write("\t\t\tProgmemData("..width..","..height..",layerdata["..(i-1).."]),\n")
+	end
+	outfp:write "\t\t};\n"
+	outfp:write("\t\tstatic Texture<uint16_t> tilesetTextures[] = {\n")
+	for i,layer in ipairs(layers) do
+		outfp:write("\t\t\tTexture<uint16_t>("..tilesetname(layer.usedtileset).."),\n")
+	end
+	outfp:write "\t\t};\n"
+	outfp:write("\t\treturn TileMap::Scene<uint16_t>(layers, "..#layers
+		..",TileSet<uint16_t>(tilesetTextures, "..#layers..","..tilesizebits.."),0);\n")
+	outfp:write "\t};\n"
 
-		return TileMap::SceneBgFg<uint16_t>(
-			background, foreground,
-			TileSetBgFg<uint16_t>(
-				Texture<uint16_t>({$tileset_background_name}), 
-				Texture<uint16_t>({$tileset_foreground_name}), 
-				{$tilesizebits}
-			), 
-			0
-		);
-	}
-	]], {
-		name = filename, 
-		data_foreground = to_c(foreground),
-		data_background = to_c(background),
-		tileset_background_name = tilesetname(background.usedtileset), 
-		tileset_foreground_name = tilesetname(foreground.usedtileset), 
-		width = width, height = height, tilesizebits = tilesizebits
-	}))
+	
 end
 
 for name in lfs.dir "assets" do

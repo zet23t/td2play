@@ -5,7 +5,7 @@
 #include "asset_tilemap.h"
 #include "image_data.h"
 TinyScreen display = TinyScreen(0);
-#define RENDER_COMMAND_COUNT 120
+#define RENDER_COMMAND_COUNT 200
 RenderBuffer<uint16_t,RENDER_COMMAND_COUNT> buffer;
 const Texture<uint16_t> tiles(ImageAsset::tilemap);
 TileMap::SceneRenderer<uint16_t,RENDER_COMMAND_COUNT> renderer;
