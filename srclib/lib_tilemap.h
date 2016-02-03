@@ -97,21 +97,21 @@ namespace TileMap {
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos, const uint8_t distleft, const uint8_t distright, const uint8_t disttop, const uint8_t distbottom) const;
     };
 
-
-
     template<class TColor, int maxCommands>
     class SceneRenderer {
+    private:
+
     public:
         SceneRenderer()
         {
 
         }
 
-        void update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY) const;
+        void update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY, int startLayer, int layerCount) const;
     };
 
     template<class TColor, int maxCommands>
-    void TileMap::SceneRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY) const
+    void TileMap::SceneRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY, int startLayer, int layerCount) const
     {
         const uint8_t tileSizeBits = scene.tileset.tileSizeBits;
         const int16_t topLeftX = (centerX & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
@@ -123,7 +123,7 @@ namespace TileMap {
         const uint8_t width = scene.tilemaps[0].getWidth();
         const uint8_t height = scene.tilemaps[0].getHeight();
 
-        for (int layerIndex = 0; layerIndex < scene.tilemapCount; layerIndex+=1) {
+        for (int layerIndex = startLayer; layerIndex < scene.tilemapCount && layerIndex < startLayer + layerCount; layerIndex+=1) {
             for (int16_t y = minY; y < maxY; y += 1 << tileSizeBits) {
                 for (int16_t x = minX; x < maxX; x += 1 << tileSizeBits) {
                     if (y < 0 || x < 0 || x >= width << tileSizeBits || y >= height << tileSizeBits) continue;
