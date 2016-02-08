@@ -6,6 +6,7 @@
 #else
 
 int analogRead(int);
+int digitalRead(int);
 
 #endif // WIN32
 
@@ -53,6 +54,7 @@ namespace ScreenButtonState {
 
 namespace Joystick {
     static Fixed2D4 position;
+    static char buttonA,buttonB;
     static int clampAndApplyDeadZone5bitTo4bit(int x) {
         // eliminate center zone values first
         if (x < 12) x += 4;
@@ -83,6 +85,11 @@ namespace Joystick {
         y = y - half;
         position.x = x;
         position.y = y;
+        buttonA = digitalRead(5) ? 0 : 1;
+        buttonB = digitalRead(4) ? 0 : 1;
+    }
+    bool getButton(int id) {
+        return id == 1 ? buttonB : buttonA;
     }
     Fixed2D4 getJoystick() {
         return position;

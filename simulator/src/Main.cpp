@@ -154,6 +154,16 @@ void TinyScreen::endTransfer(void) {
         emulator.y = y;
     }
 
+    int digitalRead(int pin) {
+        GLFWwindow* window = emulator.window;
+        switch (pin) {
+            case 4: return (glfwGetKey(window, GLFW_KEY_G) ? 1 : 0);
+            case 5: return (glfwGetKey(window, GLFW_KEY_H) ? 1 : 0);
+            default: return 0;
+        }
+        return 0;
+    }
+
     int analogRead(int pin) {
         GLFWwindow* window = emulator.window;
         switch (pin) {

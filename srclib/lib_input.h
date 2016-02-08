@@ -26,6 +26,7 @@ namespace ScreenButtonState {
 namespace Joystick {
     void updateJoystick();
     Fixed2D4 getJoystick();
+    bool getButton(int);
 }
 
 

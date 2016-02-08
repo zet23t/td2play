@@ -73,7 +73,7 @@ local function convertPNG(pngfile, config)
 	end
 
 	local width, height = img:sizeXY()
-	local name = pngfile:gsub("^.-([^/\\]+)%.png","%1")
+	local name = pngfile:gsub("^.-([^/\\]+)%.png","%1"):gsub("%-","_")
 	local pixels = {}
 	for y=0,height-1 do
 		for x=0,width-1 do

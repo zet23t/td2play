@@ -61,6 +61,11 @@ function convertTiledXML(path, name)
 			height = tonumber(height);
 			tilecount = tilecount;
 		}
+
+		for id, tiledata in tilesetxml:gmatch '<tile id="(%d+)">(.-)</tile>' do
+			print(id,tiledata)
+		end
+
 		tilesets[#tilesets+1] = tset
 		for i=0,tilecount - 1 do
 			assert(i + firstgid ~= 0)
@@ -158,7 +163,11 @@ function convertTiledXML(path, name)
 	end
 	local layers = {}
 	for name in content:gmatch '<layer name="(.-)"' do
-		layers[#layers+1] = getdata(name)
+		if name ~= "colission" then
+			layers[#layers+1] = getdata(name)
+		else
+			-- TODO: handle this
+		end
 	end
 
 	local filename = name
