@@ -79,6 +79,7 @@ public:
     }
     Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
     Texture (const ImageData& data);
+    uint8_t getType() const { return type; }
     void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
     bool isTransparent(uint16_t x, uint16_t y) const;
 };
