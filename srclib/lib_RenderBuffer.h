@@ -8,6 +8,7 @@
 #include "lib_font_virtualdj.h"
 #include "lib_StringBuffer.h"
 #include "lib_image.h"
+#include "lib_spritefont_structs.h"
 
 namespace RenderBufferConst {
     const uint8_t screenWidth = 96;
@@ -166,6 +167,7 @@ public:
     };
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
+    void drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font);
     TColor rgb(uint8_t r, uint8_t g, uint8_t b) const;
     bool is16bit() {return sizeof(TColor) == 2;}
     void flush(TinyScreen display);
@@ -208,6 +210,51 @@ RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text,
     cmd->type = RenderCommandType::text;
     return cmd;
 }
+
+template<class TColor, int cmdCount>
+void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font) {
+    int len = strlen(text);
+    const SpriteGlyph *glyphList[len];
+
+    int n = 0;
+    int height = 0;
+    int lineCount = 0;
+    int glyphCount = font.glyphCount;
+    const SpriteGlyph *glyphs = font.glyphs;
+
+    while (char c = *(text++)) {
+        for (int i=0;i<glyphCount;i+=1) {
+            if (c == '\n') {
+                lineCount+=1;
+                glyphList[n++] = 0;
+                break;
+            }
+            if (glyphs[i].letter == c) {
+                glyphList[n++] = &glyphs[i];
+                break;
+            }
+        }
+    }
+    int cursorX = x;
+    int cursorY = y;
+    int lineHeight = font.lineHeight;
+    Texture<TColor> texture(*font.imageData);
+    for (int i=0;i<n;i+=1) {
+        const SpriteGlyph *g = glyphList[i];
+        if (g == 0) {
+            cursorX = x;
+            cursorY += lineHeight;
+            continue;
+        }
+        if (g->w && g->h)
+            drawRect(cursorX+g->offsetX, cursorY+g->offsetY,g->w,g->h)->sprite(&texture,g->u,g->v);
+        cursorX += g->spacing;
+    }
+}
+
+
+
+
 
 template<class TCol, int maxCommands>
 void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)

@@ -63,7 +63,8 @@ function convertTiledXML(path, name)
 		}
 
 		for id, tiledata in tilesetxml:gmatch '<tile id="(%d+)">(.-)</tile>' do
-			print(id,tiledata)
+			-- todo: handle tile animation information
+			--	print(id,tiledata)
 		end
 
 		tilesets[#tilesets+1] = tset

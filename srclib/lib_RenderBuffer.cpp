@@ -367,7 +367,6 @@ void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y)
     }
 }
 
-
 // make sure we generate all function with uint16 / uint8 signture
 template class Texture<uint16_t>;
 template class RenderCommand<uint16_t>;

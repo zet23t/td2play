@@ -1,9 +1,81 @@
+-- this file desires to be rewritten ...
+
 require "gd"
 local lfs = require "lfs"
+local transform = require "assetmanager.transform"
 
 local outfile = "image_data"
 local outcpp = assert(io.open(outfile..".cpp","w"))
 local outh = assert(io.open(outfile..".h","w"))
+
+local outFontH, outFontCpp
+local function writeFontHeader(...)
+	if not outFontH then
+		outFontH = assert(io.open("font_asset.h","w"))
+		outFontH:write[[
+/* auto generated file! */
+#ifndef __FONT_ASSET_H__
+#define __FONT_ASSET_H__
+#include "image_data.h"
+#include "lib_spritefont.h"
+namespace FontAsset {
+]]
+	end
+	return outFontH:write(...)
+end
+local function closeFontFiles()
+	if outFontH then
+		outFontH:write "\n}\n#endif\n"
+		outFontH:close()
+		outFontH = nil
+	end
+	if outFontCpp then
+		outFontCpp:write "\n}\n"
+		outFontCpp:close()
+		outFontCpp = nil
+	end
+end
+
+local function writeFontCpp(...)
+	if not outFontCpp then
+		outFontCpp = assert(io.open("font_asset.cpp","w"))
+		outFontCpp:write [[
+#include "font_asset.h"
+namespace FontAsset {
+]]
+	end
+	return outFontCpp:write(...)
+end
+
+local function writeFontMap(imagename, fontmap)
+	writeFontHeader(([[
+	extern const SpriteFont %s;
+	]]):format(imagename))
+	local n = #fontmap
+	local lineheight = fontmap.lineheight or 8
+	writeFontCpp(transform([[
+	static const SpriteGlyph {$name}Glyphs[{$n}] = {
+	]],{name=imagename,n=n}))
+	for i=1,n do
+		local info = fontmap[i]
+		if #info.c ~= 1 then
+			print("Warning, non-char in fontmap: "..info.c)
+			writeFontCpp(([[
+		{0,0,0,0,0,0,0,0},
+]]));
+		else
+			assert(#info.c == 1)
+			if info.c == "'" then info.c = "\\'" end
+			writeFontCpp(transform([[
+		{'{$c}',{$u},{$v},{$w},{$h},{$spacing},{$offsetX},{$offsetY}},
+]], info));
+		end
+	end
+	writeFontCpp(transform([[
+	};
+	const SpriteFont {$name} = {{$lineheight},{$name}Glyphs,{$glyphCount},&ImageAsset::{$name}};
+	]],{name=imagename;glyphCount=n,lineheight=lineheight}))
+end
 
 outh:write [[
 /* auto generated image file! */
@@ -98,6 +170,10 @@ const ImageData %s = { %d,%d, %s_data,%s, ImageFormat::%s };
 extern const unsigned char %s_data[%d] PROGMEM;
 extern const ImageData %s;
 ]]):format(name, byteCount, name))
+
+	if config.fontmap then
+		writeFontMap(name, config.fontmap)
+	end
 end
 
 local function merge (t1,t2)
@@ -128,3 +204,5 @@ outh:write [[
 outcpp:write [[
 }
 ]]
+
+closeFontFiles()
