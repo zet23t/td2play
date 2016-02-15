@@ -154,6 +154,7 @@ private:
     RenderCommand<TColor> noCommand;
     TColor clearColor;
     bool clearBackground;
+    void drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY,int width, int lineWidth, int hAlign);
 public:
     RenderBuffer() {
         clearBackground = true;
@@ -216,38 +217,47 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, in
     int len = strlen(text);
     const SpriteGlyph *glyphList[len];
 
+    int cursorX = x;
+    int cursorY = y;
+    int lineHeight = font.lineHeight;
+    Texture<TColor> texture(*font.imageData);
+
     int n = 0;
     int height = 0;
     int lineCount = 0;
     int glyphCount = font.glyphCount;
     const SpriteGlyph *glyphs = font.glyphs;
-
+    int lineWidth = 0;
     while (char c = *(text++)) {
         for (int i=0;i<glyphCount;i+=1) {
             if (c == '\n') {
+
+                drawGlyphs(n,glyphList,&texture,cursorX, cursorY, width, lineWidth, hAlign);
+                n = 0;
+                cursorY+=lineHeight;
                 lineCount+=1;
-                glyphList[n++] = 0;
+                lineWidth = 0;
                 break;
             }
             if (glyphs[i].letter == c) {
                 glyphList[n++] = &glyphs[i];
+                lineWidth+=glyphs[i].spacing;
                 break;
             }
         }
     }
-    int cursorX = x;
-    int cursorY = y;
-    int lineHeight = font.lineHeight;
-    Texture<TColor> texture(*font.imageData);
+    drawGlyphs(n,glyphList,&texture,cursorX, cursorY, width, lineWidth, hAlign);
+ }
+
+template<class TColor, int cmdCount>
+void RenderBuffer<TColor, cmdCount>::drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY, int width, int lineWidth, int hAlign) {
+    switch (hAlign) {
+        case 0: cursorX += (width-lineWidth)/2;break;
+    }
     for (int i=0;i<n;i+=1) {
         const SpriteGlyph *g = glyphList[i];
-        if (g == 0) {
-            cursorX = x;
-            cursorY += lineHeight;
-            continue;
-        }
         if (g->w && g->h)
-            drawRect(cursorX+g->offsetX, cursorY+g->offsetY,g->w,g->h)->sprite(&texture,g->u,g->v);
+            drawRect(cursorX+g->offsetX, cursorY+g->offsetY,g->w,g->h)->sprite(texture,g->u,g->v);
         cursorX += g->spacing;
     }
 }

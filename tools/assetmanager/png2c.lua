@@ -66,6 +66,7 @@ local function writeFontMap(imagename, fontmap)
 		else
 			assert(#info.c == 1)
 			if info.c == "'" then info.c = "\\'" end
+			if info.c == "\\" then info.c = [[\\]] end
 			writeFontCpp(transform([[
 		{'{$c}',{$u},{$v},{$w},{$h},{$spacing},{$offsetX},{$offsetY}},
 ]], info));
