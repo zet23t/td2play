@@ -39,6 +39,18 @@ void setup();
 
 void loop();
 
+static void drawCircle(float x, float y, float radius, int div) {
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x, y);
+    for (int i=0;i<=div;i+=1) {
+        float ang = (float)i/(float)div * 3.141593f * 2.0f;
+        float px = sinf(ang) * radius;
+        float py = cosf(ang) * radius;
+        glVertex2f(px+x,py+y);
+    }
+    glEnd();
+}
+
 void TinyScreen::startData(void) {}
 void TinyScreen::startCommand(void) {}
 void TinyScreen::endTransfer(void) {
@@ -65,18 +77,73 @@ void TinyScreen::endTransfer(void) {
     glColor3f(0.f, 0.f, 1.f);
     glVertex3f(0.f, 0.6f, 0.f);
     glEnd();*/
-    glColor3f(1,1,1);
-    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, emulator.screenTexture);
-    float scale = 2.5f;
+    float scale = ratio > 1.3f ? 2.25f : (2.25f/1.3f) * ratio;
+
     glScalef(scale,scale,scale);
-    glTranslatef(-0.48f, -0.32f,0);
+    glTranslatef(-0.48f, -0.12f,0);
+
+    glColor3f(.0f,.0f,0.f);
+    drawCircle(.15f,-.25f,.18f,16);
+    glColor3f(.8f,.8f,0.8f);
+    drawCircle(.15f,-.25f,.10f,12);
+
+
+    glColor3f(.8f,.2f,0.f);
+    drawCircle(.6f,-.3f,.075f,12);
+    drawCircle(.8f,-.2f,.075f,12);
+
+    glBegin(GL_QUADS);
+    glVertex2f(-.05f, .2f);
+    glVertex2f(-.05f, .1f);
+    glVertex2f(.1f, .1f);
+    glVertex2f(.1f, .2f);
+    glEnd();
+    glColor3f(.8f,.2f,0.f);
+    glBegin(GL_QUADS);
+    glVertex2f(-.05f, .54f);
+    glVertex2f(-.05f, .44f);
+    glVertex2f(.1f, .44f);
+    glVertex2f(.1f, .54f);
+    glEnd();
+    glColor3f(.8f,.2f,0.f);
+    glBegin(GL_QUADS);
+    glVertex2f(.5f, .54f);
+    glVertex2f(.5f, .44f);
+    glVertex2f(1.01f, .44f);
+    glVertex2f(1.01f, .54f);
+    glEnd();
+    glBegin(GL_QUADS);
+    glVertex2f(.5f, .2f);
+    glVertex2f(.5f, .1f);
+    glVertex2f(1.01f, .1f);
+    glVertex2f(1.01f, .2f);
+    glEnd();
+
+
+    float margin = .02f;
+    glColor3f(0,0,0);
+    glBegin(GL_QUADS);
+    glVertex3f(-margin, -margin, 0);
+    glVertex3f(-margin, 0.64f+margin, 0);
+    glVertex3f(0.96f+margin, 0.64f+margin, 0);
+    glVertex3f(0.96f+margin, -margin, 0);
+    glEnd();
+
+
+
+    glEnable(GL_TEXTURE_2D);
+    glColor3f(1,1,1);
     glBegin(GL_QUADS);
     glTexCoord2f(0, SCREEN_VMAX); glVertex3f(0, 0, 0);
     glTexCoord2f(0, 0); glVertex3f(0, 0.64f, 0);
     glTexCoord2f(SCREEN_UMAX, 0); glVertex3f(0.96f, 0.64f, 0);
     glTexCoord2f(SCREEN_UMAX, SCREEN_VMAX); glVertex3f(0.96f, 0, 0);
     glEnd();
+
+
+
     glfwSwapBuffers(window);
     glfwPollEvents();
 
@@ -225,7 +292,7 @@ int main(void)
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
-    window = glfwCreateWindow(320, 240, "TinyScreen Simulator", NULL, NULL);
+    window = glfwCreateWindow(320, 320, "TinyScreen Simulator", NULL, NULL);
     emulator.window = window;
     if (!window)
     {
