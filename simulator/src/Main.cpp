@@ -35,6 +35,26 @@ static void updateScreen() {
 
 }
 
+int digitalRead(int pin) {
+    GLFWwindow* window = emulator.window;
+    switch (pin) {
+        case 4: return (glfwGetKey(window, GLFW_KEY_G) ? 1 : 0);
+        case 5: return (glfwGetKey(window, GLFW_KEY_H) ? 1 : 0);
+        default: return 0;
+    }
+    return 0;
+}
+
+int analogRead(int pin) {
+    GLFWwindow* window = emulator.window;
+    switch (pin) {
+        case 2: return (glfwGetKey(window, GLFW_KEY_RIGHT) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_LEFT) ? 511 : 0)+511;
+        case 3: return (glfwGetKey(window, GLFW_KEY_UP) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_DOWN) ? 511 : 0)+511;
+        default: return 0;
+    }
+    return 0;
+}
+
 void setup();
 
 void loop();
@@ -87,38 +107,52 @@ void TinyScreen::endTransfer(void) {
     glColor3f(.0f,.0f,0.f);
     drawCircle(.15f,-.25f,.18f,16);
     glColor3f(.8f,.8f,0.8f);
-    drawCircle(.15f,-.25f,.10f,12);
+    float stickX = -(float)analogRead(2) / 1023.f + .5f;
+    float stickY = -(float)analogRead(3) / 1023.f + .5f;
+    drawCircle(.15f + stickX*.15f,-.25f + stickY * .15f,.10f,12);
 
 
+
+    glColor3f(.0f,.0f,0.f);
+    drawCircle(.6f,-.325f,.075f,12);
+    drawCircle(.8f,-.225f,.075f,12);
     glColor3f(.8f,.2f,0.f);
-    drawCircle(.6f,-.3f,.075f,12);
-    drawCircle(.8f,-.2f,.075f,12);
-
+    float buttonY = digitalRead(4) ? -.32f : -.3f;
+    drawCircle(.6f,buttonY,.075f,12);
+    buttonY = digitalRead(5) ? -.22f : -.2f;
+    drawCircle(.8f,buttonY,.075f,12);
+    int buttons = getButtons();
     glBegin(GL_QUADS);
-    glVertex2f(-.05f, .2f);
-    glVertex2f(-.05f, .1f);
+    // bottom left
+    float buttonX = buttons & 1 ? -.05f : -.075f;
+    glVertex2f(buttonX, .2f);
+    glVertex2f(buttonX, .1f);
     glVertex2f(.1f, .1f);
     glVertex2f(.1f, .2f);
     glEnd();
+
+    buttonX = (buttons & 2) ? -.05f : -.075f;
     glColor3f(.8f,.2f,0.f);
     glBegin(GL_QUADS);
-    glVertex2f(-.05f, .54f);
-    glVertex2f(-.05f, .44f);
+    glVertex2f(buttonX, .54f);
+    glVertex2f(buttonX, .44f);
     glVertex2f(.1f, .44f);
     glVertex2f(.1f, .54f);
     glEnd();
     glColor3f(.8f,.2f,0.f);
+    buttonX = (buttons & 4) ? 1.01f : 1.035f;
     glBegin(GL_QUADS);
     glVertex2f(.5f, .54f);
     glVertex2f(.5f, .44f);
-    glVertex2f(1.01f, .44f);
-    glVertex2f(1.01f, .54f);
+    glVertex2f(buttonX, .44f);
+    glVertex2f(buttonX, .54f);
     glEnd();
+    buttonX = (buttons & 8) ? 1.01f : 1.035f;
     glBegin(GL_QUADS);
     glVertex2f(.5f, .2f);
     glVertex2f(.5f, .1f);
-    glVertex2f(1.01f, .1f);
-    glVertex2f(1.01f, .2f);
+    glVertex2f(buttonX, .1f);
+    glVertex2f(buttonX, .2f);
     glEnd();
 
 
@@ -221,25 +255,6 @@ void TinyScreen::endTransfer(void) {
         emulator.y = y;
     }
 
-    int digitalRead(int pin) {
-        GLFWwindow* window = emulator.window;
-        switch (pin) {
-            case 4: return (glfwGetKey(window, GLFW_KEY_G) ? 1 : 0);
-            case 5: return (glfwGetKey(window, GLFW_KEY_H) ? 1 : 0);
-            default: return 0;
-        }
-        return 0;
-    }
-
-    int analogRead(int pin) {
-        GLFWwindow* window = emulator.window;
-        switch (pin) {
-            case 2: return (glfwGetKey(window, GLFW_KEY_RIGHT) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_LEFT) ? 511 : 0)+511;
-            case 3: return (glfwGetKey(window, GLFW_KEY_UP) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_DOWN) ? 511 : 0)+511;
-            default: return 0;
-        }
-        return 0;
-    }
     //I2C GPIO related
     uint8_t TinyScreen::getButtons(void) {
         GLFWwindow* window = emulator.window;
