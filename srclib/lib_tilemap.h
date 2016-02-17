@@ -54,6 +54,9 @@ namespace TileMap {
             #endif // WIN32
             return pgm_read_byte_far(&tiles[index]);
         }
+        inline bool isValid() const {
+            return tiles != 0;
+        }
     };
 
     /**
@@ -76,15 +79,20 @@ namespace TileMap {
     class Scene {
     public:
         ProgmemData* tilemaps;
+        ProgmemData flagmap;
         uint8_t tilemapCount;
         TileSet<TColor> tileset;
         uint8_t *progMemTileTypeFlags;
         Scene() {
         }
         Scene(ProgmemData* tilemaps, uint8_t tilemapCount, TileSet<TColor> tileset, uint8_t* progMemTileTypeFlags):
-            tilemaps(tilemaps), tilemapCount(tilemapCount), tileset(tileset), progMemTileTypeFlags(progMemTileTypeFlags) {
+            tilemaps(tilemaps), flagmap(), tilemapCount(tilemapCount), tileset(tileset), progMemTileTypeFlags(progMemTileTypeFlags) {
             assert(this->tilemaps[0].getWidth() > 0 && tilemaps[0].getHeight() > 0);
             //assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
+        }
+        Scene& setFlagmap(ProgmemData flagmap) {
+            this->flagmap = flagmap;
+            return *this;
         }
         uint16_t calcWidth() const {
             return tilemaps[0].getWidth() * (1 << tileset.tileSizeBits);
@@ -93,6 +101,7 @@ namespace TileMap {
             return tilemaps[0].getHeight() * (1 << tileset.tileSizeBits);
         }
         bool isPixelFree(const int x, const int y, uint8_t& tileIndex) const;
+        bool isRectFree(const int x1, const int y1, const int x2, const int y2) const;
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos) const;
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos, const uint8_t distleft, const uint8_t distright, const uint8_t disttop, const uint8_t distbottom) const;
     };

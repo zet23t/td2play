@@ -3,7 +3,33 @@
 
 namespace TileMap {
     template<class TColor>
+    bool Scene<TColor>::isRectFree(const int x1, const int y1, const int x2, const int y2) const {
+        if (!flagmap.isValid()) return true;
+        const uint8_t tileSizeBits = tileset.tileSizeBits;
+        const int16_t tileX1 = x1 >> tileSizeBits;
+        const int16_t tileY1 = y1 >> tileSizeBits;
+        const int16_t tileX2 = x2 >> tileSizeBits;
+        const int16_t tileY2 = y2 >> tileSizeBits;
+
+        const uint8_t width = tilemaps[0].getWidth();
+        const uint8_t height = tilemaps[0].getHeight();
+
+        for (int tileX = tileX1;tileX <= tileX2; tileX+=1) {
+            for (int tileY = tileY1;tileY <= tileY2; tileY+=1) {
+                if (tileX < 0 || tileY < 0 || tileX >= width || tileY >= height) {
+                    continue;
+                }
+
+                const uint8_t tileIndex = flagmap.get(tileX,tileY);
+                if (tileIndex != 255) return false;
+            }
+        }
+        return true;
+    }
+
+    template<class TColor>
     bool Scene<TColor>::isPixelFree(const int x, const int y, uint8_t& tileIndexOut) const {
+        if (!flagmap.isValid()) return true;
         const uint8_t tileSizeBits = tileset.tileSizeBits;
         const int16_t tileX = x >> tileSizeBits;
         const int16_t tileY = y >> tileSizeBits;
@@ -13,6 +39,9 @@ namespace TileMap {
         if (tileX < 0 || tileY < 0 || tileX >= width || tileY >= height) {
             return true;
         }
+
+        const uint8_t tileIndex = flagmap.get(tileX,tileY);
+
 
         /*const uint8_t tileIndex = foreground.get(tileX,tileY);
         if (tileIndex == 255) {
@@ -26,7 +55,7 @@ namespace TileMap {
                                          ((tileIndex >> 4) << tileSizeBits) + subY);
         if (transparent) return true;
         tileIndexOut = tileIndex;*/
-        return false;
+        return tileIndex == 255;
     }
 
     template<class TColor>

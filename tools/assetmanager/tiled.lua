@@ -163,11 +163,12 @@ function convertTiledXML(path, name)
 		return table.concat(out)
 	end
 	local layers = {}
+	local flagmapLayer
 	for name in content:gmatch '<layer name="(.-)"' do
-		if name ~= "colission" then
+		if name ~= "flagmap" then
 			layers[#layers+1] = getdata(name)
 		else
-			-- TODO: handle this
+			flagmapLayer = getdata(name)
 		end
 	end
 
@@ -185,6 +186,10 @@ function convertTiledXML(path, name)
 ]]):format(filename))
 
 	outfp:write("\n\tTileMap::Scene<uint16_t> "..filename.."() {\n")
+	if flagmapLayer then
+		outfp:write("\t\tstatic const uint8_t flagmapdata["..(width*height).."] PROGMEM = {\n\t\t\t"..to_c(flagmapLayer).."};\n")
+		outfp:write("\t\tstatic ProgmemData flagmapLayer("..width..","..height..",flagmapdata);\n")
+	end
 	outfp:write("\t\tstatic const uint8_t layerdata["..#layers.."]["..(width*height).."] PROGMEM = {\n")
 	for i,layer in ipairs(layers) do
 		outfp:write("\t\t\t{"..to_c(layer).."},\n")
@@ -201,7 +206,11 @@ function convertTiledXML(path, name)
 	end
 	outfp:write "\t\t};\n"
 	outfp:write("\t\treturn TileMap::Scene<uint16_t>(layers, "..#layers
-		..",TileSet<uint16_t>(tilesetTextures, "..#layers..","..tilesizebits.."),0);\n")
+		..",TileSet<uint16_t>(tilesetTextures, "..#layers..","..tilesizebits.."),0)")
+	if flagmapLayer then
+		outfp:write(".setFlagmap(flagmapLayer)")
+	end
+	outfp:write ";\n"
 	outfp:write "\t};\n"
 
 	
