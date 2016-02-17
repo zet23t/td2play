@@ -2,10 +2,15 @@
 #include <stdio.h>
 
 namespace TileMap {
+    static bool isRectIntersectingRect(int ax1,int ay1,int ax2,int ay2, int bx1, int by1, int bx2, int by2) {
+        return !(ax2 <= bx1 || bx2 <= ax1 || ay2 <= by1 || by2 <= ay1);
+    }
+
     template<class TColor>
     bool Scene<TColor>::isRectFree(const int x1, const int y1, const int x2, const int y2) const {
         if (!flagmap.isValid()) return true;
         const uint8_t tileSizeBits = tileset.tileSizeBits;
+        const uint8_t tileSize = 1 << tileSizeBits;
         const int16_t tileX1 = x1 >> tileSizeBits;
         const int16_t tileY1 = y1 >> tileSizeBits;
         const int16_t tileX2 = x2 >> tileSizeBits;
@@ -14,14 +19,47 @@ namespace TileMap {
         const uint8_t width = tilemaps[0].getWidth();
         const uint8_t height = tilemaps[0].getHeight();
 
-        for (int tileX = tileX1;tileX <= tileX2; tileX+=1) {
-            for (int tileY = tileY1;tileY <= tileY2; tileY+=1) {
+        for (int tileX = tileX1;tileX <= tileX2; tileX+=1)
+        {
+            for (int tileY = tileY1;tileY <= tileY2; tileY+=1)
+            {
                 if (tileX < 0 || tileY < 0 || tileX >= width || tileY >= height) {
                     continue;
                 }
 
                 const uint8_t tileIndex = flagmap.get(tileX,tileY);
-                if (tileIndex != 255) return false;
+                if (tileIndex != 255)
+                {
+                    int16_t left= tileX << tileSizeBits;
+                    int16_t top = tileY << tileSizeBits;
+                    switch(tileIndex) {
+                    case 0:
+                        return false;
+                    case 5: // top half blocked
+                        //printf("%d,%d : %d,%d  |  %d,%d : %d,%d\n",x1,y1,x2,y2, left,top,left+tileSize,top+tileSize/2);
+                        if (isRectIntersectingRect(x1,y1,x2,y2, left,top,left+tileSize,top+tileSize/2)) {
+                            return false;
+                        }
+                        break;
+                    case 6: // bottom half blocked
+                        if (isRectIntersectingRect(x1,y1,x2,y2, left,top+tileSize/2,left+tileSize,top+tileSize)) {
+                            return false;
+                        }
+                        break;
+                    case 7: // left half blocked
+                        if (isRectIntersectingRect(x1,y1,x2,y2, left,top,left+tileSize/2,top+tileSize)) {
+                            return false;
+                        }
+                        break;
+                    case 8: // right half blocked
+                        if (isRectIntersectingRect(x1,y1,x2,y2, left+tileSize/2,top,left+tileSize,top+tileSize)) {
+                            return false;
+                        }
+                        break;
+                    default:
+                        printf("unhandled flagmap id: %d\n",tileIndex);
+                    }
+                }
             }
         }
         return true;
