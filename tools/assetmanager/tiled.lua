@@ -105,6 +105,47 @@ function convertTiledXML(path, name)
 		return tiledata
 	end
 
+	local function getobjectgroup(name) 
+		local group = content:match([[<objectgroup name="]]..name..[[">(.-)</objectgroup>]])
+		if group then
+			local objectlist = {}
+			for tags in group:gmatch "<object (.-)/>" do
+				local function attribute(name)
+					return tags:match(name..'="(.-)"')
+				end
+				local id = attribute "id"
+				local type = attribute "type"
+				local name = attribute "name"
+				local x1 = attribute "x"
+				local y1 = attribute "y"
+				local width = attribute "width"
+				local height = attribute "height"
+				if x1 and y1 and width and height and id then
+					local x2 = math.floor(x1+width+.5)
+					local y2 = math.floor(y1+height+.5)
+					x1 = math.floor(x1+.5)
+					y1 = math.floor(y1+.5)
+					local nameVal
+					if type == "TRANSITION" then
+						nameVal = "(const char*)"..name
+					else
+						nameVal = name and ('"'..name..'"') or "0"
+					end
+					objectlist[#objectlist+1] = ("{%d,%d,%d,%d,%s,%s}"):format(x1,y1,x2,y2,
+						nameVal, type)
+				end
+			end
+			local code = "\t\tstatic const RectObject rectObjectList[] = {\n\t\t\t"..table.concat(objectlist,",\n\t\t\t")
+				.."\n\t\t};\n\t\t"
+				.."static const ObjectGroup objectGroup(rectObjectList,"..(#objectlist)..");"
+			return code
+		else
+			return nil
+		end
+	end
+
+	local objectgroup = getobjectgroup "zones"
+
 	local function to_c (tiledata)
 		local out = {}
 		local firstgid = tiledata.usedtileset and tiledata.usedtileset.firstgid or 0
@@ -186,6 +227,9 @@ function convertTiledXML(path, name)
 ]]):format(filename))
 
 	outfp:write("\n\tTileMap::Scene<uint16_t> "..filename.."() {\n")
+	if objectgroup then
+		outfp:write(objectgroup,"\n")
+	end
 	if flagmapLayer then
 		outfp:write("\t\tstatic const uint8_t flagmapdata["..(width*height).."] PROGMEM = {\n\t\t\t"..to_c(flagmapLayer).."};\n")
 		outfp:write("\t\tstatic ProgmemData flagmapLayer("..width..","..height..",flagmapdata);\n")
@@ -209,6 +253,9 @@ function convertTiledXML(path, name)
 		..",TileSet<uint16_t>(tilesetTextures, "..#layers..","..tilesizebits.."),0)")
 	if flagmapLayer then
 		outfp:write(".setFlagmap(flagmapLayer)")
+	end
+	if objectgroup then
+		outfp:write(".setObjectGroup(&objectGroup)")
 	end
 	outfp:write ";\n"
 	outfp:write "\t};\n"

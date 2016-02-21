@@ -260,6 +260,11 @@ Texture<TColor>::Texture (const ImageData& img) {
     init(img.data, img.format, img.width, img.height, (TColor)img.transparentColor);
 }
 
+template<class TColor>
+Texture<TColor>::Texture (const ImageData* img) {
+    init(img->data, img->format, img->width, img->height, (TColor)img->transparentColor);
+}
+
 
 template<class TColor>
 void Texture<TColor>::fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const {

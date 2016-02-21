@@ -307,7 +307,7 @@ int main(void)
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
-    window = glfwCreateWindow(320, 320, "TinyScreen Simulator", NULL, NULL);
+    window = glfwCreateWindow(420, 420, "TinyScreen Simulator", NULL, NULL);
     emulator.window = window;
     if (!window)
     {

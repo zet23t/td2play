@@ -80,6 +80,7 @@ public:
     }
     Texture (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
     Texture (const ImageData& data);
+    Texture (const ImageData* data);
     uint8_t getType() const { return type; }
     void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
     bool isTransparent(uint16_t x, uint16_t y) const;
@@ -145,6 +146,8 @@ public:
     void fillLine(TColor *line, uint8_t y);
 };
 
+#define TEMP_TEXTURE_BUFFER_SIZE 8
+
 template<class TColor, int maxCommands>
 class RenderBuffer
 {
@@ -155,9 +158,14 @@ private:
     TColor clearColor;
     bool clearBackground;
     void drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY,int width, int lineWidth, int hAlign);
+    Texture<TColor> tempTextureBuffer[TEMP_TEXTURE_BUFFER_SIZE];
+    const ImageData* tempTextureBufferImageData[TEMP_TEXTURE_BUFFER_SIZE];
+    uint8_t tempTextureBufferUseCount;
+    Texture<TColor>* getTempTexture(const ImageData *imageData);
 public:
     RenderBuffer() {
         clearBackground = true;
+        tempTextureBufferUseCount = 0;
     };
     void setClearBackground(bool clearB) {
         clearBackground = clearB;
@@ -211,6 +219,16 @@ RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text,
     cmd->type = RenderCommandType::text;
     return cmd;
 }
+template<class TColor, int cmdCount>
+Texture<TColor>* RenderBuffer<TColor, cmdCount>::getTempTexture(const ImageData *imageData) {
+    for (int i=0;i<tempTextureBufferUseCount;i+=1) {
+        if (tempTextureBufferImageData[i] == imageData) return &tempTextureBuffer[i];
+    }
+    if (tempTextureBufferUseCount == TEMP_TEXTURE_BUFFER_SIZE) return 0;
+    Texture<TColor> tex(imageData);
+    tempTextureBuffer[tempTextureBufferUseCount++] = tex;
+    return &tempTextureBuffer[tempTextureBufferUseCount-1];
+}
 
 template<class TColor, int cmdCount>
 void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font) {
@@ -220,7 +238,7 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, in
     int cursorX = x;
     int cursorY = y;
     int lineHeight = font.lineHeight;
-    Texture<TColor> texture(*font.imageData);
+    Texture<TColor> *texture = getTempTexture(font.imageData);
 
     int n = 0;
     int height = 0;
@@ -232,7 +250,7 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, in
         for (int i=0;i<glyphCount;i+=1) {
             if (c == '\n') {
 
-                drawGlyphs(n,glyphList,&texture,cursorX, cursorY, width, lineWidth, hAlign);
+                drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign);
                 n = 0;
                 cursorY+=lineHeight;
                 lineCount+=1;
@@ -246,7 +264,7 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, in
             }
         }
     }
-    drawGlyphs(n,glyphList,&texture,cursorX, cursorY, width, lineWidth, hAlign);
+    drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign);
  }
 
 template<class TColor, int cmdCount>
@@ -345,6 +363,7 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
     }
     display.endTransfer();
     commandCount = 0;
+    tempTextureBufferUseCount = 0;
 }
 
 #endif

@@ -12,6 +12,7 @@
 #endif // WIN32
 
 namespace TileMap {
+    template<class TColor> class Scene;
 
     /**
      * A tile is addressed by an 8 bit value where 255 means "nothing" and
@@ -59,6 +60,44 @@ namespace TileMap {
         }
     };
 
+    const uint8_t INFO = 1;
+    const uint8_t ZONE_SPAWN = 2;
+    const uint8_t TRANSITION = 3;
+
+    struct RectObject {
+    public:
+        const int16_t x1, y1, x2, y2;
+        union {
+            const char *name;
+            Scene<uint16_t> (*sceneGetter)(void);
+        };
+        uint8_t type;
+        bool isRectIntersecting(int16_t rx1, int16_t ry1, int16_t rx2, int16_t ry2) const {
+            return !(x1 >= rx2 || rx1 >= x2 || y1 >= ry2 || ry1 >= y2);
+        }
+    };
+
+    class ObjectGroup {
+    private:
+        const RectObject* rectObjectList;
+        const uint8_t objectListLength;
+    public:
+        ObjectGroup(const RectObject* rectObjectList, const uint8_t objectListLength)
+            :rectObjectList(rectObjectList), objectListLength(objectListLength) {
+        };
+        bool findRectIntersection(int16_t x1, int16_t y1, int16_t x2, int16_t y2, const RectObject*& hit, uint8_t& offset) const {
+            for (;offset < objectListLength; offset +=1) {
+                if (rectObjectList[offset].isRectIntersecting(x1,y1,x2,y2)) {
+                    hit = &rectObjectList[offset];
+                    offset += 1;
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
+
+
     /**
      * The tileset defines the graphical representation of tile map data.
      */
@@ -82,17 +121,25 @@ namespace TileMap {
         ProgmemData flagmap;
         uint8_t tilemapCount;
         TileSet<TColor> tileset;
-        uint8_t *progMemTileTypeFlags;
+        const ObjectGroup *objectGroup;
         Scene() {
         }
         Scene(ProgmemData* tilemaps, uint8_t tilemapCount, TileSet<TColor> tileset, uint8_t* progMemTileTypeFlags):
-            tilemaps(tilemaps), flagmap(), tilemapCount(tilemapCount), tileset(tileset), progMemTileTypeFlags(progMemTileTypeFlags) {
+            tilemaps(tilemaps), flagmap(), tilemapCount(tilemapCount), tileset(tileset), objectGroup(0) {
             assert(this->tilemaps[0].getWidth() > 0 && tilemaps[0].getHeight() > 0);
             //assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
+        }
+        Scene& setObjectGroup(const ObjectGroup *g) {
+            objectGroup = g;
+            return *this;
         }
         Scene& setFlagmap(ProgmemData flagmap) {
             this->flagmap = flagmap;
             return *this;
+        }
+        bool findRectIntersection(int16_t x1, int16_t y1, int16_t x2, int16_t y2, const RectObject*& hit, uint8_t& offset) const {
+            if (objectGroup) return objectGroup->findRectIntersection(x1,y1,x2,y2,hit,offset);
+            return false;
         }
         uint16_t calcWidth() const {
             return tilemaps[0].getWidth() * (1 << tileset.tileSizeBits);
