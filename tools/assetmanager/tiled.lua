@@ -3,6 +3,17 @@
 
 local gd = require "gd"
 local transform = require "assetmanager.transform"
+local idMap = {}
+local idList = {}
+do
+	local n = 0
+	setmetatable(idMap,{__index = function(t,k)
+		n = n + 1
+		t[k] = k
+		idList[n] = k 
+		return k
+	end})
+end
 
 local outfp = assert(io.open("asset_tilemap.cpp","wb"))
 outfp:write([[
@@ -257,7 +268,7 @@ function convertTiledXML(path, name)
 	if objectgroup then
 		outfp:write(".setObjectGroup(&objectGroup)")
 	end
-	outfp:write ";\n"
+	outfp:write(".setName(ID::"..idMap[filename]..");\n")
 	outfp:write "\t};\n"
 
 	
@@ -268,6 +279,14 @@ for name in lfs.dir "assets" do
 		convertTiledXML("assets/"..name, name:match "^(.-)%.")	
 	end
 end
+if #idList > 0 then
+	outhpp:write "\n\tnamespace ID {\n"
+	for i=1,#idList do
+		outhpp:write("\t\tconst uint16_t "..idList[i].." = "..i..";\n")
+	end
+	outhpp:write "\t}"
+end
 
 outfp:write "\n}\n"
+
 outhpp:write "\n}\n"
