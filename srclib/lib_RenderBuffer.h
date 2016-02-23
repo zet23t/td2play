@@ -5,6 +5,7 @@
 #include <TinyScreen.h>
 #include <assert.h>
 #include <stdio.h>
+#include "lib_geom.h"
 #include "lib_font_virtualdj.h"
 #include "lib_StringBuffer.h"
 #include "lib_image.h"

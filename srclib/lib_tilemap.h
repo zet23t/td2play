@@ -2,6 +2,7 @@
 #define __LIB_TILEMAP_H__
 
 #include <inttypes.h>
+#include "lib_geom.h"
 #include "lib_RenderBuffer.h"
 #include "lib_math.h"
 
@@ -94,7 +95,19 @@ namespace TileMap {
                 }
             }
             return false;
-        }
+        };
+        bool findRectIntersections(Geom::Rect<int16_t> &a, Geom::Rect<int16_t> &b, const RectObject*& hit, uint8_t& offset, bool& hitA, bool& hitB) const {
+            for (;offset < objectListLength; offset +=1) {
+                hitA = rectObjectList[offset].isRectIntersecting(a.x1,a.y1,a.x2,a.y2);
+                hitB = rectObjectList[offset].isRectIntersecting(b.x1,b.y1,b.x2,b.y2);
+                if (hitA || hitB) {
+                    hit = &rectObjectList[offset];
+                    offset += 1;
+                    return true;
+                }
+            }
+            return false;
+        };
     };
 
 
@@ -122,12 +135,17 @@ namespace TileMap {
         uint8_t tilemapCount;
         TileSet<TColor> tileset;
         const ObjectGroup *objectGroup;
+        uint16_t nameId;
         Scene() {
         }
         Scene(ProgmemData* tilemaps, uint8_t tilemapCount, TileSet<TColor> tileset, uint8_t* progMemTileTypeFlags):
-            tilemaps(tilemaps), flagmap(), tilemapCount(tilemapCount), tileset(tileset), objectGroup(0) {
+            tilemaps(tilemaps), flagmap(), tilemapCount(tilemapCount), tileset(tileset), objectGroup(0),nameId(0) {
             assert(this->tilemaps[0].getWidth() > 0 && tilemaps[0].getHeight() > 0);
             //assert(background.getWidth() == foreground.getWidth() && background.getHeight() == foreground.getHeight());
+        }
+        Scene& setName(const uint16_t nameId) {
+            this->nameId = nameId;
+            return *this;
         }
         Scene& setObjectGroup(const ObjectGroup *g) {
             objectGroup = g;
@@ -139,6 +157,10 @@ namespace TileMap {
         }
         bool findRectIntersection(int16_t x1, int16_t y1, int16_t x2, int16_t y2, const RectObject*& hit, uint8_t& offset) const {
             if (objectGroup) return objectGroup->findRectIntersection(x1,y1,x2,y2,hit,offset);
+            return false;
+        }
+        bool findRectIntersections(Geom::Rect<int16_t>& a, Geom::Rect<int16_t>& b, const RectObject*& hit, uint8_t& offset, bool& hitA, bool& hitB) const {
+            if (objectGroup) return objectGroup->findRectIntersections(a,b,hit,offset,hitA,hitB);
             return false;
         }
         uint16_t calcWidth() const {
