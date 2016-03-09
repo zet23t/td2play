@@ -120,7 +120,14 @@ function convertTiledXML(path, name)
 		local group = content:match([[<objectgroup name="]]..name..[[">(.-)</objectgroup>]])
 		if group then
 			local objectlist = {}
-			for tags in group:gmatch "<object (.-)/>" do
+			for tags,pos in group:gmatch "<object (.-)>()" do
+				local properties = {}
+				if not tags:match "/$" then
+					local rest = group:match("(.-)</object>",pos)
+					for name, value in rest:gmatch [[name="(.-)" value="(.-)"]] do
+						properties[name] = value
+					end
+				end
 				local function attribute(name)
 					return tags:match(name..'="(.-)"')
 				end
@@ -137,13 +144,25 @@ function convertTiledXML(path, name)
 					x1 = math.floor(x1+.5)
 					y1 = math.floor(y1+.5)
 					local nameVal
+					local paramA,paramB = 0,0
+					local name = name
 					if type == "TRANSITION" then
 						nameVal = "(const char*)"..name
-					else
+					elseif type == "INFO" or name then
 						nameVal = name and ('"'..name..'"') or "0"
+					else
+						nameVal = "(const char*)"..id
 					end
-					objectlist[#objectlist+1] = ("{%d,%d,%d,%d,%s,%s}"):format(x1,y1,x2,y2,
-						nameVal, type)
+
+					if type == "NPC_SPAWN" then
+						paramA = properties.count or 1
+						paramB = properties.npc_type or 1
+					elseif type == "CUSTOM" then
+						paramA = properties.customId or 0
+					end
+					
+					objectlist[#objectlist+1] = ("{%d,%d,%d,%d,%s,%d,%d,%s}"):format(x1,y1,x2,y2,
+						nameVal, paramA, paramB, type)
 				end
 			end
 			local code = "\t\tstatic const RectObject rectObjectList[] = {\n\t\t\t"..table.concat(objectlist,",\n\t\t\t")

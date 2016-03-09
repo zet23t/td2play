@@ -64,6 +64,10 @@ namespace TileMap {
     const uint8_t INFO = 1;
     const uint8_t ZONE_SPAWN = 2;
     const uint8_t TRANSITION = 3;
+    const uint8_t NPC_SPAWN = 4;
+    const uint8_t NPC_WAYPOINT = 5;
+    const uint8_t NPC_DESPAWN = 6;
+    const uint8_t CUSTOM = 7;
 
     struct RectObject {
     public:
@@ -71,6 +75,20 @@ namespace TileMap {
         union {
             const char *name;
             Scene<uint16_t> (*sceneGetter)(void);
+            uint32_t id;
+        };
+        union {
+            struct {
+                uint8_t paramValueA;
+                uint8_t paramValueB;
+            };
+            struct {
+                uint8_t npcSpawnCount;
+                uint8_t npcSpawnType;
+            };
+            struct {
+                uint8_t customId;
+            };
         };
         uint8_t type;
         bool isRectIntersecting(int16_t rx1, int16_t ry1, int16_t rx2, int16_t ry2) const {
@@ -86,6 +104,13 @@ namespace TileMap {
         ObjectGroup(const RectObject* rectObjectList, const uint8_t objectListLength)
             :rectObjectList(rectObjectList), objectListLength(objectListLength) {
         };
+        const RectObject* first() const {
+            return rectObjectList;
+        }
+        bool next(const RectObject*& element) const {
+            element += 1;
+            return (int)(element - rectObjectList) < objectListLength;
+        }
         bool findRectIntersection(int16_t x1, int16_t y1, int16_t x2, int16_t y2, const RectObject*& hit, uint8_t& offset) const {
             for (;offset < objectListLength; offset +=1) {
                 if (rectObjectList[offset].isRectIntersecting(x1,y1,x2,y2)) {
