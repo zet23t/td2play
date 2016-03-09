@@ -70,9 +70,9 @@ private:
     uint16_t heightMod;
     uint16_t transparentColorMask;
     uint8_t widthBits;
-    void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
-    void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
-    void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const;
+    void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
     void init(const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
 public:
     Texture():data(0),type(0),width(0),height(0),widthMod(0),heightMod(0),transparentColorMask(0),widthBits(0){
@@ -83,7 +83,7 @@ public:
     Texture (const ImageData& data);
     Texture (const ImageData* data);
     uint8_t getType() const { return type; }
-    void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const;
+    void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
     bool isTransparent(uint16_t x, uint16_t y) const;
 };
 
@@ -125,7 +125,7 @@ public:
     /**
      * The type of the render command
      */
-    uint8_t type;
+    uint8_t type, depth;
     int8_t y1, y2;
     union
     {
@@ -137,14 +137,15 @@ private:
     /**
      * Fills a line in the line buffer with text content
      */
-    void fillLineText(TColor *lineBuffer, uint8_t y);
+    void fillLineText(TColor *lineBuffer, uint8_t y, uint8_t *depthBuffer);
 public:
     RenderCommand() {};
     RenderCommand* filledRect(TColor color);
     RenderCommand* sprite(const Texture<TColor> *texture);
     RenderCommand* sprite(const Texture<TColor> *texture, uint8_t u, uint8_t v);
     RenderCommand* blend(uint8_t blendMode);
-    void fillLine(TColor *line, uint8_t y);
+    RenderCommand* setDepth(const uint8_t depth);
+    void fillLine(TColor *line, uint8_t y, uint8_t *depthBuffer);
 };
 
 #define TEMP_TEXTURE_BUFFER_SIZE 8
@@ -308,6 +309,7 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
     #else
     TCol line[RenderBufferConst::screenWidth];
     #endif
+    uint8_t depthBuffer[RenderBufferConst::screenWidth];
     display.startData();
 
     const uint8_t stepSize = 8;
@@ -343,6 +345,7 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
                         line[x] = clearColor;
                 }
             }
+            memset(depthBuffer,0,RenderBufferConst::screenWidth);
             int newActiveCount = 0;
             for (uint8_t i=0; i<activeCount; i+=1)
             {
@@ -350,7 +353,7 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
                 if (rc->y2 < y) {
                     continue;
                 }
-                active[i]->fillLine(line, y);
+                active[i]->fillLine(line, y, depthBuffer);
                 active[newActiveCount++] = rc;
             }
             #ifdef WIN32

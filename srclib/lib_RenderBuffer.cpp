@@ -13,7 +13,7 @@ static uint16_t read_word(const uint16_t* ptr) {
 }
 
 template<class TColor>
-void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
+void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode, uint8_t *depthBuffer, uint8_t depth) const  {
     int offset = (v & heightMod) << widthBits;
     int pos = u;
     if (transparentColorMask) {
@@ -23,7 +23,8 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
             {
                 int index = (pos++ & widthMod) + offset;
                 uint16_t col = sram ? rgb565[index] : read_word(&rgb565[index]);
-                if (col != transparentColorMask) {
+                if (col != transparentColorMask && depth >= depthBuffer[lineX]) {
+                    depthBuffer[lineX] = depth;
                     if (sizeof(TColor) == 2) {
                         lineBuffer[lineX] = col;
                     } else {
@@ -43,7 +44,8 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
             {
                 int index = (pos++ & widthMod) + offset;
                 uint16_t col = sram ? rgb565[index] : read_word(&rgb565[index]);
-                if (col != transparentColorMask) {
+                if (col != transparentColorMask && depth >= depthBuffer[lineX]) {
+                    depthBuffer[lineX] = depth;
                     lineBuffer[lineX] |= col;
                 }
                 lineX+=1;
@@ -54,7 +56,8 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
             {
                 int index = (pos++ & widthMod) + offset;
                 uint16_t col = sram ? rgb565[index] : read_word(&rgb565[index]);
-                if (col != transparentColorMask) {
+                if (col != transparentColorMask && depth >= depthBuffer[lineX]) {
+                    depthBuffer[lineX] = depth;
                     lineBuffer[lineX] &= col;
                 }
                 lineX+=1;
@@ -65,10 +68,11 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
             {
                 int index = (pos++ & widthMod) + offset;
                 uint16_t src = sram ? rgb565[index] : read_word(&rgb565[index]);
-                if (src == transparentColorMask) {
+                if (src == transparentColorMask || depth < depthBuffer[lineX]) {
                     lineX+=1;
                     continue;
                 }
+                depthBuffer[lineX] = depth;
                 if (sizeof(TColor) == 2) {
                     uint16_t dst = lineBuffer[lineX] & ~(RGB565(1,1,1)) >> 1;
                     uint16_t col = src & ~(RGB565(1,1,1)) >> 1;
@@ -97,14 +101,20 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
                 int index = (pos++ & widthMod) + offset;
                 uint16_t src = sram ? rgb565[index] : read_word(&rgb565[index]);
                 if (sizeof(TColor) == 2) {
-                    lineBuffer[lineX++] = src;
+                    if (depth >= depthBuffer[lineX]) {
+                        depthBuffer[lineX] = depth;
+                        lineBuffer[lineX++] = src;
+                    }
                 } else {
                     uint16_t col = src << 8 | src >> 8;//data[index*2+1] | (data[index*2] << 8);
                     uint8_t r = (col & 31);
                     uint8_t g = (col >> 5 & 63);
                     uint8_t b = (col >> 11 & 31);
 
-                    lineBuffer[lineX++] = (r >> 3) | (g & 034) | (b << 3 & 0340);
+                    if (depth >= depthBuffer[lineX]) {
+                        depthBuffer[lineX] = depth;
+                        lineBuffer[lineX++] = (r >> 3) | (g & 034) | (b << 3 & 0340);
+                    }
                 }
             }
             break;
@@ -169,7 +179,7 @@ bool Texture<TColor>::isTransparent(uint16_t x, uint16_t y) const {
 }
 
 template<class TColor>
-void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
+void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode, uint8_t *depthBuffer, uint8_t depth) const  {
     int offset = (v & heightMod) * this->width;
     const uint8_t *rgb233Line = &rgb233[offset];
 
@@ -233,7 +243,7 @@ void Texture<TColor>::fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uin
 }
 
 template<class TColor>
-void Texture<TColor>::fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode) const  {
+void Texture<TColor>::fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode, uint8_t* depthBuffer, uint8_t depth) const  {
 }
 template<class TColor>
 void Texture<TColor>::init (const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask) {
@@ -267,12 +277,12 @@ Texture<TColor>::Texture (const ImageData* img) {
 
 
 template<class TColor>
-void Texture<TColor>::fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode) const {
+void Texture<TColor>::fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode, uint8_t *depthBuffer, uint8_t depth) const {
     switch (type) {
-    case TextureType::rgb565sram: fillLineRgb565(true, lineBuffer,lineX,u,v,width, blendMode); break;
-    case TextureType::rgb565progmem: fillLineRgb565(false, lineBuffer,lineX,u,v,width, blendMode); break;
-    case TextureType::rgb233sram: fillLineRgb233sram(lineBuffer,lineX,u,v,width, blendMode); break;
-    case TextureType::rgb233progmem: fillLineRgb233progmem(lineBuffer,lineX,u,v,width, blendMode); break;
+    case TextureType::rgb565sram: fillLineRgb565(true, lineBuffer,lineX,u,v,width, blendMode,depthBuffer,depth); break;
+    case TextureType::rgb565progmem: fillLineRgb565(false, lineBuffer,lineX,u,v,width, blendMode,depthBuffer,depth); break;
+    case TextureType::rgb233sram: fillLineRgb233sram(lineBuffer,lineX,u,v,width, blendMode,depthBuffer,depth); break;
+    case TextureType::rgb233progmem: fillLineRgb233progmem(lineBuffer,lineX,u,v,width, blendMode,depthBuffer,depth); break;
     }
 }
 
@@ -280,7 +290,7 @@ void Texture<TColor>::fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uin
  * Fills a line in the line buffer with text content
  */
 template<class TColor>
-void RenderCommand<TColor>::fillLineText(TColor *lineBuffer, uint8_t y)
+void RenderCommand<TColor>::fillLineText(TColor *lineBuffer, uint8_t y,uint8_t *depthBuffer)
 {
     uint8_t fontHeight = text.font->height;
     //if(y >= fontY && y < fontY + fontHeight) // checked in caller already
@@ -326,6 +336,7 @@ RenderCommand<TColor>* RenderCommand<TColor>::filledRect(TColor color)
     this->rect.color = color;
     this->rect.blendMode = RenderCommandBlendMode::opaque;
     this->type = RenderCommandType::solid;
+    this->depth = 0;
     return this;
 }
 
@@ -343,6 +354,7 @@ RenderCommand<TColor>* RenderCommand<TColor>::sprite(const Texture<TColor> *text
     this->rect.v += v;
     this->type = RenderCommandType::textured;
     this->rect.blendMode = RenderCommandBlendMode::opaque;
+    this->depth = 0;
     return this;
 }
 
@@ -353,20 +365,31 @@ RenderCommand<TColor>* RenderCommand<TColor>::blend(uint8_t blendMode) {
 }
 
 template<class TColor>
-void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y)
+RenderCommand<TColor>* RenderCommand<TColor>::setDepth(const uint8_t depth) {
+    this->depth = depth;
+    return this;
+}
+
+template<class TColor>
+void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y, uint8_t *depthBuffer)
 {
     if (y>=y1 && y < y2)
     {
         switch(type)
         {
         case RenderCommandType::solid:
-            for (uint8_t x = rect.x1; x < rect.x2; x+=1) line[x] = rect.color;
+            for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
+                if (depthBuffer[x] <= depth) {
+                    line[x] = rect.color;
+                    depthBuffer[x] = depth;
+                }
+            }
             break;
         case RenderCommandType::textured:
-            rect.texture->fillLine(line, rect.x1, rect.u, rect.v + y - y1, rect.x2 - rect.x1, rect.blendMode);
+            rect.texture->fillLine(line, rect.x1, rect.u, rect.v + y - y1, rect.x2 - rect.x1, rect.blendMode,depthBuffer,depth);
             break;
         case RenderCommandType::text:
-            fillLineText(line, y);
+            fillLineText(line, y,depthBuffer);
             break;
         }
     }

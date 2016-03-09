@@ -210,11 +210,11 @@ namespace TileMap {
 
         }
 
-        void update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY, int startLayer, int layerCount) const;
+        void update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY, int startLayer, int layerCount, uint8_t depth) const;
     };
 
     template<class TColor, int maxCommands>
-    void TileMap::SceneRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY, int startLayer, int layerCount) const
+    void TileMap::SceneRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY, int startLayer, int layerCount, uint8_t depth) const
     {
         const uint8_t tileSizeBits = scene.tileset.tileSizeBits;
         const int16_t topLeftX = (centerX & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
@@ -240,7 +240,7 @@ namespace TileMap {
                         buffer.drawRect(rectX, rectY,8,8)
                                           ->sprite(&scene.tileset.tileSets[layerIndex],
                                                    (tileIndex & 0xf) << tileSizeBits,
-                                                   (tileIndex >> 4) << tileSizeBits);
+                                                   (tileIndex >> 4) << tileSizeBits)->setDepth(depth);
                     }
                 }
             }
