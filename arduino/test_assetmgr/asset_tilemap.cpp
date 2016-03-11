@@ -70,7 +70,7 @@ namespace TilemapAsset {
 			Texture<uint16_t>(ImageAsset::tilemap),
 			Texture<uint16_t>(ImageAsset::tilemap),
 		};
-		return TileMap::Scene<uint16_t>(layers, 3,TileSet<uint16_t>(tilesetTextures, 3,3),0);
+		return TileMap::Scene<uint16_t>(layers, 3,TileSet<uint16_t>(tilesetTextures, 3,3),0).setName(ID::testmap);
 	};
 
 }

@@ -159,7 +159,7 @@ private:
     RenderCommand<TColor> noCommand;
     TColor clearColor;
     bool clearBackground;
-    void drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY,int width, int lineWidth, int hAlign);
+    void drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY,int width, int lineWidth, int hAlign, const uint8_t depth);
     Texture<TColor> tempTextureBuffer[TEMP_TEXTURE_BUFFER_SIZE];
     const ImageData* tempTextureBufferImageData[TEMP_TEXTURE_BUFFER_SIZE];
     uint8_t tempTextureBufferUseCount;
@@ -178,7 +178,7 @@ public:
     };
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
-    void drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font);
+    void drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font, const uint8_t depth);
     TColor rgb(uint8_t r, uint8_t g, uint8_t b) const;
     bool is16bit() {return sizeof(TColor) == 2;}
     void flush(TinyScreen display);
@@ -233,7 +233,7 @@ Texture<TColor>* RenderBuffer<TColor, cmdCount>::getTempTexture(const ImageData 
 }
 
 template<class TColor, int cmdCount>
-void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font) {
+void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font, uint8_t depth) {
     int len = strlen(text);
     const SpriteGlyph *glyphList[len];
 
@@ -252,7 +252,7 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, in
         for (int i=0;i<glyphCount;i+=1) {
             if (c == '\n') {
 
-                drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign);
+                drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign, depth);
                 n = 0;
                 cursorY+=lineHeight;
                 lineCount+=1;
@@ -266,18 +266,18 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, in
             }
         }
     }
-    drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign);
+    drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign, depth);
  }
 
 template<class TColor, int cmdCount>
-void RenderBuffer<TColor, cmdCount>::drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY, int width, int lineWidth, int hAlign) {
+void RenderBuffer<TColor, cmdCount>::drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY, int width, int lineWidth, int hAlign, const uint8_t depth) {
     switch (hAlign) {
         case 0: cursorX += (width-lineWidth)/2;break;
     }
     for (int i=0;i<n;i+=1) {
         const SpriteGlyph *g = glyphList[i];
         if (g->w && g->h)
-            drawRect(cursorX+g->offsetX, cursorY+g->offsetY,g->w,g->h)->sprite(texture,g->u,g->v);
+            drawRect(cursorX+g->offsetX, cursorY+g->offsetY,g->w,g->h)->sprite(texture,g->u,g->v)->setDepth(depth);
         cursorX += g->spacing;
     }
 }
