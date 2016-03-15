@@ -2,7 +2,7 @@
 #define __GAME_TYPES_H__
 
 
-extern RenderBuffer<uint16_t,200> renderBuffer;
+extern RenderBuffer<uint16_t,300> renderBuffer;
 class Camera;
 class Screen;
 

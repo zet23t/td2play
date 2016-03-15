@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="128" height="32" tilewidth="8" tileheight="8" nextobjectid="1">
  <tileset firstgid="1" name="ztiles" tilewidth="8" tileheight="8" tilecount="256" columns="16">
-  <image source="../images/ztiles-foreground.png" trans="ff00ff" width="128" height="128"/>
+  <image source="ztiles-foreground.png" trans="ff00ff" width="128" height="128"/>
   <terraintypes>
    <terrain name="underground" tile="139"/>
   </terraintypes>
@@ -23,10 +23,10 @@
   <tile id="187" terrain="0,,,"/>
  </tileset>
  <tileset firstgid="257" name="ztiles-sky" tilewidth="8" tileheight="8" tilecount="256" columns="16">
-  <image source="../images/ztiles-sky.png" trans="ff00ff" width="128" height="128"/>
+  <image source="ztiles-sky.png" trans="ff00ff" width="128" height="128"/>
  </tileset>
  <tileset firstgid="513" name="ztiles-background" tilewidth="8" tileheight="8" tilecount="256" columns="16">
-  <image source="../images/ztiles-background.png" trans="ff00ff" width="128" height="128"/>
+  <image source="ztiles-background.png" trans="ff00ff" width="128" height="128"/>
   <terraintypes>
    <terrain name="dungeonbg" tile="-1"/>
   </terraintypes>

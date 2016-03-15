@@ -50,7 +50,7 @@ public:
 
 class World {
 public:
-    TileMap::SceneBgFg<uint16_t> *scene;
+    TileMap::Scene<uint16_t> *scene;
     Body bodyList[MAX_BODIES];
     uint8_t bodyCount;
 

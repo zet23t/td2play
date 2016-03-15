@@ -4,9 +4,8 @@
 #include "lib_FixedMath.h"
 #include "lib_RenderBuffer.h"
 #include "lib_tilemap.h"
-#include "level_test2.h"
-#include "sprites.h"
 
+#include "asset_tilemap.h"
 #include "game_types.h"
 
 #include "screen.h"
@@ -42,7 +41,7 @@ public:
     }
     void update() {
         if (currentScreen == 0) {
-            TileMap::SceneBgFg<uint16_t> scene = Level_test2::getScene();
+            TileMap::Scene<uint16_t> scene = TilemapAsset::map1();
             levelMapScreen.load(scene);
             currentScreen = &levelMapScreen;
             currentScreen->init();

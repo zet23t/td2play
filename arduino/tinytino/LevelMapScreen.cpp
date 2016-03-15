@@ -1,12 +1,12 @@
 #include "game.h"
-#include "tilemap.h"
+#include "lib_tilemap.h"
 #include "lib_input.h"
 #include "lib_tilemap.h"
 #include "lib_math.h"
-#include "texturemap.h"
+#include "image_data.h"
 
 void LevelMapScreen::init() {
-
+    static Texture<uint16_t> foreground = Texture<uint16_t>(ImageAsset::ztiles_foreground);
     world.init();
     /*for (int i=0;i<20;i+=1) {
         Body player;
@@ -29,7 +29,7 @@ void LevelMapScreen::init() {
     player.spriteH = 8;
     player.bodyHandler = this;
     player.position.setXY(100,100);
-    player.sprite = TextureData::ztiles_foreground();
+    player.sprite = &foreground;
     world.addBody(player);
     world.scene = &scene;
     camera.position = Fixed2D4(100,104);
@@ -85,13 +85,15 @@ void LevelMapScreen::update() {
         (ScreenButtonState::isButtonOn(SCREENBUTTON_BOTTOMLEFT) ? Fixed2D4(-1,8,0,8) : Fixed2D4(0,0)) +
         (ScreenButtonState::isButtonOn(SCREENBUTTON_TOPRIGHT) ? Fixed2D4(0,8,-1,8) : Fixed2D4(0,0)) +
         (ScreenButtonState::isButtonOn(SCREENBUTTON_TOPLEFT) ? Fixed2D4(-1,8,-1,8) : Fixed2D4(0,0));
-
-    //camera.position += offset + Joystick::getJoystick()*8;
-    renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
-    world.updateStep(camera);
-    //renderBuffer.drawRect(48, 32,16,16)
+    //printf("%d %d\n",camera.position.x.getIntegerPart(),camera.position.y.getIntegerPart());
+    camera.position += offset + Joystick::getJoystick()*8;
+    renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), (camera.position.y.getIntegerPart()>>1)+scene.calcHeight()/2,0,1,1);
+    renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart(),1,2,1);
+    //world.updateStep(camera);
+    Texture<uint16_t> tex = Texture<uint16_t>(ImageAsset::ztiles_foreground);
+    //renderBuffer.drawRect(48, 32,32,32)
       //  ->sprite(&texture::beastlands);
-        //->sprite(TextureData::ztiles_foreground(),16,0);
+    //    ->sprite(&tex,0,0);
         //->filledRect(0);
 
     Math::Vector2D16 pos(camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart());
