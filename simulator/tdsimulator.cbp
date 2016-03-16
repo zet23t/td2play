@@ -104,6 +104,7 @@
 			<Add library="opengl32" />
 			<Add library="gdi32" />
 			<Add directory="bin/Release" />
+			<Add directory="bin/Debug" />
 		</Linker>
 		<ExtraCommands>
 			<Add before="..\arduino\sync_lib_files.bat" />
@@ -172,7 +173,10 @@
 		<Unit filename="../arduino/tinytino/LevelMapScreen.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
-		<Unit filename="../arduino/tinytino/data_level.cpp">
+		<Unit filename="../arduino/tinytino/asset_tilemap.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/asset_tilemap.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/game.cpp">
@@ -184,7 +188,10 @@
 		<Unit filename="../arduino/tinytino/game_types.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
-		<Unit filename="../arduino/tinytino/level_test2.cpp">
+		<Unit filename="../arduino/tinytino/image_data.cpp">
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../arduino/tinytino/image_data.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/level_test2.h">
@@ -193,13 +200,8 @@
 		<Unit filename="../arduino/tinytino/physics.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
-		<Unit filename="../arduino/tinytino/physics.h">
-			<Option target="Tiny Tino - 16bit (Debug)" />
-		</Unit>
+		<Unit filename="../arduino/tinytino/physics.h" />
 		<Unit filename="../arduino/tinytino/screen.h">
-			<Option target="Tiny Tino - 16bit (Debug)" />
-		</Unit>
-		<Unit filename="../arduino/tinytino/sprites.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/sprites.h">

@@ -68,7 +68,8 @@ void Body::updateStep(Camera& camera) {
         Fixed2D4 before = position;
         int w = (spriteW - 1) >> 1;
         int h = (spriteH - 1) >> 1;
-        bool hit = checkForCollission(0,0,oldFracX, oldFracY)
+        bool hit =
+            checkForCollission(0,0,oldFracX, oldFracY)
             || checkForCollission(0,h,oldFracX, oldFracY)
             || checkForCollission(0,-h,oldFracX, oldFracY)
             || checkForCollission(w,0,oldFracX, oldFracY)

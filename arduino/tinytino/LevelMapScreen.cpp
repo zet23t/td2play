@@ -39,8 +39,17 @@ void LevelMapScreen::init() {
 void LevelMapScreen::handle(Body *b) {
     if (b->id == playerId) {
         uint8_t tileIndex;
-        bool contact = !world.scene->isPixelFree(b->position.x.getIntegerPart()+1, b->position.y.getIntegerPart()+4, tileIndex)
-            || !world.scene->isPixelFree(b->position.x.getIntegerPart()-1, b->position.y.getIntegerPart()+4, tileIndex);
+        bool contact =
+            !world.scene->isRectFree(b->position.x.getIntegerPart()-3,b->position.y.getIntegerPart()+2,
+                                    b->position.x.getIntegerPart()+3,b->position.y.getIntegerPart()+5);
+        renderBuffer.drawRect(b->position.x.getIntegerPart()-3-camera.position.x.getIntegerPart()+48,
+                              b->position.y.getIntegerPart()+2-camera.position.y.getIntegerPart()+32,6,3)->filledRect(0)->setDepth(1);
+        //renderBuffer.drawRect(48,32,6,2)->filledRect(0)->setDepth(1);
+
+      //  ->sprite(&texture::beastlands);
+    //    ->sprite(&tex,0,0);
+        //->filledRect(0);
+
         if (Joystick::getJoystick().y < 0) {
             //printf("yo\n");
             if (contact && jumpCounter > 5) {
@@ -86,10 +95,11 @@ void LevelMapScreen::update() {
         (ScreenButtonState::isButtonOn(SCREENBUTTON_TOPRIGHT) ? Fixed2D4(0,8,-1,8) : Fixed2D4(0,0)) +
         (ScreenButtonState::isButtonOn(SCREENBUTTON_TOPLEFT) ? Fixed2D4(-1,8,-1,8) : Fixed2D4(0,0));
     //printf("%d %d\n",camera.position.x.getIntegerPart(),camera.position.y.getIntegerPart());
-    camera.position += offset + Joystick::getJoystick()*8;
-    renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), (camera.position.y.getIntegerPart()>>1)+scene.calcHeight()/2,0,1,1);
-    renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart(),1,2,1);
-    //world.updateStep(camera);
+    //camera.position += offset + Joystick::getJoystick()*8;
+
+    renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), (camera.position.y.getIntegerPart()>>1)+scene.calcHeight()/2,0,1,0);
+    renderer.update(renderBuffer, scene, camera.position.x.getIntegerPart(), camera.position.y.getIntegerPart(),1,2,0);
+    world.updateStep(camera);
     Texture<uint16_t> tex = Texture<uint16_t>(ImageAsset::ztiles_foreground);
     //renderBuffer.drawRect(48, 32,32,32)
       //  ->sprite(&texture::beastlands);
