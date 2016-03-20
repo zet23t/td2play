@@ -57,12 +57,58 @@ namespace TileMap {
                         }
                         break;
                     default:
+                        #ifdef WIN32
                         printf("unhandled flagmap id: %d\n",tileIndex);
+                        #endif
                     }
                 }
             }
         }
         return true;
+    }
+    template<class TColor>
+    bool Scene<TColor>::findLineIntersection(int x1, int y1, int x2, int y2, int &resultX, int &resultY) const {
+        int dx = x2 - x1;
+        int dy = y2 - y1;
+        const bool followHorizontal = abs(dx) >= abs(dy);
+
+        if ((followHorizontal && x2 < x1) || (!followHorizontal && y2 < y1)) {
+            int tmp = x1;
+            x1 = x2;
+            x2 = tmp;
+            tmp = y1;
+            y1 = y2;
+            y2 = tmp;
+            dx = -dx;
+            dy = -dy;
+        }
+
+        const uint8_t tileSizeBits = tileset.tileSizeBits;
+        const uint8_t width = tilemaps[0].getWidth();
+        const uint8_t height = tilemaps[0].getHeight();
+        const int tileX1 = x1 >> tileSizeBits;
+        const int tileX2 = x2 >> tileSizeBits;
+        const int tileY1 = y1 >> tileSizeBits;
+        const int tileY2 = y2 >> tileSizeBits;
+
+        int x = x1;
+        int y = y1;
+        int tileX = tileX1;
+        int tileY = tileY1;
+        do {
+            if (tileX >= 0 && tileY >= 0 && tileX < width && tileY < height) {
+                const uint8_t tileIndex = flagmap.get(tileX,tileY);
+                switch (tileIndex) {
+                    case 255: break; // empty
+                }
+            }
+            if (followHorizontal) {
+
+            } else {
+
+            }
+        } while (tileX != tileX2 || tileY != tileY2);
+        return false;
     }
 
     template<class TColor>

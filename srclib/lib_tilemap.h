@@ -194,6 +194,7 @@ namespace TileMap {
         uint16_t calcHeight() const {
             return tilemaps[0].getHeight() * (1 << tileset.tileSizeBits);
         }
+        bool findLineIntersection(int x1, int y1, int x2, int y2, int &resultX, int &resultY) const;
         bool isPixelFree(const int x, const int y, uint8_t& tileIndex) const;
         bool isRectFree(const int x1, const int y1, const int x2, const int y2) const;
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos) const;
