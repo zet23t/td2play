@@ -85,11 +85,14 @@ namespace Joystick {
         y = y - half;
         position.x = x;
         position.y = y;
-        buttonA = digitalRead(5) ? 0 : 1;
-        buttonB = digitalRead(4) ? 0 : 1;
+        buttonA = buttonA<<1 | (digitalRead(5) ? 1 : 0);
+        buttonB = buttonB<<1 | (digitalRead(4) ? 1 : 0);
     }
     bool getButton(int id) {
-        return id == 1 ? buttonB : buttonA;
+        return (id == 1 ? buttonB : buttonA)&1;
+    }
+    bool getButton(int id, int phase) {
+        return ((id == 1 ? buttonB : buttonA)>>phase) & 1;
     }
     Fixed2D4 getJoystick() {
         return position;
