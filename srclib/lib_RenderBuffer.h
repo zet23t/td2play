@@ -179,6 +179,7 @@ public:
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
     void drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font, const uint8_t depth);
+    void drawText(const char* text, int x, int y, int width, int height, int hAlign, int vAlign, bool wrap, const SpriteFont& font, const uint8_t depth);
     TColor rgb(uint8_t r, uint8_t g, uint8_t b) const;
     bool is16bit() {return sizeof(TColor) == 2;}
     void flush(TinyScreen display);
@@ -231,11 +232,16 @@ Texture<TColor>* RenderBuffer<TColor, cmdCount>::getTempTexture(const ImageData 
     tempTextureBuffer[tempTextureBufferUseCount++] = tex;
     return &tempTextureBuffer[tempTextureBufferUseCount-1];
 }
-
 template<class TColor, int cmdCount>
 void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font, uint8_t depth) {
-    int len = strlen(text);
+    drawText(text,x,y,width, 0,hAlign,-1,false,font,depth);
+}
+
+template<class TColor, int cmdCount>
+void RenderBuffer<TColor, cmdCount>::drawText(const char* textSrc, int x, int y, int boxWidth, int boxHeight, int hAlign,int vAlign, bool wrap, const SpriteFont& font, uint8_t depth) {
+    int len = strlen(textSrc);
     const SpriteGlyph *glyphList[len];
+    const char* text = textSrc;
 
     int cursorX = x;
     int cursorY = y;
@@ -248,25 +254,67 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, in
     int glyphCount = font.glyphCount;
     const SpriteGlyph *glyphs = font.glyphs;
     int lineWidth = 0;
-    while (char c = *(text++)) {
-        for (int i=0;i<glyphCount;i+=1) {
-            if (c == '\n') {
+    int lastSpacePos = 0, lastSpaceWidth;
+    if (vAlign > -1) {
+        height = lineHeight;
+        while (char c = *(text++)) {
+            if (c <= ' ') lastSpacePos = n;
+            for (int i=0;i<glyphCount;i+=1) {
+                bool match = glyphs[i].letter == c;
 
-                drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign, depth);
+                if (c == '\n' || (match && wrap && n > 0 && lineWidth > boxWidth)) {
+                    if (lastSpacePos > 0) {
+                        text-=n-lastSpacePos;
+                        lastSpacePos = 0;
+                    }
+                    height +=lineHeight;
+                    lineCount+=1;
+                    lineWidth = 0;
+                    break;
+                }
+                if (match) {
+                    n+=1;
+                    lineWidth+=glyphs[i].spacing;
+                    break;
+                }
+            }
+        }
+        n = 0;
+        if (vAlign == 0) cursorY = y + (boxHeight - height) / 2;
+        else cursorY = y + boxHeight - height;
+        lastSpacePos = 0;
+        height = 0;
+        lineWidth = 0;
+        text = textSrc;
+    }
+    while (char c = *(text++)) {
+        if (c <= ' ') {lastSpacePos = n;lastSpaceWidth = lineWidth;}
+        for (int i=0;i<glyphCount;i+=1) {
+            bool match = glyphs[i].letter == c;
+
+            if (c == '\n' || (match && wrap && n > 0 && lineWidth > boxWidth)) {
+                if (lastSpacePos > 0) {
+                    int d = n-lastSpacePos;
+                    text-=d;
+                    n-=d;
+                    lineWidth = lastSpaceWidth;
+                    lastSpacePos = 0;
+                }
+                drawGlyphs(n,glyphList,texture,cursorX, cursorY, boxWidth, lineWidth, hAlign, depth);
                 n = 0;
                 cursorY+=lineHeight;
                 lineCount+=1;
                 lineWidth = 0;
                 break;
             }
-            if (glyphs[i].letter == c) {
+            if (match) {
                 glyphList[n++] = &glyphs[i];
                 lineWidth+=glyphs[i].spacing;
                 break;
             }
         }
     }
-    drawGlyphs(n,glyphList,texture,cursorX, cursorY, width, lineWidth, hAlign, depth);
+    drawGlyphs(n,glyphList,texture,cursorX, cursorY, boxWidth, lineWidth, hAlign, depth);
  }
 
 template<class TColor, int cmdCount>
