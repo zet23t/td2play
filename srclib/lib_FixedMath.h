@@ -22,6 +22,9 @@ public:
         number = numerator << shiftNum | (frac & ((1<<shiftNum) - 1));
         return *this;
     }
+    inline int16_t getRaw() const {
+        return number;
+    }
     inline uint16_t getFractionPart() const {
         return number & ((1<<shiftNum)-1);
     }
