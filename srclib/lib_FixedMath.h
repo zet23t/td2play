@@ -32,6 +32,10 @@ public:
         return number >> shiftNum;
     }
 
+    inline int16_t getRounded() const {
+        return (number >> shiftNum) + ((number & ((1<<shiftNum)-1)) > 8 ? 1 : 0);
+    }
+
     inline FixedNumber16<shiftNum>& setIntegerPart(int16_t x) {
         number = (x << shiftNum) | (number & ((1<<shiftNum) - 1));
         return *this;
@@ -182,6 +186,10 @@ public:
     }
     bool operator !=(const Fixed2D4& b) const {
         return x != b.x || y != b.y;
+    }
+
+    FixedNumber16<4> calcSqrLen() const {
+        return (x * x) + (y * y);
     }
 };
 

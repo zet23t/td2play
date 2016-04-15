@@ -20,6 +20,7 @@ public:
         test2DSubtract();
         test2DScale();
         test2DRandomCircle();
+        test2DSqrLen();
     }
 
     void testCompares() {
@@ -112,4 +113,10 @@ public:
         assert(F4(2,8) >= F4(1,8));
     }
 
+    void test2DSqrLen() {
+        assert(FixedNumber16<4>(1,0) == Fixed2D4(1,0).calcSqrLen());
+        assert(FixedNumber16<4>(1,0) == Fixed2D4(0,1).calcSqrLen());
+        assert(FixedNumber16<4>(1,0) == Fixed2D4(0,-1).calcSqrLen());
+        assert(FixedNumber16<4>(8,0) == Fixed2D4(2,2).calcSqrLen());
+    }
 };

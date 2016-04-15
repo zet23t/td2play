@@ -142,7 +142,17 @@
 		<Unit filename="../arduino/test_assetmgr/image_data.h">
 			<Option target="Test Assetmanager (Debug)" />
 		</Unit>
-		<Unit filename="../arduino/test_assetmgr/test_assetmgr.ino" />
+		<Unit filename="../arduino/test_assetmgr/test_assetmgr.ino">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/test_text/test_text.ino">
 			<Option target="Test - 8bit (Debug)" />
 			<Option target="Test - 16bit (Debug)" />
@@ -200,7 +210,17 @@
 		<Unit filename="../arduino/tinytino/physics.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
-		<Unit filename="../arduino/tinytino/physics.h" />
+		<Unit filename="../arduino/tinytino/physics.h">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/screen.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
@@ -225,18 +245,118 @@
 		</Unit>
 		<Unit filename="../srclib/lib_FixedMath.cpp" />
 		<Unit filename="../srclib/lib_FixedMath.h" />
-		<Unit filename="../srclib/lib_RenderBuffer.cpp" />
-		<Unit filename="../srclib/lib_RenderBuffer.h" />
-		<Unit filename="../srclib/lib_StringBuffer.cpp" />
-		<Unit filename="../srclib/lib_StringBuffer.h" />
-		<Unit filename="../srclib/lib_font_virtualdj.h" />
-		<Unit filename="../srclib/lib_image.h" />
-		<Unit filename="../srclib/lib_input.cpp" />
-		<Unit filename="../srclib/lib_input.h" />
+		<Unit filename="../srclib/lib_RenderBuffer.cpp">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_RenderBuffer.h">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_StringBuffer.cpp">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_StringBuffer.h">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_font_virtualdj.h">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_image.h">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_input.cpp">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_input.h">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../srclib/lib_math.cpp" />
 		<Unit filename="../srclib/lib_math.h" />
-		<Unit filename="../srclib/lib_tilemap.cpp" />
-		<Unit filename="../srclib/lib_tilemap.h" />
+		<Unit filename="../srclib/lib_tilemap.cpp">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
+		<Unit filename="../srclib/lib_tilemap.h">
+			<Option target="TinyScreenRaycaster (Debug)" />
+			<Option target="Test - 8bit (Debug)" />
+			<Option target="Test - 16bit (Debug)" />
+			<Option target="Test Text (Debug)" />
+			<Option target="Test Textures - 8bit (Debug)" />
+			<Option target="Test Textures - 16bit (Debug)" />
+			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Duino says - 16bit (Debug)" />
+			<Option target="Tiny Tino - 16bit (Debug)" />
+		</Unit>
 		<Unit filename="../srclib/test_FixedMath.h">
 			<Option target="Test" />
 		</Unit>
