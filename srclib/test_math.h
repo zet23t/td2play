@@ -1,6 +1,6 @@
-#include "lib_math.h"
-#include <assert.h>
 #include <stdio.h>
+#include <assert.h>
+#include "lib_math.h"
 
 #define F4 FixedNumber16<4>
 

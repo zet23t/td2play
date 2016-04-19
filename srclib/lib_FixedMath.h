@@ -1,6 +1,6 @@
 #ifndef __FIXEDMATH_H__
 #define __FIXEDMATH_H__
-
+#include "lib_StringBuffer.h"
 #include <inttypes.h>
 #include "lib_StringBuffer.h"
 
@@ -44,6 +44,23 @@ public:
         number = (number & ~((1<<shiftNum) - 1)) | (x & ((1<<shiftNum) - 1));
         return *this;
     }
+
+    inline FixedNumber16<shiftNum> abs() {
+        if (*this < FixedNumber16<shiftNum>(0,0)) return -*this;
+        return *this;
+    }
+
+    FixedNumber16<shiftNum> sqrt() {
+        if (number == 0 || *this == FixedNumber16<shiftNum>(1,0)) return *this;
+        FixedNumber16<shiftNum> guess = FixedNumber16<shiftNum>(1,0);
+        int n= 10;
+        while ((guess - *this / guess).abs() > FixedNumber16<shiftNum>(0,1) * guess && n--) {
+            guess = ((*this / guess) + guess) / FixedNumber16<shiftNum>(2,0);
+        }
+
+        return guess;
+    }
+
     char* toString() const {
         return toString(10000);
     }
@@ -153,6 +170,27 @@ public:
         return *this;
     }
 
+    Fixed2D4& normalize() {
+        bool xeq = x == FixedNumber16<4>(0,0);
+        bool yeq = y == FixedNumber16<4>(0,0);
+        if (xeq && yeq) {
+            return *this;
+        }
+        if (xeq) {
+            y = FixedNumber16<4>(1,0);
+            return *this;
+        }
+        if (yeq) {
+            x = FixedNumber16<4>(1,0);
+            return *this;
+        }
+        FixedNumber16<4> sqd = x * x + y * y;
+        FixedNumber16<4> len = sqd.sqrt();
+        x = x / len;
+        y = y / len;
+        return *this;
+    }
+
     Fixed2D4 operator +(const Fixed2D4& b) const {
         return Fixed2D4(x + b.x, y + b.y);
     }
@@ -160,6 +198,7 @@ public:
     Fixed2D4 operator *(const int& b) const {
         return Fixed2D4(x * b, y * b);
     }
+
 
     Fixed2D4 operator *(const FixedNumber16<4>& b) const {
         return Fixed2D4(x * b, y * b);

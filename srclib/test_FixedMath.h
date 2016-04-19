@@ -1,6 +1,6 @@
-#include "lib_FixedMath.h"
-#include <assert.h>
 #include <stdio.h>
+#include <assert.h>
+#include "lib_FixedMath.h"
 
 #define F4 FixedNumber16<4>
 
@@ -14,6 +14,7 @@ public:
         testDivision();
         testGettersAndSetters();
         testCompare();
+        testSqrt();
 
         test2DCompare();
         test2DAdd();
@@ -51,6 +52,14 @@ public:
     void testDivision() {
         assert(F4(1,0) == F4(1,0) / F4(1,0));
         assert(F4(2,0) == F4(1,0) / F4(0,8));
+    }
+
+    void testSqrt() {
+        assert(F4(1,0).sqrt() == F4(1,0));
+        assert(F4(0,0).sqrt() == F4(0,0));
+        assert(F4(4,0).sqrt() == F4(2,0));
+        assert(F4(81,0).sqrt() == F4(9,0));
+        assert((F4(21,0).sqrt() - F4(4,8)).abs() < F4(0,2));
     }
 
     void test2DCompare() {
