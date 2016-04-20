@@ -53,9 +53,11 @@ public:
     FixedNumber16<shiftNum> sqrt() {
         if (number == 0 || *this == FixedNumber16<shiftNum>(1,0)) return *this;
         FixedNumber16<shiftNum> guess = FixedNumber16<shiftNum>(1,0);
-        int n= 10;
-        while ((guess - *this / guess).abs() > FixedNumber16<shiftNum>(0,1) * guess && n--) {
-            guess = ((*this / guess) + guess) / FixedNumber16<shiftNum>(2,0);
+        if (*this > FixedNumber16<shiftNum>(2,0)) guess = half();
+        for (int i=0;i<=8;i+=1) {
+            FixedNumber16<shiftNum> newGuess = ((*this / guess) + guess) / FixedNumber16<shiftNum>(2,0);
+            if (guess == newGuess) break;
+            guess = newGuess;
         }
 
         return guess;
@@ -124,8 +126,8 @@ public:
         return number >= b.number;
     }
     void random(const FixedNumber16<shiftNum>& min, const FixedNumber16<shiftNum>& max);
-    void half() {
-        number>>=1;
+    FixedNumber16<shiftNum> half() const {
+        return (FixedNumber16<shiftNum>)(number >> 1);
     }
 };
 

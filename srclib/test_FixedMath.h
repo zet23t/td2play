@@ -60,6 +60,7 @@ public:
         assert(F4(4,0).sqrt() == F4(2,0));
         assert(F4(81,0).sqrt() == F4(9,0));
         assert((F4(21,0).sqrt() - F4(4,8)).abs() < F4(0,2));
+        assert(F4(30*30,0).sqrt() == F4(30,0));
     }
 
     void test2DCompare() {
