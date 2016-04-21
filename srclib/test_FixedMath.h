@@ -15,6 +15,7 @@ public:
         testGettersAndSetters();
         testCompare();
         testSqrt();
+        testRandom();
 
         test2DCompare();
         test2DAdd();
@@ -47,11 +48,25 @@ public:
         assert(F4(1,0) == F4(-1,8) * F4(-2,0));
         assert(F4(2,0) == F4(1,0) * 2);
         assert(F4(-2,0) == F4(1,0) * -2);
+        assert(F4(1,0) == F4(-2,0) * F4(-1,8));
     }
 
     void testDivision() {
         assert(F4(1,0) == F4(1,0) / F4(1,0));
         assert(F4(2,0) == F4(1,0) / F4(0,8));
+    }
+
+    void testRandom() {
+        F4 n = F4(0,0);
+        F4 fmin = F4(2,0), fmax = F4(-2,0);
+        for (int i=0;i<1000;i+=1) {
+            n.random(F4(-2,0),F4(2,0));
+            if (n < fmin) fmin = n;
+            if (n > fmax) fmax = n;
+        }
+        assert(fmax == F4(2,0));
+        assert(fmin == F4(-2,0));
+
     }
 
     void testSqrt() {

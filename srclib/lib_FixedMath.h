@@ -45,7 +45,12 @@ public:
         return *this;
     }
 
-    inline FixedNumber16<shiftNum> abs() {
+    inline FixedNumber16<shiftNum> sign(FixedNumber16<shiftNum> len) const {
+        if (number < 0) return -len;
+        return len;
+    }
+
+    inline FixedNumber16<shiftNum> abs() const {
         if (*this < FixedNumber16<shiftNum>(0,0)) return -*this;
         return *this;
     }
@@ -220,7 +225,7 @@ public:
         return Fixed2D4(-x, -y);
     }
 
-    void randomCircle(const FixedNumber16<4>& radius);
+    Fixed2D4 randomCircle(const FixedNumber16<4>& radius) const;
 
     bool operator ==(const Fixed2D4& b) const {
         return x == b.x && y == b.y;
