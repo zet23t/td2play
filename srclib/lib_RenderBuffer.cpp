@@ -74,9 +74,18 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
                 }
                 depthBuffer[lineX] = depth;
                 if (sizeof(TColor) == 2) {
-                    uint16_t dst = lineBuffer[lineX] & ~(RGB565(1,1,1)) >> 1;
-                    uint16_t col = src & ~(RGB565(1,1,1)) >> 1;
-                    uint16_t result = col + dst;
+                    uint16_t dstR = RGB565_TO_RED(lineBuffer[lineX]);
+                    uint16_t dstG = RGB565_TO_GREEN(lineBuffer[lineX]);
+                    uint16_t dstB = RGB565_TO_BLUE(lineBuffer[lineX]);
+
+                    uint16_t srcR = RGB565_TO_RED(src);
+                    uint16_t srcG = RGB565_TO_GREEN(src);
+                    uint16_t srcB = RGB565_TO_BLUE(src);
+
+                    uint8_t r = (srcR >> 1) + (dstR >> 1);
+                    uint8_t g = (srcG >> 1) + (dstG >> 1);
+                    uint8_t b = (srcB >> 1) + (dstB >> 1);
+                    uint16_t result = RGB565(r,g,b);
                     lineBuffer[lineX++] = result;
                 } else {
                     uint16_t col = src >> 8 | src << 8;
