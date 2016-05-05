@@ -60,6 +60,7 @@ namespace TileMap {
                         #ifdef WIN32
                         printf("unhandled flagmap id: %d\n",tileIndex);
                         #endif
+                        break;
                     }
                 }
             }

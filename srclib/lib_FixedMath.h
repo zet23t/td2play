@@ -50,7 +50,7 @@ public:
         return len;
     }
 
-    inline FixedNumber16<shiftNum> abs() const {
+    inline FixedNumber16<shiftNum> absolute() const {
         if (*this < FixedNumber16<shiftNum>(0,0)) return -*this;
         return *this;
     }
