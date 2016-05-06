@@ -169,6 +169,12 @@ public:
         return *this;
     }
 
+    Fixed2D4& scale(const FixedNumber16<4>& b) {
+        x *= b;
+        y *= b;
+        return *this;
+    }
+
     Fixed2D4& setIntegerPart(const Fixed2D4& b) {
         x.setIntegerPart(b.x.getIntegerPart());
         y.setIntegerPart(b.y.getIntegerPart());
