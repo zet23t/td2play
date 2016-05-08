@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="8" height="8" tilewidth="8" tileheight="8" nextobjectid="1">
+ <tileset firstgid="1" name="ztiles-foreground" tilewidth="8" tileheight="8" tilecount="512" columns="16">
+  <image source="ztiles-foreground.png" trans="ff00ff" width="128" height="128"/>
+ </tileset>
+ <tileset firstgid="513" name="tiled-collission" tilewidth="8" tileheight="8" tilecount="64" columns="16">
+  <image source="../../../tools/assetmanager/tiled-collission.png" trans="ff00ff" width="128" height="32"/>
+ </tileset>
+ <layer name="foreground" width="8" height="8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,5,4,0,0,0,
+1,2,2,37,36,2,2,2,
+17,17,17,17,17,17,17,17,
+17,17,17,17,17,17,17,17
+</data>
+ </layer>
+ <layer name="flagmap" width="8" height="8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,513,513,0,0,0,
+513,513,513,513,513,513,513,513,
+513,513,513,513,513,513,513,513,
+513,513,513,513,513,513,513,513
+</data>
+ </layer>
+</map>

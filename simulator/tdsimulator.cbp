@@ -92,6 +92,16 @@
 					<Add directory="../srclib" />
 				</Compiler>
 			</Target>
+			<Target title="Tiny Run">
+				<Option output="tdsimulator" prefix_auto="1" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DSCREEN_16BITS" />
+					<Add option="-DDEBUG" />
+				</Compiler>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -177,6 +187,27 @@
 			<Option target="Test Textures - 8bit (Debug)" />
 			<Option target="Test Textures - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="../arduino/tinyrun/asset_tilemap.cpp">
+			<Option target="Tiny Run" />
+		</Unit>
+		<Unit filename="../arduino/tinyrun/asset_tilemap.h">
+			<Option target="Tiny Run" />
+		</Unit>
+		<Unit filename="../arduino/tinyrun/game_main.cpp">
+			<Option target="Tiny Run" />
+		</Unit>
+		<Unit filename="../arduino/tinyrun/game_main.h">
+			<Option target="Tiny Run" />
+		</Unit>
+		<Unit filename="../arduino/tinyrun/image_data.cpp">
+			<Option target="Tiny Run" />
+		</Unit>
+		<Unit filename="../arduino/tinyrun/image_data.h">
+			<Option target="Tiny Run" />
+		</Unit>
+		<Unit filename="../arduino/tinyrun/tinyrun.ino">
+			<Option target="Tiny Run" />
+		</Unit>
 		<Unit filename="../arduino/tinytino/LevelMapScreen.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
@@ -255,6 +286,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_RenderBuffer.h">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -266,6 +298,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_StringBuffer.cpp">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -277,6 +310,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_StringBuffer.h">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -288,6 +322,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_font_virtualdj.h">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -299,6 +334,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_image.h">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -310,6 +346,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_input.cpp">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -321,6 +358,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_input.h">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -332,6 +370,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_math.cpp" />
 		<Unit filename="../srclib/lib_math.h" />
@@ -345,6 +384,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/lib_tilemap.h">
 			<Option target="TinyScreenRaycaster (Debug)" />
@@ -356,6 +396,7 @@
 			<Option target="Test Assetmanager (Debug)" />
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="../srclib/test_FixedMath.h">
 			<Option target="Test" />
@@ -383,6 +424,9 @@
 			<Option target="Test Textures - 8bit (Debug)" />
 			<Option target="Test Textures - 16bit (Debug)" />
 		</Unit>
+		<Unit filename="arduino_wrappers/tinyrun/tinyrun.cpp">
+			<Option target="Tiny Run" />
+		</Unit>
 		<Unit filename="arduino_wrappers/tinytino/tinytino.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
@@ -396,6 +440,7 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="include/TinyScreen.h">
 			<Option target="Test - 8bit (Debug)" />
@@ -407,6 +452,7 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="include/Wire.h">
 			<Option target="Test - 8bit (Debug)" />
@@ -418,6 +464,7 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="src/Main.cpp">
 			<Option target="Test - 8bit (Debug)" />
@@ -429,6 +476,7 @@
 			<Option target="Duino says - 16bit (Debug)" />
 			<Option target="Tiny Tino - 16bit (Debug)" />
 			<Option target="Test Assetmanager (Debug)" />
+			<Option target="Tiny Run" />
 		</Unit>
 		<Unit filename="src/Test.cpp">
 			<Option target="Test" />
