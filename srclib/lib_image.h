@@ -13,8 +13,8 @@ namespace ImageFormat {
 };
 
 struct ImageData {
-    uint8_t width;
-    uint8_t height;
+    uint16_t width;
+    uint16_t height;
     const unsigned char* data;
     uint16_t transparentColor;
     uint8_t format;

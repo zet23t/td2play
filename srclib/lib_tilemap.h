@@ -233,10 +233,9 @@ namespace TileMap {
                     if (y < 0 || x < 0 || x >= width << tileSizeBits || y >= height << tileSizeBits) continue;
                     const uint8_t tileX = x >> tileSizeBits;
                     const uint8_t tileY = y >> tileSizeBits;
-                    const uint16_t index = tileX + tileY * width;
                     const int8_t rectX = x + (RenderBufferConst::screenWidth>>1) - centerX;
                     const int8_t rectY = y + (RenderBufferConst::screenHeight>>1) - centerY;
-                    const uint8_t tileIndex = scene.tilemaps[layerIndex].get(index);
+                    const uint8_t tileIndex = scene.tilemaps[layerIndex].get(tileX,tileY);
                     if (tileIndex != 0xff) {
                         buffer.drawRect(rectX, rectY,8,8)
                                           ->sprite(&scene.tileset.tileSets[layerIndex],
