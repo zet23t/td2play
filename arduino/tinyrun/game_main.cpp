@@ -62,6 +62,10 @@ namespace Game{
         restart();
     }
 
+    static bool isButtonPressed() {
+        return Joystick::getButton(0) || Joystick::getButton(1) || ScreenButtonState::isAnyButtonOn();
+    }
+
     void loop() {
         if (isRunning)
             levelX += 1;
@@ -109,14 +113,14 @@ namespace Game{
 
             if (isGrounded) {
                 static int groundTime = 0;
-                if ((Joystick::getButton(0) || Joystick::getButton(1)) && groundTime > 5) {
+                if ((isButtonPressed()) && groundTime > 5) {
                     player.vel.y -= FixedNumber16<4>(5,0);
                     isRunning = true;
                     groundTime = 0;
                 }
                 groundTime += 1;
 
-            } else if (player.vel.y.getRaw() < 0 && !(Joystick::getButton(0) || Joystick::getButton(1))){
+            } else if (player.vel.y.getRaw() < 0 && !(isButtonPressed())){
                 player.vel.y = 0;//FixedNumber16<4>(0,1);
             }
         }
@@ -146,7 +150,7 @@ namespace Game{
             buffer.drawRect(0,33,96,14)->sprite(&imageTiles,0,0);
             buffer.drawText(stringBuffer.putDec(levelX / 4).get(),62,36,34,0,FontAsset::digits,0);
             gameoverTimer+=1;
-            if (gameoverTimer > 20 && (Joystick::getButton(0) || Joystick::getButton(1))) {
+            if (gameoverTimer > 20 && (isButtonPressed())) {
                 gameoverTimer = 0;
                 restart();
             }

@@ -24,6 +24,7 @@ void setup() {
 }
 
 void loop(void) {
+    ScreenButtonState::updateButtonState(display.getButtons());
     Joystick::updateJoystick();
     Game::loop();
     buffer.flush(display);
