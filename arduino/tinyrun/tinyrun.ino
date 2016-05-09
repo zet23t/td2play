@@ -1,4 +1,4 @@
-#include <TinyScreen.h>
+//#include <TinyScreen.h>
 #include <SPI.h>
 #include <Wire.h>
 #include "lib_RenderBuffer.h"

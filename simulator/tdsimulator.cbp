@@ -193,6 +193,9 @@
 		<Unit filename="../arduino/tinyrun/asset_tilemap.h">
 			<Option target="Tiny Run" />
 		</Unit>
+		<Unit filename="../arduino/tinyrun/font_asset.cpp">
+			<Option target="Tiny Run" />
+		</Unit>
 		<Unit filename="../arduino/tinyrun/game_main.cpp">
 			<Option target="Tiny Run" />
 		</Unit>
@@ -235,9 +238,6 @@
 		<Unit filename="../arduino/tinytino/image_data.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
-		<Unit filename="../arduino/tinytino/level_test2.h">
-			<Option target="Tiny Tino - 16bit (Debug)" />
-		</Unit>
 		<Unit filename="../arduino/tinytino/physics.cpp">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
@@ -253,15 +253,6 @@
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/screen.h">
-			<Option target="Tiny Tino - 16bit (Debug)" />
-		</Unit>
-		<Unit filename="../arduino/tinytino/sprites.h">
-			<Option target="Tiny Tino - 16bit (Debug)" />
-		</Unit>
-		<Unit filename="../arduino/tinytino/texturemap.h">
-			<Option target="Tiny Tino - 16bit (Debug)" />
-		</Unit>
-		<Unit filename="../arduino/tinytino/tilemap.h">
 			<Option target="Tiny Tino - 16bit (Debug)" />
 		</Unit>
 		<Unit filename="../arduino/tinytino/tinytino.ino">

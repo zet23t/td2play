@@ -3,6 +3,7 @@
 #include "lib_input.h"
 #include "asset_tilemap.h"
 #include "image_data.h"
+#include "font_asset.h"
 
 namespace Game{
     struct LevelElement {
@@ -52,6 +53,7 @@ namespace Game{
             TilemapAsset::el_03(),
             TilemapAsset::el_04(),
             TilemapAsset::el_05(),
+            TilemapAsset::el_06(),
         };
         elements = elList;
         elementCount = sizeof(elList) / sizeof(TileMap::Scene<uint16_t>);
@@ -70,7 +72,8 @@ namespace Game{
             isRunning = false;
         } else {
             player.pos += player.vel;
-            player.vel.y *= FixedNumber16<4>(0,12);
+            //player.vel.y *= FixedNumber16<4>(0,13);
+            if (player.vel.y.getRaw() < 0) player.vel.y += FixedNumber16<4>(0,6);
             if (player.vel.y.absolute().getRaw() < 4) player.vel.y = 0;
         }
 
@@ -107,12 +110,14 @@ namespace Game{
             if (isGrounded) {
                 static int groundTime = 0;
                 if ((Joystick::getButton(0) || Joystick::getButton(1)) && groundTime > 5) {
-                    player.vel.y -= FixedNumber16<4>(6,0);
+                    player.vel.y -= FixedNumber16<4>(5,0);
                     isRunning = true;
                     groundTime = 0;
                 }
                 groundTime += 1;
 
+            } else if (player.vel.y.getRaw() < 0 && !(Joystick::getButton(0) || Joystick::getButton(1))){
+                player.vel.y = 0;//FixedNumber16<4>(0,1);
             }
         }
 
@@ -139,6 +144,7 @@ namespace Game{
             //buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0);
             buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,14);
             buffer.drawRect(0,33,96,14)->sprite(&imageTiles,0,0);
+            buffer.drawText(stringBuffer.putDec(levelX / 4).get(),62,36,34,0,FontAsset::digits,0);
             gameoverTimer+=1;
             if (gameoverTimer > 20 && (Joystick::getButton(0) || Joystick::getButton(1))) {
                 gameoverTimer = 0;
