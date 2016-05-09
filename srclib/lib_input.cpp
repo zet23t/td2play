@@ -85,8 +85,8 @@ namespace Joystick {
         y = y - half;
         position.x = x;
         position.y = y;
-        buttonA = buttonA<<1 | (digitalRead(5) ? 1 : 0);
-        buttonB = buttonB<<1 | (digitalRead(4) ? 1 : 0);
+        buttonA = buttonA<<1 | (digitalRead(5) ? 0 : 1);
+        buttonB = buttonB<<1 | (digitalRead(4) ? 0 : 1);
     }
     bool getButton(int id) {
         return (id == 1 ? buttonB : buttonA)&1;

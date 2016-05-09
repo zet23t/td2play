@@ -38,8 +38,8 @@ static void updateScreen() {
 int digitalRead(int pin) {
     GLFWwindow* window = emulator.window;
     switch (pin) {
-        case 4: return (glfwGetKey(window, GLFW_KEY_G) ? 1 : 0);
-        case 5: return (glfwGetKey(window, GLFW_KEY_H) ? 1 : 0);
+        case 4: return (glfwGetKey(window, GLFW_KEY_G) ? 0 : 1);
+        case 5: return (glfwGetKey(window, GLFW_KEY_H) ? 0 : 1);
         default: return 0;
     }
     return 0;
