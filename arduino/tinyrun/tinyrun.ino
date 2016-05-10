@@ -8,7 +8,7 @@
 
 
 TinyScreen display = TinyScreen(0);
-RenderBuffer<uint16_t,200> buffer;
+RenderBuffer<uint16_t,RENDER_COMMAND_COUNT> buffer;
 
 void setup() {
     Wire.begin();
@@ -24,10 +24,12 @@ void setup() {
 }
 
 void loop(void) {
+    static unsigned long t = millis();
     ScreenButtonState::updateButtonState(display.getButtons());
     Joystick::updateJoystick();
     Game::loop();
     buffer.flush(display);
     stringBuffer.reset();
-
+    while (millis() < t+30) continue;
+    t+=30;
 }

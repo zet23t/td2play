@@ -4,7 +4,7 @@
 #include "lib_RenderBuffer.h"
 #include "lib_StringBuffer.h"
 
-#define RENDER_COMMAND_COUNT 200
+#define RENDER_COMMAND_COUNT 300
 
 extern RenderBuffer<uint16_t,RENDER_COMMAND_COUNT> buffer;
 

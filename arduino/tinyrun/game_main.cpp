@@ -54,6 +54,10 @@ namespace Game{
             TilemapAsset::el_04(),
             TilemapAsset::el_05(),
             TilemapAsset::el_06(),
+            TilemapAsset::el_07(),
+            TilemapAsset::el_08(),
+            TilemapAsset::el_09(),
+            TilemapAsset::el_10(),
         };
         elements = elList;
         elementCount = sizeof(elList) / sizeof(TileMap::Scene<uint16_t>);
@@ -67,6 +71,7 @@ namespace Game{
     }
 
     void loop() {
+        Math::randInt();
         if (isRunning)
             levelX += 1;
         levelTime += 1;
@@ -87,7 +92,6 @@ namespace Game{
         bool isBlocked = false;
         bool isFalling = true;
         bool isGrounded = false;
-        renderer.update(buffer, skymap, 48, 80,0,1,0);
 
         for (int i=0;i<3;i+=1) {
             int localX = levelX - levelElements[i].offset;
@@ -105,7 +109,8 @@ namespace Game{
                 isBlocked = true;
             }
 
-            renderer.update(buffer, *levelElements[i].element, 48+levelX-levelElements[i].offset,20,0,1,0);
+            renderer.update(buffer, *levelElements[i].element, 48+levelX-levelElements[i].offset,20,1,1,20);
+            renderer.update(buffer, *levelElements[i].element, 48+levelX-levelElements[i].offset,20,0,1,10);
         }
         if (!isGameOver) {
             if (isFalling) player.pos = nextFall;
@@ -129,7 +134,7 @@ namespace Game{
             levelElements[0] = levelElements[1];
             levelElements[1] = levelElements[2];
             levelElements[2].offset = levelElements[1].offset + levelElements[1].element->calcWidth();
-            levelElements[2].element = &elements[Math::randInt()%elementCount];
+            levelElements[2].element = &elements[Math::randInt()%(elementCount-1)+1];
             //printf("%d %d %d\n",levelElements[0].offset,levelElements[1].offset,levelElements[2].offset);
         }
 
@@ -141,24 +146,45 @@ namespace Game{
         }
         if (!isGrounded || isBlocked) u = 121;
 
-        buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0);
+        buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0)->setDepth(15);
 
         static int gameoverTimer = 0;
         if (isGameOver) {
             //buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0);
-            buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,14);
-            buffer.drawRect(0,33,96,14)->sprite(&imageTiles,0,0);
-            buffer.drawText(stringBuffer.putDec(levelX / 4).get(),62,36,34,0,FontAsset::digits,0);
+            buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,14)->setDepth(100);
+            buffer.drawRect(0,33,96,14)->sprite(&imageTiles,0,0)->setDepth(100);
+            buffer.drawText(stringBuffer.putDec(levelX / 2).get(),62,36,34,0,FontAsset::digits,100);
             gameoverTimer+=1;
             if (gameoverTimer > 20 && (isButtonPressed())) {
                 gameoverTimer = 0;
                 restart();
             }
         } else if (!isRunning) {
-            buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,30);
+            buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,30)->setDepth(100);
             if (levelTime / 16 % 2)
-                buffer.drawRect(player.pos.x.getIntegerPart()+2,player.pos.y.getIntegerPart()-15,49,15)->sprite(&imageTiles,0,46);
+                buffer.drawRect(player.pos.x.getIntegerPart()+2,player.pos.y.getIntegerPart()-15,49,15)->sprite(&imageTiles,0,46)->setDepth(100);
+        } else {
+            int offset = 10 - levelX / 5;
+            if (offset < 0) offset = 0;
+            buffer.drawRect((96-36)/2,-offset,36,10)->sprite(&imageTiles,60,4)->setDepth(100);
+            buffer.drawText(stringBuffer.putDec(levelX / 2).get(),0,-offset,96,0,FontAsset::digits,100);
         }
 
+        // rendering front to back using depth buffer to avoid overwriting texture values
+
+        // water
+        renderer.update(buffer, skymap, 48 + (levelX%skymap.calcWidth()), 76,3,1,3);
+        renderer.update(buffer, skymap, 48 + (levelX%skymap.calcWidth()) - skymap.calcWidth(), 76,3,1,3);
+
+        // clouds
+        renderer.update(buffer, skymap, 48 + (levelX/8%skymap.calcWidth()), 90 + player.pos.y.getIntegerPart() / 12,1,1,2);
+        renderer.update(buffer, skymap, 48 + (levelX/8%skymap.calcWidth()) - skymap.calcWidth(), 90 + player.pos.y.getIntegerPart() / 12,1,1,2);
+
+        // mountains
+        renderer.update(buffer, skymap, 48 + (levelX/12%skymap.calcWidth()), 77,2,1,1);
+        renderer.update(buffer, skymap, 48 + (levelX/12%skymap.calcWidth()) - skymap.calcWidth(), 77,2,1,1);
+
+        // sky
+        renderer.update(buffer, skymap, 48, 80 + player.pos.y.getIntegerPart() / 16,0,1,0);
     }
 }
