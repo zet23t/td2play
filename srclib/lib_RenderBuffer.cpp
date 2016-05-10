@@ -21,9 +21,14 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
         case RenderCommandBlendMode::opaque:
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
+                if (depth < depthBuffer[lineX]) {
+                    pos+=1;
+                    lineX+=1;
+                    continue;
+                }
                 int index = (pos++ & widthMod) + offset;
                 uint16_t col = sram ? rgb565[index] : read_word(&rgb565[index]);
-                if (col != transparentColorMask && depth >= depthBuffer[lineX]) {
+                if (col != transparentColorMask) {
                     depthBuffer[lineX] = depth;
                     if (sizeof(TColor) == 2) {
                         lineBuffer[lineX] = col;
