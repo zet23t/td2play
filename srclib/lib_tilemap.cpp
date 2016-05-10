@@ -3,7 +3,7 @@
 
 namespace TileMap {
     static bool isRectIntersectingRect(int ax1,int ay1,int ax2,int ay2, int bx1, int by1, int bx2, int by2) {
-        return !(ax2 <= bx1 || bx2 <= ax1 || ay2 <= by1 || by2 <= ay1);
+        return !(ax2 < bx1 || bx2 < ax1 || ay2 < by1 || by2 < ay1);
     }
 
     template<class TColor>
