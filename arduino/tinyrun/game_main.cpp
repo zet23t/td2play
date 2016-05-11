@@ -88,7 +88,12 @@ namespace Game{
             p->pos += p->vel;
             p->vel.y += FixedNumber16<4>(1,0);
             p->vel.scale(FixedNumber16<4>(0,12));
-            buffer.drawRect(p->pos.x.getIntegerPart()- infernoX+75,p->pos.y.getIntegerPart(),8,8)->sprite(&imageTiles,51,48)->setDepth(41);
+            int w = 8, h = 8, u = 51, v = 48;
+            switch (i%3) {
+            case 0: u = 50; v = 49; w=3,h=4; break;
+            case 1: u = 66; v = 48; w=5;h=5; break;
+            }
+            buffer.drawRect(p->pos.x.getIntegerPart()- infernoX+75,p->pos.y.getIntegerPart(),w,h)->sprite(&imageTiles,u,v)->setDepth(41);
         }
     }
 
@@ -190,7 +195,7 @@ namespace Game{
 
         static int gameoverTimer = 0;
         if (isGameOver) {
-            if (player.pos.x.getIntegerPart() > -135) player.pos.x -= FixedNumber16<4>(4,0);
+            if (player.pos.x.getIntegerPart() > -140) player.pos.x -= FixedNumber16<4>(4,0);
             //buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0);
             buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,14)->setDepth(100);
             buffer.drawRect(0,33,96,14)->sprite(&imageTiles,0,0)->setDepth(100);
@@ -202,6 +207,10 @@ namespace Game{
             }
         } else if (!isRunning) {
             buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,30)->setDepth(100);
+            if (levelTime / 64 % 2)
+                buffer.drawRect(15,56,63,5)->sprite(&imageTiles,1,62)->setDepth(100);
+            else
+                buffer.drawRect(20,56,53,5)->sprite(&imageTiles,8,67)->setDepth(100);
             if (levelTime / 16 % 2)
                 buffer.drawRect(player.pos.x.getIntegerPart()+2,player.pos.y.getIntegerPart()-15,49,15)->sprite(&imageTiles,0,46)->setDepth(100);
         } else {
