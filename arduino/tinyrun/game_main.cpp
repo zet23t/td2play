@@ -194,6 +194,7 @@ namespace Game{
         buffer.drawRect(player.pos.x.getIntegerPart()-2+shakeX,player.pos.y.getIntegerPart()-3+shakeY,4,8)->sprite(&tiles,u,0)->setDepth(45);
 
         static int gameoverTimer = 0;
+        bool restartNext = false;
         if (isGameOver) {
             if (player.pos.x.getIntegerPart() > -140) player.pos.x -= FixedNumber16<4>(4,0);
             //buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0);
@@ -203,7 +204,7 @@ namespace Game{
             gameoverTimer+=1;
             if (gameoverTimer > 20 && (isButtonPressed())) {
                 gameoverTimer = 0;
-                restart();
+                restartNext = true;
             }
         } else if (!isRunning) {
             buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,30)->setDepth(100);
@@ -245,5 +246,7 @@ namespace Game{
 
         // sky
         renderer.update(buffer, skymap, 48, 80 + player.pos.y.getIntegerPart() / 16,0,1,0);
+
+        if (restartNext) restart();
     }
 }
