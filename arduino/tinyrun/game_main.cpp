@@ -62,7 +62,7 @@ namespace Game{
         elements = elList;
         elementCount = sizeof(elList) / sizeof(TileMap::Scene<uint16_t>);
 
-        buffer.setClearBackground(false,buffer.rgb(108,120,200));
+        buffer.setClearBackground(true,RGB565(140,162,189));
         restart();
     }
 
@@ -70,13 +70,49 @@ namespace Game{
         return Joystick::getButton(0) || Joystick::getButton(1) || ScreenButtonState::isAnyButtonOn();
     }
 
+    struct Particle {
+        Fixed2D4 pos, vel;
+    };
+
+    void drawParticles(int infernoX) {
+        const int maxParticles = 12;
+        static Particle particles[maxParticles];
+        for (int i=0;i<maxParticles;i+=1) {
+            Particle *p = &particles[i];
+            if (p->pos.y <= 0 || p->pos.y > FixedNumber16<4>(64,0)) {
+                p->pos.x = FixedNumber16<4>(-(Math::randInt()%8),0) ;
+                p->pos.y = FixedNumber16<4>(Math::randInt()%32 + 24,0);
+                p->vel.x = FixedNumber16<4>(Math::randInt()%3+1,0);
+                p->vel.y = FixedNumber16<4>(-Math::randInt()%5-10,0);
+            }
+            p->pos += p->vel;
+            p->vel.y += FixedNumber16<4>(1,0);
+            p->vel.scale(FixedNumber16<4>(0,12));
+            buffer.drawRect(p->pos.x.getIntegerPart()- infernoX+75,p->pos.y.getIntegerPart(),8,8)->sprite(&imageTiles,51,48)->setDepth(41);
+        }
+    }
+
     void loop() {
+
         Math::randInt();
-        if (isRunning)
+        Fixed2D4 shake = Fixed2D4();
+
+        if (isRunning) {
             levelX += 1;
+            int shakeStrenght = 0;
+            int playerX = player.pos.x.getIntegerPart();
+            if (playerX < 0) playerX = 0;
+            shakeStrenght = (20 - playerX) / 4;
+
+            if (shakeStrenght > 0) {
+
+                shake.x = FixedNumber16<4>(Math::randInt()%shakeStrenght-shakeStrenght/2,0);
+                shake.y = FixedNumber16<4>(Math::randInt()%shakeStrenght-shakeStrenght/2,0);
+            }
+        }
         levelTime += 1;
 
-        if (player.pos.x.getIntegerPart() < -5 || player.pos.y.getIntegerPart() > 90) {
+        if (player.pos.x.getIntegerPart() < -5 || player.pos.y.getIntegerPart() > 75) {
             isGameOver = true;
             isRunning = false;
         } else {
@@ -93,6 +129,9 @@ namespace Game{
         bool isFalling = true;
         bool isGrounded = false;
 
+        int shakeX = shake.x.getIntegerPart();
+        int shakeY = shake.y.getIntegerPart();
+
         for (int i=0;i<3;i+=1) {
             int localX = levelX - levelElements[i].offset;
             int fallx = nextFall.x.getIntegerPart()+localX;
@@ -108,9 +147,10 @@ namespace Game{
             if (!levelElements[i].element->isRectFree(blockedx,blockedy,blockedx+2,blockedy+4)) {
                 isBlocked = true;
             }
-
-            renderer.update(buffer, *levelElements[i].element, 48+levelX-levelElements[i].offset,20,1,1,20);
-            renderer.update(buffer, *levelElements[i].element, 48+levelX-levelElements[i].offset,20,0,1,10);
+            int x = 48+levelX-levelElements[i].offset-shakeX;
+            int y = 20-shakeY;
+            renderer.update(buffer, *levelElements[i].element, x,y,1,1,20);
+            renderer.update(buffer, *levelElements[i].element, x,y,0,1,10);
         }
         if (!isGameOver) {
             if (isFalling) player.pos = nextFall;
@@ -146,10 +186,11 @@ namespace Game{
         }
         if (!isGrounded || isBlocked) u = 121;
 
-        buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0)->setDepth(15);
+        buffer.drawRect(player.pos.x.getIntegerPart()-2+shakeX,player.pos.y.getIntegerPart()-3+shakeY,4,8)->sprite(&tiles,u,0)->setDepth(45);
 
         static int gameoverTimer = 0;
         if (isGameOver) {
+            if (player.pos.x.getIntegerPart() > -135) player.pos.x -= FixedNumber16<4>(4,0);
             //buffer.drawRect(player.pos.x.getIntegerPart()-2,player.pos.y.getIntegerPart()-3,4,8)->sprite(&tiles,u,0);
             buffer.drawRect(0,16,96,16)->sprite(&imageTiles,0,14)->setDepth(100);
             buffer.drawRect(0,33,96,14)->sprite(&imageTiles,0,0)->setDepth(100);
@@ -171,6 +212,15 @@ namespace Game{
         }
 
         // rendering front to back using depth buffer to avoid overwriting texture values
+
+        // inferno
+        int infernoX = 78 + (player.pos.x * FixedNumber16<4>(0,12)).getIntegerPart() ;
+        int infernoY = 83 - levelTime*8 % skymap.calcHeight();
+        drawParticles(infernoX);
+        infernoX-=24;
+        renderer.update(buffer, skymap, infernoX, infernoY,4,1,40);
+        renderer.update(buffer, skymap, infernoX, infernoY + skymap.calcHeight(),4,1,40);
+        buffer.drawRect(-infernoX-32-16-8,0,104,64)->filledRect(RGB565(0,0,0))->setDepth(40);
 
         // water
         renderer.update(buffer, skymap, 48 + (levelX%skymap.calcWidth()), 76,3,1,3);
