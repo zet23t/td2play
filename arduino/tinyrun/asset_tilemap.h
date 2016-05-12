@@ -12,6 +12,7 @@ namespace TilemapAsset {
 	TileMap::Scene<uint16_t> el_08();
 	TileMap::Scene<uint16_t> el_09();
 	TileMap::Scene<uint16_t> el_10();
+	TileMap::Scene<uint16_t> el_11();
 	TileMap::Scene<uint16_t> skymap();
 
 	namespace ID {
@@ -25,6 +26,7 @@ namespace TilemapAsset {
 		const uint16_t el_08 = 8;
 		const uint16_t el_09 = 9;
 		const uint16_t el_10 = 10;
-		const uint16_t skymap = 11;
+		const uint16_t el_11 = 11;
+		const uint16_t skymap = 12;
 	}
 }

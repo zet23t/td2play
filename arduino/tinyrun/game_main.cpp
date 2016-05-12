@@ -58,6 +58,7 @@ namespace Game{
             TilemapAsset::el_08(),
             TilemapAsset::el_09(),
             TilemapAsset::el_10(),
+            TilemapAsset::el_11(),
         };
         elements = elList;
         elementCount = sizeof(elList) / sizeof(TileMap::Scene<uint16_t>);
@@ -224,7 +225,8 @@ namespace Game{
         // rendering front to back using depth buffer to avoid overwriting texture values
 
         // inferno
-        int infernoX = 78 + (player.pos.x * FixedNumber16<4>(0,12)).getIntegerPart() ;
+        int infernoFactor = (player.pos.x * FixedNumber16<4>(0,12)).getIntegerPart();
+        int infernoX = 78 + infernoFactor;
         int infernoY = 83 - levelTime*8 % skymap.calcHeight();
         drawParticles(infernoX);
         infernoX-=24;
@@ -245,7 +247,8 @@ namespace Game{
         renderer.update(buffer, skymap, 48 + (levelX/12%skymap.calcWidth()) - skymap.calcWidth(), 77,2,1,1);
 
         // sky
-        renderer.update(buffer, skymap, 48, 80 + player.pos.y.getIntegerPart() / 16,0,1,0);
+        int skyoffset = (infernoFactor < 0 ? 0 : infernoFactor + infernoFactor / 4) - 5;
+        renderer.update(buffer, skymap, 48, 80 + player.pos.y.getIntegerPart() / 16 + skyoffset,0,1,0);
 
         if (restartNext) restart();
     }
