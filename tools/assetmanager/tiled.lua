@@ -1,6 +1,9 @@
 -- this script parses a tiled saved level and converts it into a C encoded 
 -- data structure that can be compiled.
 
+-- initially I thought I wouldn't need a xml parser since I only needed a few
+-- values. ... now I'm stuck with using regex instead :P
+
 local gd = require "gd"
 local transform = require "assetmanager.transform"
 local idMap = {}
@@ -56,6 +59,7 @@ function convertTiledXML(path, name)
 		end
 	end
 	assert(tilesizebits, "tile size must be power of 2") 
+
 
 	local tilesets = {}
 	local tileset_by_id = {}
@@ -159,6 +163,9 @@ function convertTiledXML(path, name)
 						paramB = properties.npc_type or 1
 					elseif type == "CUSTOM" then
 						paramA = properties.customId or 0
+					elseif type == "ID" then
+						nameVal = "(const char*)ID::"..idMap[name:upper()] or "NONE"
+						type = "ZONE_ID"
 					end
 					
 					objectlist[#objectlist+1] = ("{%d,%d,%d,%d,%s,%d,%d,%s}"):format(x1,y1,x2,y2,

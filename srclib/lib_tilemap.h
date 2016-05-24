@@ -68,6 +68,7 @@ namespace TileMap {
     const uint8_t NPC_WAYPOINT = 5;
     const uint8_t NPC_DESPAWN = 6;
     const uint8_t CUSTOM = 7;
+    const uint8_t ZONE_ID = 8;
 
     struct RectObject {
     public:
