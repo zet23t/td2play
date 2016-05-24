@@ -13,7 +13,7 @@ RenderBuffer<uint16_t,RENDER_COMMAND_COUNT> buffer;
 void setup() {
     Wire.begin();
     #if defined(ARDUINO_ARCH_SAMD)
-    display.begin(TinyScreenPlus);
+    display.begin();
     #else
     display.begin();
     #endif
