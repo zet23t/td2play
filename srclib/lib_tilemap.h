@@ -109,7 +109,8 @@ namespace TileMap {
             return rectObjectList;
         }
         bool next(const RectObject*& element) const {
-            element += 1;
+            if (!element) element = first();
+            else element += 1;
             return (int)(element - rectObjectList) < objectListLength;
         }
         bool findRectIntersection(int16_t x1, int16_t y1, int16_t x2, int16_t y2, const RectObject*& hit, uint8_t& offset) const {
@@ -188,6 +189,10 @@ namespace TileMap {
         bool findRectIntersections(Geom::Rect<int16_t>& a, Geom::Rect<int16_t>& b, const RectObject*& hit, uint8_t& offset, bool& hitA, bool& hitB) const {
             if (objectGroup) return objectGroup->findRectIntersections(a,b,hit,offset,hitA,hitB);
             return false;
+        }
+        bool nextRect(const RectObject*& element) {
+            if (objectGroup) return objectGroup->next(element);
+            return 0;
         }
         uint16_t calcWidth() const {
             return tilemaps[0].getWidth() * (1 << tileset.tileSizeBits);
