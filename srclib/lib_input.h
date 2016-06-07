@@ -24,6 +24,10 @@ namespace ScreenButtonState {
 };
 
 namespace Joystick {
+    namespace Phase {
+        extern const uint8_t CURRENT;
+        extern const uint8_t PREVIOUS;
+    }
     void updateJoystick();
     Fixed2D4 getJoystick();
     bool getButton(int);

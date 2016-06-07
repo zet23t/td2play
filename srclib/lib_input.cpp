@@ -53,6 +53,10 @@ namespace ScreenButtonState {
 
 
 namespace Joystick {
+    namespace Phase {
+        const uint8_t CURRENT = 0;
+        const uint8_t PREVIOUS = 1;
+    }
     static Fixed2D4 position;
     static char buttonA,buttonB;
     static int clampAndApplyDeadZone5bitTo4bit(int x) {
