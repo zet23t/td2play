@@ -20,4 +20,13 @@ struct ImageData {
     uint8_t format;
 };
 
+struct SpriteSheetRect {
+    uint8_t x, y, width, height, offsetX, offsetY;
+};
+
+struct SpriteSheet {
+    const SpriteSheetRect *sprites;
+    uint8_t spriteCount;
+};
+
 #endif // __LIB_IMAGE_H__
