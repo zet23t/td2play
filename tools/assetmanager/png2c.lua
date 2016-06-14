@@ -283,23 +283,26 @@ local function packPNG (directory, outfile, config)
 			--print(w,h,"=>",unpack(r))
 			return r[1],r[2]
 		else 
-			error("Could not fit all images for "..directory)
+			print("WARNING: Could not fit all images for "..directory)
 		end
 	end
 	--table.sort(imglist,function(a,b) return a.maxSide > b.maxSide end)
-	table.sort(imglist,function(a,b) return a.area > b.area end)
+	table.sort(imglist,function(a,b) return a.w > b.w end)
 	local result = gd.createTrueColor(tw,th)
 	result:filledRectangle(0,0,tw,th,result:colorAllocate(0,128,128))
 	for i,info in ipairs(imglist) do 
 		local x,y = fitRect(info.w,info.h)
-		info.rect = {x,y,info.w,info.h}
-		result:copy(info.img,x,y,0,0,info.w,info.h)
+		if x then
+			info.rect = {x,y,info.w,info.h}
+			result:copy(info.img,x,y,0,0,info.w,info.h)
+		end
 	end
 	local basename = directory:match "_(.*)"
 	local pngfile = "assets/"..basename .. ".png"
 	result:png(pngfile)
 	convertPNG(pngfile, config)
 	os.remove(pngfile)
+	result:png("assets/."..basename .. ".png")
 
 	outh:write(("namespace TextureAtlas_"..basename.." {\n"))
 	outcpp:write(("namespace TextureAtlas_"..basename.." {\n"))
@@ -307,16 +310,19 @@ local function packPNG (directory, outfile, config)
 		outh:write(("    extern const SpriteSheet %s;\n"):format(name))
 		
 		outcpp:write(("    const SpriteSheetRect %s_rectList[] = {\n"):format(name))
+		local n = 0
 		for i=1,#list do 
 			local imginfo = list[i]
 			local rect = imginfo.rect
-
-			outcpp:write(("        {%d,%d,%d,%d, %d,%d},\n"):format(rect[1],rect[2],rect[3],rect[4], imginfo.offsetX,imginfo.offsetY))
+			if rect then 
+				n = n + 1
+				outcpp:write(("        {%d,%d,%d,%d, %d,%d},\n"):format(rect[1],rect[2],rect[3],rect[4], imginfo.offsetX,imginfo.offsetY))
+			end
 		end
 		outcpp:write(("    };\n"))
 
 		outcpp:write(("    const SpriteSheet %s = {\n"):format(name))
-		outcpp:write(("         %s_rectList, %d,\n"):format(name, #list))
+		outcpp:write(("         %s_rectList, %d,\n"):format(name, n))
 		outcpp:write(("    };\n"))
 	end
 	outh:write("}\n")
