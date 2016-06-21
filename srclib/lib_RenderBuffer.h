@@ -27,6 +27,7 @@ namespace RenderCommandBlendMode {
     const uint8_t bitwiseOr = 1;
     const uint8_t bitwiseAnd = 2;
     const uint8_t average = 3;
+    const uint8_t subtract = 4;
 }
 
 namespace TextureType {
@@ -39,7 +40,7 @@ namespace TextureType {
 // Creates a RGB-565 encoded two byte sequence. The encoding is more difficult than I thought it would be due
 // to endian encoding. I don't know how to write this in a better way.
 #define RGB565(r,g,b) (uint16_t)(((unsigned char)(r) >> 3) << 8 | ((unsigned char)(g) >> 5 | ((unsigned char)(g) >> 3 & 3) << 13) | ((unsigned char)(b) & ~15))
-#define RGB565_TO_RED(col) ((((col) >> 8 & 31) << 3) | ((((col) >> 8 & 31)) >> 2))
+#define RGB565_TO_RED(col) ((((col & 0xff))))
 #define RGB565_TO_GREEN(col) ((((col) & 7 << 5)) | ((((col) >> 13 << 2)) | ((col)&7>>1)))
 #define RGB565_TO_BLUE(col) ((((col) & 255)) | ((((col) >> 5 & 7))))
 // The following macro is the version I used first but it produced wrong coloring

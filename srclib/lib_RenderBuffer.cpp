@@ -68,6 +68,41 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
                 lineX+=1;
             }
             break;
+        case RenderCommandBlendMode::subtract:
+            for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
+            {
+                int index = (pos++ & widthMod) + offset;
+                uint16_t src = (sram ? rgb565[index] : read_word(&rgb565[index]));
+                if (src == transparentColorMask || depth < depthBuffer[lineX]) {
+                    lineX+=1;
+                    continue;
+                }
+                depthBuffer[lineX] = depth;
+
+                uint16_t dst = lineBuffer[lineX];
+                uint8_t dstR = RGB565_TO_RED(dst);
+                uint8_t dstG = RGB565_TO_GREEN(dst);
+                uint8_t dstB = RGB565_TO_BLUE(dst);
+                uint8_t srcR = RGB565_TO_RED(src);
+                uint8_t srcG = RGB565_TO_GREEN(src);
+                uint8_t srcB = RGB565_TO_BLUE(src);
+                dstR = dstR > srcR ? dstR - srcR : 0;
+                dstG = dstG > srcG ? dstG - srcG : 0;
+                dstB = dstB > srcB ? dstB - srcB : 0;
+                uint16_t result = RGB565(dstR,dstG,dstB);
+                if (sizeof(TColor) == 2) {
+                    lineBuffer[lineX++] = result;
+                } else {
+                    uint8_t col = result >> 8 | result << 8;
+                    uint8_t r = (col & 31);
+                    uint8_t g = (col >> 5 & 63);
+                    uint8_t b = (col >> 11 & 31);
+
+                    lineBuffer[lineX++] = (r >> 3) | (g & 034) | (b << 3 & 0340);
+                }
+            }
+            break;
+
         case RenderCommandBlendMode::average:
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
@@ -144,6 +179,34 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
             {
                 int index = (pos++ & widthMod) + offset;
                 lineBuffer[lineX++] &= sram ? rgb565[index] : read_word(&rgb565[index]);
+            }
+            break;
+        case RenderCommandBlendMode::subtract:
+            for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
+            {
+                int index = (pos++ & widthMod) + offset;
+                uint16_t dst = lineBuffer[lineX];
+                uint8_t dstR = RGB565_TO_RED(dst);
+                uint8_t dstG = RGB565_TO_GREEN(dst);
+                uint8_t dstB = RGB565_TO_BLUE(dst);
+                uint16_t src = (sram ? rgb565[index] : read_word(&rgb565[index]));
+                uint8_t srcR = RGB565_TO_RED(src);
+                uint8_t srcG = RGB565_TO_GREEN(src);
+                uint8_t srcB = RGB565_TO_BLUE(src);
+                dstR = dstR > srcR ? dstR - srcR : 0;
+                dstG = dstG > srcG ? dstG - srcG : 0;
+                dstB = dstB > srcB ? dstB - srcB : 0;
+                uint16_t result = RGB565(dstR,dstG,dstB);
+                if (sizeof(TColor) == 2) {
+                    lineBuffer[lineX++] = dst;
+                } else {
+                    uint8_t col = result >> 8 | result << 8;
+                    uint8_t r = (col & 31);
+                    uint8_t g = (col >> 5 & 63);
+                    uint8_t b = (col >> 11 & 31);
+
+                    lineBuffer[lineX++] = (r >> 3) | (g & 034) | (b << 3 & 0340);
+                }
             }
             break;
         case RenderCommandBlendMode::average:
