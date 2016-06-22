@@ -121,7 +121,7 @@ function convertTiledXML(path, name)
 	end
 
 	local function getobjectgroup(name) 
-		local group = content:match([[<objectgroup name="]]..name..[[">(.-)</objectgroup>]])
+		local group = content:match([[<objectgroup name="]]..name..[["[^>]*>(.-)</objectgroup>]])
 		if group then
 			local objectlist = {}
 			for tags,pos in group:gmatch "<object (.-)>()" do
