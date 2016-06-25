@@ -70,6 +70,11 @@ public:
         bufferPos+=1;
         return &buffer[currentPos];
     }
+    char* getAndForget() {
+        buffer[bufferPos++] = 0;
+        bufferPos = currentPos;
+        return &buffer[currentPos];
+    }
 };
 
 extern StringBuffer stringBuffer;
