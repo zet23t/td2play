@@ -67,7 +67,7 @@ public:
 		return *this;
     }
     char* get() {
-        bufferPos+=1;
+        buffer[bufferPos++] = 0;
         return &buffer[currentPos];
     }
     char* getAndForget() {
