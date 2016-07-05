@@ -140,8 +140,8 @@ function convertTiledXML(path, name)
 				local name = attribute "name"
 				local x1 = attribute "x"
 				local y1 = attribute "y"
-				local width = attribute "width"
-				local height = attribute "height"
+				local width = attribute "width" or 0
+				local height = attribute "height" or 0
 				if x1 and y1 and width and height and id then
 					local x2 = math.floor(x1+width+.5)
 					local y2 = math.floor(y1+height+.5)
