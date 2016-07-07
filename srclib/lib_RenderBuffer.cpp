@@ -426,6 +426,11 @@ RenderCommand<TColor>* RenderCommand<TColor>::sprite(const Texture<TColor> *text
 template<class TColor>
 RenderCommand<TColor>* RenderCommand<TColor>::sprite(const Texture<TColor> *texture, uint8_t u, uint8_t v)
 {
+    #ifdef WIN32
+    if (!texture) {
+        assert(texture);
+    }
+    #endif // WIN32
     this->rect.texture = texture;
     this->rect.u += u;
     this->rect.v += v;
