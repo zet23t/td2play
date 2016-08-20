@@ -7,7 +7,7 @@
 #include "game_main.h"
 
 
-TinyScreen display = TinyScreen(0);
+TinyScreen display = TinyScreen(TinyScreenPlus);
 RenderBuffer<uint16_t,RENDER_COMMAND_COUNT> buffer;
 
 void setup() {
