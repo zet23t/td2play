@@ -233,6 +233,7 @@ Texture<TColor>* RenderBuffer<TColor, cmdCount>::getTempTexture(const ImageData 
     }
     if (tempTextureBufferUseCount == TEMP_TEXTURE_BUFFER_SIZE) return 0;
     Texture<TColor> tex(imageData);
+    tempTextureBufferImageData[tempTextureBufferUseCount] = imageData;
     tempTextureBuffer[tempTextureBufferUseCount++] = tex;
     return &tempTextureBuffer[tempTextureBufferUseCount-1];
 }
