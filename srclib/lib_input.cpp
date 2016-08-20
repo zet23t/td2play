@@ -77,20 +77,20 @@ namespace Joystick {
             #ifndef WIN32
             // if this isn't configured, the TS+ doesn't properly boot and needs a
             // special start holding a button during power up.
-            pinMode(4, INPUT_PULLUP);
-            pinMode(5, INPUT_PULLUP);
+            pinMode(TinyArcadePin1, INPUT_PULLUP);
+            pinMode(TinyArcadePin2, INPUT_PULLUP);
             #endif // WIN32
         }
         // reading values from analog isn't very accurate; 4bit precision is enough I guess
-        FixedNumber16<4> x(0, clampAndApplyDeadZone5bitTo4bit(analogRead(2) >> 5));
-        FixedNumber16<4> y(0, clampAndApplyDeadZone5bitTo4bit(analogRead(3) >> 5));
+        FixedNumber16<4> x(0, clampAndApplyDeadZone5bitTo4bit(analogRead(TinyArcadePinX) >> 5));
+        FixedNumber16<4> y(0, clampAndApplyDeadZone5bitTo4bit(analogRead(TinyArcadePinY) >> 5));
         FixedNumber16<4> half(0,7);
         x = half - x;
         y = y - half;
         position.x = x;
         position.y = y;
-        buttonA = buttonA<<1 | (digitalRead(5) ? 0 : 1);
-        buttonB = buttonB<<1 | (digitalRead(4) ? 0 : 1);
+        buttonA = buttonA<<1 | (digitalRead(TinyArcadePin1) ? 0 : 1);
+        buttonB = buttonB<<1 | (digitalRead(TinyArcadePin2) ? 0 : 1);
     }
     bool getButton(int id) {
         return (id == 1 ? buttonB : buttonA)&1;

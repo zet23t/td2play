@@ -18,6 +18,13 @@
 #define SCREEN_TEXTURE_SIZE 128
 #define SCREEN_UMAX (96.0f / (float)SCREEN_TEXTURE_SIZE)
 #define SCREEN_VMAX (64.0f / (float)SCREEN_TEXTURE_SIZE)
+
+
+#define TinyArcadePinX 42
+#define TinyArcadePinY 1
+#define TinyArcadePin1 45
+#define TinyArcadePin2 44
+
 typedef struct {
     GLuint screenTexture;
     unsigned char screenData[SCREEN_TEXTURE_SIZE*SCREEN_TEXTURE_SIZE * 3];
@@ -38,8 +45,8 @@ static void updateScreen() {
 int digitalRead(int pin) {
     GLFWwindow* window = emulator.window;
     switch (pin) {
-        case 4: return (glfwGetKey(window, GLFW_KEY_G) ? 0 : 1);
-        case 5: return (glfwGetKey(window, GLFW_KEY_H) ? 0 : 1);
+        case 4: case TinyArcadePin1: return (glfwGetKey(window, GLFW_KEY_G) ? 0 : 1);
+        case 5: case TinyArcadePin2: return (glfwGetKey(window, GLFW_KEY_H) ? 0 : 1);
         default: return 0;
     }
     return 0;
@@ -48,8 +55,8 @@ int digitalRead(int pin) {
 int analogRead(int pin) {
     GLFWwindow* window = emulator.window;
     switch (pin) {
-        case 2: return (glfwGetKey(window, GLFW_KEY_RIGHT) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_LEFT) ? 511 : 0)+511;
-        case 3: return (glfwGetKey(window, GLFW_KEY_UP) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_DOWN) ? 511 : 0)+511;
+        case 2: case TinyArcadePinX: return (glfwGetKey(window, GLFW_KEY_RIGHT) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_LEFT) ? 511 : 0)+511;
+        case 3: case TinyArcadePinY: return (glfwGetKey(window, GLFW_KEY_UP) ? -511 : 0) + (glfwGetKey(window, GLFW_KEY_DOWN) ? 511 : 0)+511;
         default: return 0;
     }
     return 0;
@@ -117,9 +124,9 @@ void TinyScreen::endTransfer(void) {
     drawCircle(.6f,-.325f,.075f,12);
     drawCircle(.8f,-.225f,.075f,12);
     glColor3f(.8f,.2f,0.f);
-    float buttonY = digitalRead(4) ? -.32f : -.3f;
+    float buttonY = !digitalRead(4) ? -.32f : -.3f;
     drawCircle(.6f,buttonY,.075f,12);
-    buttonY = digitalRead(5) ? -.22f : -.2f;
+    buttonY = !digitalRead(5) ? -.22f : -.2f;
     drawCircle(.8f,buttonY,.075f,12);
     int buttons = getButtons();
     glBegin(GL_QUADS);

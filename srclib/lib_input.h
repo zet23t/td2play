@@ -4,6 +4,11 @@
 #include <inttypes.h>
 #include "lib_FixedMath.h"
 
+#define TinyArcadePinX 42
+#define TinyArcadePinY 1
+#define TinyArcadePin1 45
+#define TinyArcadePin2 44
+
 enum ScreenButtonId {
     SCREENBUTTON_BOTTOMLEFT = 0,
     SCREENBUTTON_TOPLEFT = 1,
