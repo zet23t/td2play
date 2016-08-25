@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <TinyScreen.h>
+#include <stdio.h>
 
 #define TINYSCREEN_WIDTH 96
 #define TINYSCREEN_HEIGHT 64
@@ -28,12 +29,22 @@
 typedef struct {
     GLuint screenTexture;
     unsigned char screenData[SCREEN_TEXTURE_SIZE*SCREEN_TEXTURE_SIZE * 3];
+    unsigned char rawFrameBuffer[TINYSCREEN_WIDTH * TINYSCREEN_HEIGHT * 2];
     unsigned char x,y;
     bool is16bit;
+    bool isRecordingTSV;
     GLFWwindow* window;
+    FILE *tsvFP;
 } Emulator;
 
 Emulator emulator;
+
+static void writeFrameBufferToTSV() {
+    if (emulator.isRecordingTSV && emulator.tsvFP) {
+        printf("Writing framebuffer to tsv\n");
+        fwrite(emulator.rawFrameBuffer,1,sizeof(emulator.rawFrameBuffer),emulator.tsvFP);
+    }
+}
 
 static void updateScreen() {
     glBindTexture(GL_TEXTURE_2D, emulator.screenTexture);
@@ -183,13 +194,18 @@ void TinyScreen::endTransfer(void) {
     glTexCoord2f(SCREEN_UMAX, SCREEN_VMAX); glVertex3f(0.96f, 0, 0);
     glEnd();
 
-
+    if (emulator.isRecordingTSV) {
+        writeFrameBufferToTSV();
+    }
 
     glfwSwapBuffers(window);
     glfwPollEvents();
 
     if (glfwWindowShouldClose(window)) {
-
+        if (emulator.tsvFP) {
+            fclose(emulator.tsvFP);
+            emulator.tsvFP = 0;
+        }
         glfwDestroyWindow(window);
         glfwTerminate();
         exit(EXIT_SUCCESS);
@@ -217,8 +233,12 @@ void TinyScreen::endTransfer(void) {
     void TinyScreen::writePixel(uint16_t) {
     }
     void TinyScreen::writeBuffer(uint8_t *rgb, int num) {
+        if (num > TINYSCREEN_WIDTH * (emulator.is16bit ? 2 : 1)) {
+            printf("line too long: %d\n",num);
+        }
         //uint16_t *rgb565_16 = (uint16_t*)&rgb565[0];
         int idx = emulator.x + emulator.y * SCREEN_TEXTURE_SIZE;
+        int bufferIdx = (emulator.x + emulator.y * TINYSCREEN_WIDTH) * 2;
         uint8_t *rgb565 = rgb;
         for (int i=0;i<num; i+=1) {
             uint8_t r,g,b;
@@ -232,6 +252,8 @@ void TinyScreen::endTransfer(void) {
                 r = (r << 3 | r >> 2);
                 g = (g << 2 | g >> 4);
                 b = (b << 3 | b >> 2);
+                emulator.rawFrameBuffer[bufferIdx++ % sizeof(emulator.rawFrameBuffer)] = rgb565[i];
+                emulator.rawFrameBuffer[bufferIdx++ % sizeof(emulator.rawFrameBuffer)] = rgb565[i+1];
                 i+=1;
             } else {
                 uint8_t rgb233 = rgb[i];
@@ -241,6 +263,7 @@ void TinyScreen::endTransfer(void) {
                 g = g << 5 | g << 2 | g >> 1;
                 b = rgb233 >> 5 & 7;
                 b = b << 5 | b << 2 | b >> 1;
+                emulator.rawFrameBuffer[bufferIdx++ % sizeof(emulator.rawFrameBuffer)] = 0;
             }
             // my gif screencsat program doesn't like 00ff00
             if (r == 0 && g >= 250 && b == 0) g = 250;
@@ -307,6 +330,21 @@ static void key_callback(GLFWwindow* window, int key, int /*scancode*/, int acti
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key == GLFW_KEY_R && action == GLFW_RELEASE) {
+        emulator.isRecordingTSV = !emulator.isRecordingTSV;
+        if (emulator.isRecordingTSV) {
+            char filename[128];
+            sprintf(filename,"rec-%s.tsv","test");
+            printf("Starting recording to %s\n", filename);
+            emulator.tsvFP = fopen(filename, "wb");
+        } else {
+            printf("Recording finished\n");
+            if (emulator.tsvFP) {
+                fclose(emulator.tsvFP);
+                emulator.tsvFP = 0;
+            }
+        }
+    }
 }
 int main(void)
 {
@@ -329,7 +367,13 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         loop();
-
+        /*if (emulator.isRecordingTSV) {
+            writeFrameBufferToTSV();
+        }*/
+    }
+    if (emulator.tsvFP) {
+        fclose(emulator.tsvFP);
+        emulator.tsvFP = 0;
     }
     glfwDestroyWindow(window);
     glfwTerminate();

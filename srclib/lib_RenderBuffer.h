@@ -415,7 +415,7 @@ void RenderBuffer<TCol, maxCommands>::flush(TinyScreen display)
             activeCount = newActiveCount;
             //line[remainingCount] = rgb(255,0,0);
             //line[activeCount] = rgb(0,255,0);
-            display.writeBuffer((uint8_t*)line, sizeof(line));
+            display.writeBuffer((uint8_t*)line, RenderBufferConst::screenWidth * sizeof(TCol));
         }
     }
     display.endTransfer();

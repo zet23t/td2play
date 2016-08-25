@@ -1,4 +1,5 @@
 -- shameless copy paste from png2c.lua
+-- converts a png into a TSV file (one frame)
 local gd = require "gd"
 local lfs = require "lfs"
 local function convertPNG(pngfile, outfile)
