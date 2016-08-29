@@ -13,9 +13,9 @@ codebase. As it already does everything that's needed, I am not sure if that'll 
 
 Arrow keys: joystick controll
 
-G/H: Button 1 and 2 of tiny arcade
-
-W/E/S/D: Screen buttons
+- G/H: Button 1 and 2 of tiny arcade
+- W/E/S/D: Screen buttons
+- R: Record session to TSV file
 
 # Approach
 
