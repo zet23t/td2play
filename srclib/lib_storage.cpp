@@ -13,7 +13,7 @@
 
 namespace Storage {
     #ifndef __WIN32__
-    class Persistence {
+    struct Persistence {
         bool isInitialized;
         const char *gBaseDir;
 
@@ -27,24 +27,24 @@ namespace Storage {
             return true;
         }
         bool write(const void *data, int size) {
-            stringBuffer.start().put(gBaseDir).put('/').put(file);
+            /*stringBuffer.start().put(gBaseDir).put('/').put(file);
             File myFile = SD.open(stringBuffer.getAndForget(), FILE_WRITE);
             if (myFile) {
                 myFile.write((uint8_t*)data, size);
                 myFile.flush();
                 myFile.close();
                 return true;
-            }
+            }*/
             return false;
         }
         bool read(void *data, int size) {
-            stringBuffer.start().put(gBaseDir).put('/').put(file);
+            /*stringBuffer.start().put(gBaseDir).put('/').put(file);
             File myFile = SD.open(stringBuffer.getAndForget(), FILE_READ);
             if (myFile) {
                 myFile.read(data, size);
                 myFile.close();
                 return true;
-            }
+            }*/
             return false;
         }
         void close() {
@@ -109,7 +109,7 @@ namespace Storage {
     }
 
     bool seek(Persistence *p, int pos) {
-        p->seek(pos);
+        //p->seek(pos);
     }
 
     void close(Persistence *p) {
