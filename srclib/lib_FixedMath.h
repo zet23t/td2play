@@ -188,6 +188,15 @@ public:
         return *this;
     }
 
+    FixedNumber16<4> length() const {
+        FixedNumber16<4> sqd = x * x + y * y;
+        return sqd.sqrt();
+    }
+
+    FixedNumber16<4> sqLength() const {
+        return x * x + y * y;
+    }
+
     Fixed2D4& normalize() {
         bool xeq = x == FixedNumber16<4>(0,0);
         bool yeq = y == FixedNumber16<4>(0,0);
@@ -195,11 +204,11 @@ public:
             return *this;
         }
         if (xeq) {
-            y = FixedNumber16<4>(1,0);
+            y = FixedNumber16<4>(y < 0 ? -1 : 1,0);
             return *this;
         }
         if (yeq) {
-            x = FixedNumber16<4>(1,0);
+            x = FixedNumber16<4>(x < 0 ? -1 : 1,0);
             return *this;
         }
         FixedNumber16<4> sqd = x * x + y * y;
@@ -209,12 +218,24 @@ public:
         return *this;
     }
 
+    FixedNumber16<4> dot(const Fixed2D4& b) const {
+        return x * b.x + y * b.y;
+    }
+
     Fixed2D4 operator +(const Fixed2D4& b) const {
         return Fixed2D4(x + b.x, y + b.y);
     }
 
     Fixed2D4 operator *(const int& b) const {
         return Fixed2D4(x * b, y * b);
+    }
+
+    Fixed2D4 left () const {
+        return Fixed2D4(-y,x);
+    }
+
+    Fixed2D4 right() const {
+        return Fixed2D4(y,-x);
     }
 
 
