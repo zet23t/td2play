@@ -163,6 +163,10 @@ private:
     RenderCommand<TColor> noCommand;
     TColor clearColor;
     bool clearBackground;
+    // offset to the render commands, useful to ease handling camera positions
+    int16_t offsetX, offsetY;
+    // applied clipping, useful to limit rendercommands being drawn only in certain areas of the screen
+    uint8_t clipTop,clipRight,clipBottom,clipLeft;
     void drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY,int width, int lineWidth, int hAlign, const uint8_t depth);
     Texture<TColor> tempTextureBuffer[TEMP_TEXTURE_BUFFER_SIZE];
     const ImageData* tempTextureBufferImageData[TEMP_TEXTURE_BUFFER_SIZE];
@@ -172,7 +176,28 @@ public:
     RenderBuffer() {
         clearBackground = true;
         tempTextureBufferUseCount = 0;
+        resetClipping();
+        setOffset(0,0);
     };
+    int16_t getOffsetX() const {
+        return offsetX;
+    }
+    int16_t getOffsetY() const {
+        return offsetY;
+    }
+    void setOffset(int16_t x, int16_t y) {
+        offsetX = x;
+        offsetY = y;
+    }
+    void resetClipping() {
+        setClipping(0,RenderBufferConst::screenWidth,RenderBufferConst::screenHeight,0);
+    }
+    void setClipping(uint8_t top, uint8_t right, uint8_t bottom, uint8_t left) {
+        clipTop = top;
+        clipRight = right;
+        clipBottom = bottom;
+        clipLeft = left;
+    }
     void setClearBackground(bool clearB) {
         clearBackground = clearB;
     };
@@ -197,25 +222,31 @@ TColor RenderBuffer<TColor,maxCommands>::rgb(uint8_t r, uint8_t g, uint8_t b) co
 template<class TCol, int maxCommands>
 RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)
 {
-    if (x >= RenderBufferConst::screenWidth || y >= RenderBufferConst::screenHeight || x + width < 0 || y + height < 0)
+    x -= offsetX;
+    y -= offsetY;
+    if (x >= clipRight || y >= clipBottom || x + width < clipLeft || y + height < clipTop)
         return &noCommand;
     if (commandCount >= maxCommands) return &noCommand;
     RenderCommand<TCol> *cmd = &commandList[commandCount++];
     int16_t right = x + width, bottom = y + height;
-    if (x < 0) cmd->rect.x1 = 0, cmd->rect.u = -x;
+    if (x < clipLeft) cmd->rect.x1 = clipLeft, cmd->rect.u = clipLeft-x;
     else       cmd->rect.x1 = x, cmd->rect.u = 0;
-    if (y < 0) cmd->y1 = 0, cmd->rect.v = -y;
+    if (y < clipTop) cmd->y1 = clipTop, cmd->rect.v = clipTop-y;
     else       cmd->y1 = y, cmd->rect.v = 0;
-    cmd->rect.x2 = right > RenderBufferConst::screenWidth ? RenderBufferConst::screenWidth : right;
-    cmd->y2 = bottom > RenderBufferConst::screenHeight ? RenderBufferConst::screenHeight : bottom;
+    cmd->rect.x2 = right > clipRight ? clipRight : right;
+    cmd->y2 = bottom > clipBottom ? clipBottom : bottom;
     return cmd;
 }
 
 template<class TCol, int maxCommands>
 RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text, int16_t x, int16_t y, TCol color, const FONT_INFO *font)
 {
-    if (y >= RenderBufferConst::screenHeight || y + font->height < 0
+    x -= offsetX;
+    y -= offsetY;
+
+    if (y >= clipBottom || y + font->height < clipTop
             || commandCount >= maxCommands) return &noCommand;
+
     RenderCommand<TCol> *cmd = &commandList[commandCount++];
     cmd->text.x1 = x;
     cmd->y1 = y;

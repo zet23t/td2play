@@ -221,29 +221,32 @@ namespace TileMap {
     };
 
     template<class TColor, int maxCommands>
-    void TileMap::SceneRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, const int16_t centerX, const int16_t centerY, int startLayer, int layerCount, uint8_t depth) const
+    void TileMap::SceneRenderer<TColor, maxCommands>::update(RenderBuffer<TColor, maxCommands>& buffer, Scene<TColor>& scene, int16_t centerX, int16_t centerY, int startLayer, int layerCount, uint8_t depth) const
     {
         const uint8_t tileSizeBits = scene.tileset.tileSizeBits;
-        const int16_t topLeftX = (centerX & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
-        const int16_t topLeftY = (centerY  & ~((1<<tileSizeBits)-1))- (RenderBufferConst::screenHeight >> 1);
+        const uint8_t tileSize = 1 << tileSizeBits;
+        const int16_t offsetX = buffer.getOffsetX();
+        const int16_t offsetY = buffer.getOffsetY();
+
+        const int16_t topLeftX = ((centerX + offsetX) & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
+        const int16_t topLeftY = ((centerY + offsetY) & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenHeight >> 1);
         const int16_t minX = topLeftX;
         const int16_t maxX = topLeftX + RenderBufferConst::screenWidth + (1 << tileSizeBits);
         const int16_t minY = topLeftY;
         const int16_t maxY = topLeftY + RenderBufferConst::screenHeight + (1 << tileSizeBits);
-        const uint8_t width = scene.tilemaps[0].getWidth();
-        const uint8_t height = scene.tilemaps[0].getHeight();
-
+        const uint16_t width = scene.tilemaps[0].getWidth();
+        const uint16_t height = scene.tilemaps[0].getHeight();
         for (int layerIndex = startLayer; layerIndex < scene.tilemapCount && layerIndex < startLayer + layerCount; layerIndex+=1) {
             for (int16_t y = minY; y < maxY; y += 1 << tileSizeBits) {
                 for (int16_t x = minX; x < maxX; x += 1 << tileSizeBits) {
                     if (y < 0 || x < 0 || x >= width << tileSizeBits || y >= height << tileSizeBits) continue;
                     const uint8_t tileX = x >> tileSizeBits;
                     const uint8_t tileY = y >> tileSizeBits;
-                    const int8_t rectX = x + (RenderBufferConst::screenWidth>>1) - centerX;
-                    const int8_t rectY = y + (RenderBufferConst::screenHeight>>1) - centerY;
+                    const int16_t rectX = x + (RenderBufferConst::screenWidth>>1) - centerX;
+                    const int16_t rectY = y + (RenderBufferConst::screenHeight>>1) - centerY;
                     const uint8_t tileIndex = scene.tilemaps[layerIndex].get(tileX,tileY);
                     if (tileIndex != 0xff) {
-                        buffer.drawRect(rectX, rectY,8,8)
+                        buffer.drawRect(rectX, rectY,tileSize,tileSize)
                                           ->sprite(&scene.tileset.tileSets[layerIndex],
                                                    (tileIndex & 0xf) << tileSizeBits,
                                                    (tileIndex >> 4) << tileSizeBits)->setDepth(depth);
