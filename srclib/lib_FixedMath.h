@@ -3,6 +3,7 @@
 #include "lib_StringBuffer.h"
 #include <inttypes.h>
 #include "lib_StringBuffer.h"
+#include <stdio.h>
 
 template <uint8_t shiftNum>
 class FixedNumber16 {
@@ -88,16 +89,29 @@ public:
         return FixedNumber16<shiftNum>(-number);
     }
 
+    float asFloat() const {
+        return (float)getIntegerPart() + (float)(getFractionPart()) / (float)(1<<shiftNum);
+    }
+
     FixedNumber16<shiftNum> operator *(const FixedNumber16<shiftNum>& b) const {
-        return FixedNumber16<shiftNum>((int16_t)((int32_t)number * (int32_t)b.number >> shiftNum));
+        //return FixedNumber16<shiftNum>((int16_t)((int32_t)number * (int32_t)b.number >> shiftNum));
+        // probably not optimal here, but I have trouble figuring out how to make multiplication
+        // work both with negative & positive numbers behaving the same way when there are "rounding errors".
+        // Thus I convert the numbers to positive numbers and apply the sign later on.
+        int32_t an = number < 0 ? -number : number;
+        int32_t bn = b.number < 0 ? -b.number : b.number;
+        int16_t sig = (number < 0) ^ (b.number < 0) ? -1 : 1;
+        return FixedNumber16<shiftNum>(sig * (int16_t)(((an * bn) >> shiftNum)));
     }
 
     FixedNumber16<shiftNum> operator *(const int& b) const {
-        return FixedNumber16<shiftNum>((int16_t)((int32_t)number * (int32_t)b));
+        return *this * (const FixedNumber16<shiftNum>)(b<<shiftNum);
+        //return FixedNumber16<shiftNum>((int16_t)((int32_t)number * (int32_t)b));
     }
 
     FixedNumber16<shiftNum>& operator *=(const FixedNumber16<shiftNum>& b) {
-        number = ((int16_t)((int32_t)number * (int32_t)b.number >> shiftNum));
+        //number = ((int16_t)((int32_t)number * (int32_t)b.number >> shiftNum));
+        *this = *this * b;
         return *this;
     }
 
@@ -112,7 +126,10 @@ public:
     }
 
     FixedNumber16<shiftNum> operator /(const FixedNumber16<shiftNum>& b) const {
-        return FixedNumber16<shiftNum>((int16_t)(((int32_t)number << shiftNum) / (int32_t)b.number));
+        int32_t an = number < 0 ? -number : number;
+        int32_t bn = b.number < 0 ? -b.number : b.number;
+        int16_t sig = (number < 0) ^ (b.number < 0) ? -1 : 1;
+        return FixedNumber16<shiftNum>(sig * (int16_t)((an << shiftNum) / bn));
     }
 
     bool operator ==(const FixedNumber16<shiftNum>& b) const {
@@ -200,21 +217,39 @@ public:
     Fixed2D4& normalize() {
         bool xeq = x == FixedNumber16<4>(0,0);
         bool yeq = y == FixedNumber16<4>(0,0);
+
+        //if (y > 0) printf("%f %f\n",(x/y).asFloat(),y.asFloat());
         if (xeq && yeq) {
             return *this;
         }
         if (xeq) {
+            x = 0;
             y = FixedNumber16<4>(y < 0 ? -1 : 1,0);
             return *this;
         }
         if (yeq) {
+            y = 0;
             x = FixedNumber16<4>(x < 0 ? -1 : 1,0);
             return *this;
         }
         FixedNumber16<4> sqd = x * x + y * y;
-        FixedNumber16<4> len = sqd.sqrt();
+        FixedNumber16<4> len = sqd.sqrt();// - FixedNumber16<4>(0,1);
         x = x / len;
         y = y / len;
+        if (y == 0) x = FixedNumber16<4>(x < 0 ? -1 : 1,0);
+        if (x == 0) y = FixedNumber16<4>(y < 0 ? -1 : 1,0);
+        FixedNumber16<4> sqlen = calcSqrLen();
+
+        if (sqlen > FixedNumber16<4>(1,0)) {
+            FixedNumber16<4> s = sqlen - FixedNumber16<4>(1,0);
+            if (x.absolute() > y.absolute()) y += (y < 0 ? s : -s);
+            else x += (x < 0 ? s : -s);
+        }
+        else if (sqlen < FixedNumber16<4>(1,0)) {
+            FixedNumber16<4> s = FixedNumber16<4>(1,0) - sqlen;
+            if (x.absolute() > y.absolute()) y -= (y < 0 ? s : -s);
+            else x -= (x < 0 ? s : -s);
+        }
         return *this;
     }
 
