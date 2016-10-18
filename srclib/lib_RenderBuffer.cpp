@@ -241,6 +241,12 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
 template<class TColor>
 bool Texture<TColor>::isTransparent(uint16_t x, uint16_t y) const {
     if (transparentColorMask == 0) return false;
+    return getColor(x,y) == transparentColorMask;
+}
+
+template<class TColor>
+TColor Texture<TColor>::getColor(uint16_t x, uint16_t y) const {
+    if (transparentColorMask == 0) return 0;
 
     x &= widthMod;
     y &= heightMod;
@@ -252,7 +258,7 @@ bool Texture<TColor>::isTransparent(uint16_t x, uint16_t y) const {
         :
         sram ? rgb233[index] : pgm_read_byte_far(&rgb233[index]);
 
-    return col == transparentColorMask;
+    return col;
 }
 
 template<class TColor>

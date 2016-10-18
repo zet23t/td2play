@@ -89,6 +89,7 @@ public:
     uint8_t getType() const { return type; }
     void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
     bool isTransparent(uint16_t x, uint16_t y) const;
+    TColor getColor(uint16_t x, uint16_t y) const;
 };
 
 namespace RenderCommandData {
@@ -206,6 +207,7 @@ public:
         clearBackground = clearB;
     };
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height);
+    RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height, bool noOffset);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
     void drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font, const uint8_t depth);
     void drawText(const char* text, int x, int y, int width, int height, int hAlign, int vAlign, bool wrap, const SpriteFont& font, const uint8_t depth);
@@ -222,8 +224,16 @@ TColor RenderBuffer<TColor,maxCommands>::rgb(uint8_t r, uint8_t g, uint8_t b) co
 template<class TCol, int maxCommands>
 RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height)
 {
-    x -= offsetX;
-    y -= offsetY;
+    return drawRect(x,y,width,height,false);
+}
+
+template<class TCol, int maxCommands>
+RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height, bool noOffset)
+{
+    if (!noOffset) {
+        x -= offsetX;
+        y -= offsetY;
+    }
     if (x >= clipRight || y >= clipBottom || x + width < clipLeft || y + height < clipTop)
         return &noCommand;
     if (commandCount >= maxCommands) return &noCommand;
