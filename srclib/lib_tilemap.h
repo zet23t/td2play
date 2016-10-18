@@ -203,6 +203,7 @@ namespace TileMap {
         bool findLineIntersection(int x1, int y1, int x2, int y2, int &resultX, int &resultY) const;
         bool isPixelFree(const int x, const int y, uint8_t& tileIndex) const;
         bool isRectFree(const int x1, const int y1, const int x2, const int y2) const;
+        int getTileIndex(const int x, const int y, uint8_t& textureXOut, uint8_t & textureYOut, uint8_t & tilesetIndexOut) const;
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos) const;
         Math::Vector2D16 moveOut(const Math::Vector2D16& pos, const uint8_t distleft, const uint8_t distright, const uint8_t disttop, const uint8_t distbottom) const;
     };
@@ -227,7 +228,7 @@ namespace TileMap {
         const uint8_t tileSize = 1 << tileSizeBits;
         const int16_t offsetX = buffer.getOffsetX();
         const int16_t offsetY = buffer.getOffsetY();
-
+        // this offsetting is damn stupid, I shouldn't have one it this way
         const int16_t topLeftX = ((centerX + offsetX) & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenWidth >> 1);
         const int16_t topLeftY = ((centerY + offsetY) & ~((1<<tileSizeBits)-1)) - (RenderBufferConst::screenHeight >> 1);
         const int16_t minX = topLeftX;

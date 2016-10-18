@@ -67,6 +67,31 @@ namespace TileMap {
         }
         return true;
     }
+
+    template<class TColor>
+    int Scene<TColor>::getTileIndex(int x, int y, uint8_t& textureXOut, uint8_t & textureYOut, uint8_t & tilesetIndexOut) const {
+        x -= (RenderBufferConst::screenWidth >> 1);
+        y -= (RenderBufferConst::screenHeight >> 1);
+        const uint8_t tileSizeBits = tileset.tileSizeBits;
+        const uint8_t tileSize = 1 << tileSizeBits;
+        const uint8_t tileSizeMask = (1 << tileSizeBits) - 1;
+        const int16_t tileX = x >> tileSizeBits;
+        const int16_t tileY = y >> tileSizeBits;
+        textureXOut = x & tileSizeMask;
+        textureYOut = y & tileSizeMask;
+        for (int i=tilemapCount - 1;i>=0; i-=1) {
+            const uint8_t tileIndex = tilemaps[i].get(tileX, tileY);
+            if (tileIndex != 255) {
+                if (!tileset.tileSets[i].isTransparent(((tileIndex & 0xf) << tileSizeBits) + textureXOut,
+                                                       ((tileIndex >> 4) << tileSizeBits) + textureYOut)) {
+                    tilesetIndexOut = i;
+                    return tileIndex;
+                }
+            }
+        }
+        return -1;
+    }
+
     template<class TColor>
     bool Scene<TColor>::findLineIntersection(int x1, int y1, int x2, int y2, int &resultX, int &resultY) const {
         int dx = x2 - x1;
