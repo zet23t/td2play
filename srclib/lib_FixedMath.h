@@ -126,6 +126,9 @@ public:
     }
 
     FixedNumber16<shiftNum> operator /(const FixedNumber16<shiftNum>& b) const {
+        if (b == 0) {
+            return FixedNumber16<shiftNum>(0);
+        }
         int32_t an = number < 0 ? -number : number;
         int32_t bn = b.number < 0 ? -b.number : b.number;
         int16_t sig = (number < 0) ^ (b.number < 0) ? -1 : 1;
