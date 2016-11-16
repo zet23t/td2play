@@ -63,6 +63,9 @@ int digitalRead(int pin) {
     return 0;
 }
 
+int analogWrite(int pin, int val) {
+}
+
 int analogRead(int pin) {
     GLFWwindow* window = emulator.window;
     switch (pin) {
