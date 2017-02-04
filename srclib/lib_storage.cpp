@@ -50,6 +50,10 @@ namespace Storage {
         void close() {
             isInitialized = false;
         }
+        void seek(int pos) {
+        }
+        void seekEnd(int pos) {
+        }
     };
     #else
     class Persistence {
@@ -71,6 +75,13 @@ namespace Storage {
             return ferror(fp) == 0;
         }
         bool read(void *data, int size) {
+            long pos = ftell(fp);
+            long s = fseek(fp,0, SEEK_END);
+            fseek(fp,pos,SEEK_SET);
+            if (pos +size > s) {
+                return 0;
+            }
+
             fread(data, size, 1, fp);
             return ferror(fp) == 0;
         }
@@ -81,6 +92,9 @@ namespace Storage {
         }
         void seek(int pos) {
             fseek(fp,pos,SEEK_SET);
+        }
+        void seekEnd(int pos) {
+            fseek(fp,pos,SEEK_END);
         }
     };
     #endif // __WIN32__
@@ -110,6 +124,10 @@ namespace Storage {
 
     bool seek(Persistence *p, int pos) {
         //p->seek(pos);
+    }
+
+    bool seekEnd(Persistence *p, int pos) {
+        p->seekEnd(pos);
     }
 
     void close(Persistence *p) {

@@ -9,6 +9,7 @@ namespace Storage {
     bool read(Persistence *p, void *data, int size);
     bool write(Persistence *p, const void *data, int size);
     bool seek(Persistence *p, int pos);
+    bool seekEnd(Persistence *p, int pos);
     void close(Persistence *p);
 }
 #endif // __LIB_STORAGE_H__
