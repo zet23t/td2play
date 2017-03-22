@@ -367,6 +367,7 @@ template<class TColor, int cmdCount>
 void RenderBuffer<TColor, cmdCount>::drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY, int width, int lineWidth, int hAlign, const uint8_t depth) {
     switch (hAlign) {
         case 0: cursorX += (width-lineWidth)/2;break;
+        case 1: cursorX += width - lineWidth;break;
     }
     for (int i=0;i<n;i+=1) {
         const SpriteGlyph *g = glyphList[i];
