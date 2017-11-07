@@ -9,6 +9,11 @@
 #define TinyArcadePin1 45
 #define TinyArcadePin2 44
 
+#define TinyArcadePinUp 42
+#define TinyArcadePinDown 19
+#define TinyArcadePinLeft 25
+#define TinyArcadePinRight 15
+
 enum ScreenButtonId {
     SCREENBUTTON_BOTTOMLEFT = 0,
     SCREENBUTTON_TOPLEFT = 1,
