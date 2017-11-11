@@ -56,8 +56,8 @@ static void updateScreen() {
 int digitalRead(int pin) {
     GLFWwindow* window = emulator.window;
     switch (pin) {
-        case 4: case TinyArcadePin1: return (glfwGetKey(window, GLFW_KEY_G) ? 0 : 1);
-        case 5: case TinyArcadePin2: return (glfwGetKey(window, GLFW_KEY_H) ? 0 : 1);
+        case 4: case TinyArcadePin1: return (glfwGetKey(window, GLFW_KEY_G) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_1) ? 0 : 1);
+        case 5: case TinyArcadePin2: return (glfwGetKey(window, GLFW_KEY_H) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_2) ? 0 : 1);
         default: return 0;
     }
     return 0;
