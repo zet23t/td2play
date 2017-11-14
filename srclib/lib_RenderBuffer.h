@@ -28,6 +28,7 @@ namespace RenderCommandBlendMode {
     const uint8_t bitwiseAnd = 2;
     const uint8_t average = 3;
     const uint8_t subtract = 4;
+    const uint8_t add = 5;
 }
 
 namespace TextureType {
@@ -36,13 +37,20 @@ namespace TextureType {
     const uint8_t rgb233sram = 3;
     const uint8_t rgb233progmem = 4;
 }
-
+// bits rrrrrggg gggbbbbb expected
+//      gggrrrrr bbbbbGGG as is (G is high bit)
 // Creates a RGB-565 encoded two byte sequence. The encoding is more difficult than I thought it would be due
 // to endian encoding. I don't know how to write this in a better way.
 #define RGB565(r,g,b) (uint16_t)(((unsigned char)(r) >> 3) << 8 | ((unsigned char)(g) >> 5 | ((unsigned char)(g) >> 3 & 3) << 13) | ((unsigned char)(b) & ~15))
-#define RGB565_TO_RED(col) ((((col & 0xff))))
-#define RGB565_TO_GREEN(col) ((((col) & 7 << 5)) | ((((col) >> 13 << 2)) | ((col)&7>>1)))
-#define RGB565_TO_BLUE(col) ((((col) & 255)) | ((((col) >> 5 & 7))))
+#define RGB565RAW(r,g,b) (uint16_t)(((unsigned char)(r)) << 8 | ((unsigned char)(g) >> 3 | ((unsigned char)(g) & 7) << 13) | ((unsigned char)(b) << 3))
+#define RGB565_TO_RED(col) ((((col) >> 8) & 31))
+#define RGB565_TO_GREEN(col) (((col)>>13&7)|((col)&7)<<3)
+#define RGB565_TO_BLUE(col) (((((col) >> 3 & 31))))
+#define RGB565_MASK_R 0x1f00
+#define RGB565_MASK_G 0xe007
+#define RGB565_MASK_B 0xf8
+
+//(((((col) & 7 << 5)) | ((((col) >> 13 << 2)) | ((col)&7>>1))))
 // The following macro is the version I used first but it produced wrong coloring
 //#define RGB565(r,g,b) (uint16_t)(((r) << 8 & 0xf800) | ((g) << 5 & 0x7e0) | ((b) >> 3))
 

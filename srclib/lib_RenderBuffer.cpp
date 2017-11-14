@@ -44,12 +44,32 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
                 lineX+=1;
             }
             break;
+        case RenderCommandBlendMode::add:
+            for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
+            {
+                int index = (pos++ & widthMod) + offset;
+                uint16_t col = sram ? rgb565[index] : read_word(&rgb565[index]);
+                if (col > 0 && col != transparentColorMask && depth >= depthBuffer[lineX]) {
+                    depthBuffer[lineX] = depth;
+                    int dst = lineBuffer[lineX];
+                    int dstr = RGB565_TO_RED(dst) + RGB565_TO_RED(col);
+                    int dstg = RGB565_TO_GREEN(dst) + RGB565_TO_GREEN(col);
+                    int dstb = RGB565_TO_BLUE(dst) + RGB565_TO_BLUE(col);
+                    if (dstr > 31) dstr = 31;
+                    if (dstg > 63) dstg = 63;
+                    if (dstb > 31) dstb = 31;
+
+                    lineBuffer[lineX] = RGB565RAW(dstr,dstg,dstb);
+                }
+                lineX+=1;
+            }
+            break;
         case RenderCommandBlendMode::bitwiseOr:
             for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
             {
                 int index = (pos++ & widthMod) + offset;
                 uint16_t col = sram ? rgb565[index] : read_word(&rgb565[index]);
-                if (col != transparentColorMask && depth >= depthBuffer[lineX]) {
+                if (col != transparentColorMask && col > 0 && depth >= depthBuffer[lineX]) {
                     depthBuffer[lineX] = depth;
                     lineBuffer[lineX] |= col;
                 }
@@ -179,6 +199,26 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
             {
                 int index = (pos++ & widthMod) + offset;
                 lineBuffer[lineX++] &= sram ? rgb565[index] : read_word(&rgb565[index]);
+            }
+            break;
+        case RenderCommandBlendMode::add:
+            for (uint8_t i = 0; i < width && lineX < RenderBufferConst::screenWidth; i+=1)
+            {
+                int index = (pos++ & widthMod) + offset;
+                uint16_t col = sram ? rgb565[index] : read_word(&rgb565[index]);
+                if (col > 0 && depth >= depthBuffer[lineX]) {
+                    depthBuffer[lineX] = depth;
+                    int dst = lineBuffer[lineX];
+                    int dstr = RGB565_TO_RED(dst) + RGB565_TO_RED(col);
+                    int dstg = RGB565_TO_GREEN(dst) + RGB565_TO_GREEN(col);
+                    int dstb = RGB565_TO_BLUE(dst) + RGB565_TO_BLUE(col);
+                    if (dstr > 31) dstr = 31;
+                    if (dstg > 63) dstg = 63;
+                    if (dstb > 31) dstb = 31;
+
+                    lineBuffer[lineX] = RGB565RAW(dstr,dstg,dstb);
+                }
+                lineX+=1;
             }
             break;
         case RenderCommandBlendMode::subtract:

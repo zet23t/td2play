@@ -146,7 +146,7 @@ local function convertPNG(pngfile, config)
 	end
 
 	local width, height = img:sizeXY()
-	local name = pngfile:gsub("^.-([^/\\]+)%.png","%1"):gsub("%-","_")
+	local name = pngfile:gsub("^.-([^/\\]+)%.[jp][pn][g]","%1"):gsub("%-","_")
 	local pixels = {}
 	for y=0,height-1 do
 		for x=0,width-1 do
@@ -212,13 +212,18 @@ local function packPNG (directory, outfile, config)
 	local imglist = {}
 	local namegroups = {}
 	for filename in lfs.dir(directory) do
-		if filename:match "%.png$" then
-			local img = assert(gd.createFromPng(directory.."/"..filename))
+		if filename:match "%.png$" or filename:match "%.jpg$" then
+			local img 
+			if filename:match "%.png$" then
+				img = assert(gd.createFromPng(directory.."/"..filename))
+			else
+				img = assert(gd.createFromJpeg(directory.."/"..filename))
+			end
 			local origw,origh = img:sizeXY()
 			local img,x,y = crop(img)
 			assert(x and y)
 			local w,h = img:sizeXY()
-			local rawname,rawnumber = filename:match "^(.-)_?(%d*)%.png"
+			local rawname,rawnumber = filename:match "^(.-)_?(%d*)%.[jp][pn]g"
 			local imginfo = {
 				img = img;
 				rawname = rawname;
