@@ -21,7 +21,7 @@ struct ImageData {
 };
 
 struct SpriteSheetRect {
-    uint8_t x, y, width, height, offsetX, offsetY;
+    uint8_t x, y, width, height, offsetX, offsetY,origWidth,origHeight;
 };
 
 struct SpriteSheet {

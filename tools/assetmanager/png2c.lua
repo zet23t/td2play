@@ -179,6 +179,7 @@ end
 
 local function packPNG (directory, outfile, config)
 	local transparent = config.transparent_color
+	local transparentTolerance = config.transparent_color_tolerance or 0
 	local function crop(img)
 		local w,h = img:sizeXY()
 		w,h = w - 1, h - 1
@@ -187,11 +188,23 @@ local function packPNG (directory, outfile, config)
 			local r,g,b = img:red(col),img:green(col),img:blue(col)
 			return r * 0x10000 + g * 0x100 + b
 		end
+		local transparentR = math.floor(transparent / 0x10000)
+		local transparentG = math.floor(transparent / 0x100) % 0x100
+		local transparentB = transparent % 0x100
+		local function rgbMatchesTransparency(x,y)
+			local col = img:getPixel(x,y)
+			local r,g,b = img:red(col),img:green(col),img:blue(col)
+			return math.abs(r - transparentR) <= transparentTolerance and
+				math.abs(g-transparentG) <= transparentTolerance and
+				math.abs(b-transparentB) <= transparentTolerance
+		end
 		local function seekOpaque(start_a,end_a,start_b,end_b,swap)
 			for x=start_a, end_a, start_a > end_a and -1 or 1 do
 				for y=start_b, end_b, start_b > end_b and -1 or 1 do
-					local col = swap and rgbAt(y,x) or rgbAt(x,y)
-					if col ~= transparent then return x end
+					if (swap and not rgbMatchesTransparency(y,x)) or 
+						(not swap and not rgbMatchesTransparency(x,y)) then
+						return x
+					end
 				end
 			end
 			return end_a - 1
@@ -228,7 +241,7 @@ local function packPNG (directory, outfile, config)
 				img = img;
 				rawname = rawname;
 				rawnumber = tonumber(rawnumber);
-				origw = origw; origh = h;
+				origw = origw; origh = origh;
 				offsetX = x; offsetY = y;
 				w = w; h = h;
 				area = w * h;
@@ -321,7 +334,7 @@ local function packPNG (directory, outfile, config)
 			local rect = imginfo.rect
 			if rect then 
 				n = n + 1
-				outcpp:write(("        {%d,%d,%d,%d, %d,%d},\n"):format(rect[1],rect[2],rect[3],rect[4], imginfo.offsetX,imginfo.offsetY))
+				outcpp:write(("        {%d,%d,%d,%d, %d,%d, %d,%d},\n"):format(rect[1],rect[2],rect[3],rect[4], imginfo.offsetX,imginfo.offsetY, imginfo.origw, imginfo.origh))
 			end
 		end
 		outcpp:write(("    };\n"))
