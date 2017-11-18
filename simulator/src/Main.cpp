@@ -26,6 +26,113 @@
 #define TinyArcadePin1 45
 #define TinyArcadePin2 44
 
+namespace TGA {
+    // from https://stackoverflow.com/questions/7046270/loading-a-tga-file-and-using-it-with-opengl
+    typedef struct
+    {
+        unsigned char imageTypeCode;
+        short int imageWidth;
+        short int imageHeight;
+        unsigned char bitCount;
+        unsigned char *imageData;
+    } TGAFILE;
+
+    bool LoadTGAFile(const char *filename, TGAFILE *tgaFile)
+    {
+        FILE *filePtr;
+        unsigned char ucharBad;
+        short int sintBad;
+        long imageSize;
+        int colorMode;
+        unsigned char colorSwap;
+
+        // Open the TGA file.
+        filePtr = fopen(filename, "rb");
+        if (filePtr == NULL)
+        {
+            printf("Not found: %s\n",filename);
+            return false;
+        }
+        printf("found: %s\n",filename);
+        // Read the two first bytes we don't need.
+        fread(&ucharBad, sizeof(unsigned char), 1, filePtr);
+        fread(&ucharBad, sizeof(unsigned char), 1, filePtr);
+
+        // Which type of image gets stored in imageTypeCode.
+        fread(&tgaFile->imageTypeCode, sizeof(unsigned char), 1, filePtr);
+
+        // For our purposes, the type code should be 2 (uncompressed RGB image)
+        // or 3 (uncompressed black-and-white images).
+        if (tgaFile->imageTypeCode != 2 && tgaFile->imageTypeCode != 3)
+        {
+            printf("Unknown TGA format @%s: %d\n",filename, tgaFile->imageTypeCode);
+            fclose(filePtr);
+            return false;
+        }
+
+        // Read 13 bytes of data we don't need.
+        fread(&sintBad, sizeof(short int), 1, filePtr);
+        fread(&sintBad, sizeof(short int), 1, filePtr);
+        fread(&ucharBad, sizeof(unsigned char), 1, filePtr);
+        fread(&sintBad, sizeof(short int), 1, filePtr);
+        fread(&sintBad, sizeof(short int), 1, filePtr);
+
+        // Read the image's width and height.
+        fread(&tgaFile->imageWidth, sizeof(short int), 1, filePtr);
+        fread(&tgaFile->imageHeight, sizeof(short int), 1, filePtr);
+
+        // Read the bit depth.
+        fread(&tgaFile->bitCount, sizeof(unsigned char), 1, filePtr);
+
+        // Read one byte of data we don't need.
+        fread(&ucharBad, sizeof(unsigned char), 1, filePtr);
+
+        // Color mode -> 3 = BGR, 4 = BGRA.
+        colorMode = tgaFile->bitCount / 8;
+        imageSize = tgaFile->imageWidth * tgaFile->imageHeight * colorMode;
+
+        // Allocate memory for the image data.
+        tgaFile->imageData = (unsigned char*)malloc(sizeof(unsigned char)*imageSize);
+
+        // Read the image data.
+        fread(tgaFile->imageData, sizeof(unsigned char), imageSize, filePtr);
+
+        // Change from BGR to RGB so OpenGL can read the image data.
+        for (int imageIdx = 0; imageIdx < imageSize; imageIdx += colorMode)
+        {
+            colorSwap = tgaFile->imageData[imageIdx];
+            tgaFile->imageData[imageIdx] = tgaFile->imageData[imageIdx + 2];
+            tgaFile->imageData[imageIdx + 2] = colorSwap;
+        }
+
+        fclose(filePtr);
+        return true;
+    }
+
+    GLuint GenFromTGAFile(const char* name, bool deleteTex){
+        GLuint tex;
+        glGenTextures(1,&tex);
+        glBindTexture(GL_TEXTURE_2D,tex);
+        TGAFILE tga;
+        if(LoadTGAFile(name, &tga)) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tga.imageWidth,tga.imageHeight, 0,
+                GL_RGB, GL_UNSIGNED_BYTE, tga.imageData);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            return tex;
+        }
+        else {
+            if (deleteTex) {
+                glDeleteTextures(1, &tex);
+                return -1;
+            }
+            return tex;
+        }
+    }
+}
+
+static GLuint gamelogo;
+
 typedef struct {
     GLuint screenTexture;
     unsigned char screenData[SCREEN_TEXTURE_SIZE*SCREEN_TEXTURE_SIZE * 3];
@@ -119,11 +226,13 @@ void TinyScreen::endTransfer(void) {
     glVertex3f(0.f, 0.6f, 0.f);
     glEnd();*/
     glDisable(GL_TEXTURE_2D);
+
+
     glBindTexture(GL_TEXTURE_2D, emulator.screenTexture);
     float scale = ratio > 1.3f ? 2.25f : (2.25f/1.3f) * ratio;
-
+    scale *= .9f;
     glScalef(scale,scale,scale);
-    glTranslatef(-0.48f, -0.12f,0);
+    glTranslatef(-0.48f, -0.25f,0);
 
     glColor3f(.0f,.0f,0.f);
     drawCircle(.15f,-.25f,.18f,16);
@@ -143,6 +252,7 @@ void TinyScreen::endTransfer(void) {
     buttonY = !digitalRead(5) ? -.22f : -.2f;
     drawCircle(.8f,buttonY,.075f,12);
     int buttons = getButtons();
+    glTranslatef(0,.266f,0);
     glBegin(GL_QUADS);
     // bottom left
     float buttonX = buttons & 1 ? -.05f : -.075f;
@@ -187,7 +297,6 @@ void TinyScreen::endTransfer(void) {
     glEnd();
 
 
-
     glEnable(GL_TEXTURE_2D);
     glColor3f(1,1,1);
     glBegin(GL_QUADS);
@@ -195,6 +304,15 @@ void TinyScreen::endTransfer(void) {
     glTexCoord2f(0, 0); glVertex3f(0, 0.64f, 0);
     glTexCoord2f(SCREEN_UMAX, 0); glVertex3f(0.96f, 0.64f, 0);
     glTexCoord2f(SCREEN_UMAX, SCREEN_VMAX); glVertex3f(0.96f, 0, 0);
+    glEnd();
+
+    glTranslatef(0,-.275f,0);
+    glBindTexture(GL_TEXTURE_2D, gamelogo);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0); glVertex3f(-margin, 0, 0);
+    glTexCoord2f(0, 1); glVertex3f(-margin, (0.96f+margin*2) / 4, 0);
+    glTexCoord2f(1, 1); glVertex3f(0.96f+margin, (0.96f+margin*2) / 4, 0);
+    glTexCoord2f(1, 0); glVertex3f(0.96f+margin, 0, 0);
     glEnd();
 
     if (emulator.isRecordingTSV) {
@@ -306,6 +424,7 @@ void TinyScreen::endTransfer(void) {
 
 
 static void init() {
+    gamelogo = TGA::GenFromTGAFile("gamelogo.tga",false );
 
     for (int x=0;x<TINYSCREEN_WIDTH;x+=1) {
         for (int y=0;y<TINYSCREEN_HEIGHT;y+=1) {
@@ -355,7 +474,7 @@ int main(void)
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
-    window = glfwCreateWindow(420, 420, "TinyScreen Simulator", NULL, NULL);
+    window = glfwCreateWindow(420, 520, "TinyScreen Simulator", NULL, NULL);
     emulator.window = window;
     if (!window)
     {
