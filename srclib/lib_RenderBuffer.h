@@ -176,7 +176,7 @@ private:
     int16_t offsetX, offsetY;
     // applied clipping, useful to limit rendercommands being drawn only in certain areas of the screen
     uint8_t clipTop,clipRight,clipBottom,clipLeft;
-    void drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY,int width, int lineWidth, int hAlign, const uint8_t depth);
+    void drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY,int width, int lineWidth, int hAlign, const uint8_t depth, const uint8_t blendMode);
     Texture<TColor> tempTextureBuffer[TEMP_TEXTURE_BUFFER_SIZE];
     const ImageData* tempTextureBufferImageData[TEMP_TEXTURE_BUFFER_SIZE];
     uint8_t tempTextureBufferUseCount;
@@ -218,6 +218,7 @@ public:
     RenderCommand<TColor>* drawRect(int16_t x, int16_t y, uint16_t width, uint16_t height, bool noOffset);
     RenderCommand<TColor>* drawText(const char *text, int16_t x, int16_t y, TColor color, const FONT_INFO *font);
     void drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font, const uint8_t depth);
+    void drawText(const char* text, int x, int y, int width, int height, int hAlign, int vAlign, bool wrap, const SpriteFont& font, const uint8_t depth, const uint8_t blendmode);
     void drawText(const char* text, int x, int y, int width, int height, int hAlign, int vAlign, bool wrap, const SpriteFont& font, const uint8_t depth);
     TColor rgb(uint8_t r, uint8_t g, uint8_t b) const;
     bool is16bit() {return sizeof(TColor) == 2;}
@@ -255,7 +256,6 @@ RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawRect(int16_t x, int16_
     cmd->y2 = bottom > clipBottom ? clipBottom : bottom;
     return cmd;
 }
-
 template<class TCol, int maxCommands>
 RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawText(const char *text, int16_t x, int16_t y, TCol color, const FONT_INFO *font)
 {
@@ -290,9 +290,12 @@ template<class TColor, int cmdCount>
 void RenderBuffer<TColor, cmdCount>::drawText(const char* text, int x, int y, int width, int hAlign, const SpriteFont& font, uint8_t depth) {
     drawText(text,x,y,width, 0,hAlign,-1,false,font,depth);
 }
-
 template<class TColor, int cmdCount>
 void RenderBuffer<TColor, cmdCount>::drawText(const char* textSrc, int x, int y, int boxWidth, int boxHeight, int hAlign,int vAlign, bool wrap, const SpriteFont& font, uint8_t depth) {
+    drawText(textSrc,x,y,boxWidth,boxHeight,hAlign,vAlign,wrap, font,depth, RenderCommandBlendMode::opaque);
+}
+template<class TColor, int cmdCount>
+void RenderBuffer<TColor, cmdCount>::drawText(const char* textSrc, int x, int y, int boxWidth, int boxHeight, int hAlign,int vAlign, bool wrap, const SpriteFont& font, uint8_t depth, const uint8_t blendMode) {
     int len = strlen(textSrc);
     const SpriteGlyph *glyphList[len];
     const char* text = textSrc;
@@ -354,7 +357,7 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* textSrc, int x, int y,
                     lineWidth = lastSpaceWidth;
                     lastSpacePos = 0;
                 }
-                drawGlyphs(n,glyphList,texture,cursorX, cursorY, boxWidth, lineWidth, hAlign, depth);
+                drawGlyphs(n,glyphList,texture,cursorX, cursorY, boxWidth, lineWidth, hAlign, depth, blendMode);
                 n = 0;
                 cursorY+=lineHeight;
                 lineCount+=1;
@@ -368,11 +371,11 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* textSrc, int x, int y,
             }
         }
     }
-    drawGlyphs(n,glyphList,texture,cursorX, cursorY, boxWidth, lineWidth, hAlign, depth);
+    drawGlyphs(n,glyphList,texture,cursorX, cursorY, boxWidth, lineWidth, hAlign, depth, blendMode);
  }
 
 template<class TColor, int cmdCount>
-void RenderBuffer<TColor, cmdCount>::drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY, int width, int lineWidth, int hAlign, const uint8_t depth) {
+void RenderBuffer<TColor, cmdCount>::drawGlyphs(int n, const SpriteGlyph** glyphList, Texture<TColor>* texture, int cursorX, int cursorY, int width, int lineWidth, int hAlign, const uint8_t depth, const uint8_t blendMode) {
     switch (hAlign) {
         case 0: cursorX += (width-lineWidth)/2;break;
         case 1: cursorX += width - lineWidth;break;
@@ -380,7 +383,7 @@ void RenderBuffer<TColor, cmdCount>::drawGlyphs(int n, const SpriteGlyph** glyph
     for (int i=0;i<n;i+=1) {
         const SpriteGlyph *g = glyphList[i];
         if (g->w && g->h)
-            drawRect(cursorX+g->offsetX, cursorY+g->offsetY,g->w,g->h)->sprite(texture,g->u,g->v)->setDepth(depth);
+            drawRect(cursorX+g->offsetX, cursorY+g->offsetY,g->w,g->h)->sprite(texture,g->u,g->v)->setDepth(depth)->blend(blendMode);
         cursorX += g->spacing;
     }
 }

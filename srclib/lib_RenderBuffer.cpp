@@ -506,11 +506,75 @@ void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y, uint8_t *depthBuff
         switch(type)
         {
         case RenderCommandType::solid:
-            for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
-                if (depthBuffer[x] <= depth) {
-                    line[x] = rect.color;
-                    depthBuffer[x] = depth;
+            switch(rect.blendMode) {
+            default:
+                for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
+                    if (depthBuffer[x] <= depth) {
+                        line[x] = rect.color;
+                        depthBuffer[x] = depth;
+                    }
                 }
+                break;
+            case RenderCommandBlendMode::bitwiseAnd:
+                for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
+                    if (depthBuffer[x] <= depth) {
+                        line[x] &= rect.color;
+                        depthBuffer[x] = depth;
+                    }
+                }
+                break;
+            case RenderCommandBlendMode::bitwiseOr:
+                for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
+                    if (depthBuffer[x] <= depth) {
+                        line[x] |= rect.color;
+                        depthBuffer[x] = depth;
+                    }
+                }
+                break;
+            case RenderCommandBlendMode::subtract:
+                {
+                    uint16_t src = rect.color;
+                    for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
+                        if (depthBuffer[x] <= depth) {
+                            uint16_t dst = line[x];
+                            uint8_t dstR = RGB565_TO_RED(dst);
+                            uint8_t dstG = RGB565_TO_GREEN(dst);
+                            uint8_t dstB = RGB565_TO_BLUE(dst);
+                            uint8_t srcR = RGB565_TO_RED(src);
+                            uint8_t srcG = RGB565_TO_GREEN(src);
+                            uint8_t srcB = RGB565_TO_BLUE(src);
+                            dstR = dstR > srcR ? dstR - srcR : 0;
+                            dstG = dstG > srcG ? dstG - srcG : 0;
+                            dstB = dstB > srcB ? dstB - srcB : 0;
+                            uint16_t result = RGB565RAW(dstR,dstG,dstB);
+                            line[x] = result;
+                            depthBuffer[x] = depth;
+                        }
+                    }
+                }
+                break;
+            case RenderCommandBlendMode::add:
+                {
+                    uint16_t src = rect.color;
+                    for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
+                        if (depthBuffer[x] <= depth) {
+                            uint16_t dst = line[x];
+                            uint8_t dstR = RGB565_TO_RED(dst);
+                            uint8_t dstG = RGB565_TO_GREEN(dst);
+                            uint8_t dstB = RGB565_TO_BLUE(dst);
+                            uint8_t srcR = RGB565_TO_RED(src);
+                            uint8_t srcG = RGB565_TO_GREEN(src);
+                            uint8_t srcB = RGB565_TO_BLUE(src);
+                            dstR = dstR + srcR < 31 ? dstR + srcR : 31;
+                            dstG = dstG + srcG < 63 ? dstG + srcG : 63;
+                            dstB = dstB + srcB < 31 ? dstB + srcB : 31;
+                            uint16_t result = RGB565RAW(dstR,dstG,dstB);
+                            line[x] = result;
+                            depthBuffer[x] = depth;
+                        }
+                    }
+                }
+                break;
             }
             break;
         case RenderCommandType::textured:
