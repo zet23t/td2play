@@ -235,6 +235,10 @@ public:
             x = FixedNumber16<4>(x < 0 ? -1 : 1,0);
             return *this;
         }
+        while (x.absolute().getIntegerPart() > 16 || y.absolute().getIntegerPart() > 16) {
+            x = x.half();
+            y = y.half();
+        }
         FixedNumber16<4> sqd = x * x + y * y;
         FixedNumber16<4> len = sqd.sqrt();// - FixedNumber16<4>(0,1);
         x = x / len;
