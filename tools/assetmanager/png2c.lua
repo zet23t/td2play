@@ -336,7 +336,8 @@ local function packPNG (directory, outfile, config)
 			local rect = imginfo.rect
 			if rect then 
 				n = n + 1
-				outcpp:write(("        {%d,%d,%d,%d, %d,%d, %d,%d},\n"):format(rect[1],rect[2],rect[3],rect[4], imginfo.offsetX,imginfo.offsetY, imginfo.origw, imginfo.origh))
+				outcpp:write(("        {%d,%d,%d,%d, %d,%d, %d,%d},\n"):format(rect[1],rect[2],
+					math.max(0,rect[3]),math.max(0,rect[4]), imginfo.offsetX,imginfo.offsetY, imginfo.origw, imginfo.origh))
 			end
 		end
 		outcpp:write(("    };\n"))
