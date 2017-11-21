@@ -208,6 +208,10 @@ public:
         return *this;
     }
 
+    FixedNumber16<4> manhattanDistance() const {
+        return x.absolute() + y.absolute();
+    }
+
     FixedNumber16<4> length() const {
         FixedNumber16<4> sqd = x * x + y * y;
         return sqd.sqrt();
