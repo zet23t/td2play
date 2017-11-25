@@ -142,10 +142,10 @@ void Texture<TColor>::fillLineRgb565(bool sram, TColor *lineBuffer, uint8_t line
                     uint16_t srcG = RGB565_TO_GREEN(src);
                     uint16_t srcB = RGB565_TO_BLUE(src);
 
-                    uint8_t r = (srcR >> 1) + (dstR >> 1);
-                    uint8_t g = (srcG >> 1) + (dstG >> 1);
-                    uint8_t b = (srcB >> 1) + (dstB >> 1);
-                    uint16_t result = RGB565(r,g,b);
+                    uint8_t r = (srcR + dstR) / 2;
+                    uint8_t g = (srcG + dstG) / 2;
+                    uint8_t b = (srcB + dstB) / 2;
+                    uint16_t result = RGB565RAW(r,g,b);
                     lineBuffer[lineX++] = result;
                 } else {
                     uint16_t col = src >> 8 | src << 8;
@@ -534,15 +534,15 @@ void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y, uint8_t *depthBuff
             case RenderCommandBlendMode::subtract:
                 {
                     uint16_t src = rect.color;
+                    uint8_t srcR = RGB565_TO_RED(src);
+                    uint8_t srcG = RGB565_TO_GREEN(src);
+                    uint8_t srcB = RGB565_TO_BLUE(src);
                     for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
                         if (depthBuffer[x] <= depth) {
                             uint16_t dst = line[x];
                             uint8_t dstR = RGB565_TO_RED(dst);
                             uint8_t dstG = RGB565_TO_GREEN(dst);
                             uint8_t dstB = RGB565_TO_BLUE(dst);
-                            uint8_t srcR = RGB565_TO_RED(src);
-                            uint8_t srcG = RGB565_TO_GREEN(src);
-                            uint8_t srcB = RGB565_TO_BLUE(src);
                             dstR = dstR > srcR ? dstR - srcR : 0;
                             dstG = dstG > srcG ? dstG - srcG : 0;
                             dstB = dstB > srcB ? dstB - srcB : 0;
@@ -556,18 +556,40 @@ void RenderCommand<TColor>::fillLine(TColor *line, uint8_t y, uint8_t *depthBuff
             case RenderCommandBlendMode::add:
                 {
                     uint16_t src = rect.color;
+                    uint8_t srcR = RGB565_TO_RED(src);
+                    uint8_t srcG = RGB565_TO_GREEN(src);
+                    uint8_t srcB = RGB565_TO_BLUE(src);
                     for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
                         if (depthBuffer[x] <= depth) {
                             uint16_t dst = line[x];
                             uint8_t dstR = RGB565_TO_RED(dst);
                             uint8_t dstG = RGB565_TO_GREEN(dst);
                             uint8_t dstB = RGB565_TO_BLUE(dst);
-                            uint8_t srcR = RGB565_TO_RED(src);
-                            uint8_t srcG = RGB565_TO_GREEN(src);
-                            uint8_t srcB = RGB565_TO_BLUE(src);
                             dstR = dstR + srcR < 31 ? dstR + srcR : 31;
                             dstG = dstG + srcG < 63 ? dstG + srcG : 63;
                             dstB = dstB + srcB < 31 ? dstB + srcB : 31;
+                            uint16_t result = RGB565RAW(dstR,dstG,dstB);
+                            line[x] = result;
+                            depthBuffer[x] = depth;
+                        }
+                    }
+                }
+                break;
+            case RenderCommandBlendMode::average:
+                {
+                    uint16_t src = rect.color;
+                    uint8_t srcR = RGB565_TO_RED(src);
+                    uint8_t srcG = RGB565_TO_GREEN(src);
+                    uint8_t srcB = RGB565_TO_BLUE(src);
+                    for (uint8_t x = rect.x1; x < rect.x2; x+=1) {
+                        if (depthBuffer[x] <= depth) {
+                            uint16_t dst = line[x];
+                            uint8_t dstR = RGB565_TO_RED(dst);
+                            uint8_t dstG = RGB565_TO_GREEN(dst);
+                            uint8_t dstB = RGB565_TO_BLUE(dst);
+                            dstR = (dstR + srcR) / 2;
+                            dstG = (dstG + srcG) / 2;
+                            dstB = (dstB + srcB) / 2;
                             uint16_t result = RGB565RAW(dstR,dstG,dstB);
                             line[x] = result;
                             depthBuffer[x] = depth;
