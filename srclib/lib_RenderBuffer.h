@@ -296,6 +296,9 @@ void RenderBuffer<TColor, cmdCount>::drawText(const char* textSrc, int x, int y,
 }
 template<class TColor, int cmdCount>
 void RenderBuffer<TColor, cmdCount>::drawText(const char* textSrc, int x, int y, int boxWidth, int boxHeight, int hAlign,int vAlign, bool wrap, const SpriteFont& font, uint8_t depth, const uint8_t blendMode) {
+    if (y - offsetY>clipBottom || y+boxHeight-offsetY < clipTop || x - offsetX> clipRight || x + boxWidth - offsetX < clipLeft) {
+        return;
+    }
     int len = strlen(textSrc);
     const SpriteGlyph *glyphList[len];
     const char* text = textSrc;
