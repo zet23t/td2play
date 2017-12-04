@@ -307,10 +307,68 @@ local function packPNG (directory, outfile, config)
 		end
 	end
 	--table.sort(imglist,function(a,b) return a.maxSide > b.maxSide end)
-	table.sort(imglist,function(a,b) return a.w > b.w end)
+	table.sort(imglist,function(a,b) 
+		if a.w == b.w then return a.h > b.h end
+		return a.w > b.w end)
+	local byW = {}
+	local byH = {}
+	for i=1,#imglist do 
+		local a = imglist[i]
+		local w,h = a.w,a.h
+		if not byW[w] then byW[w] = {} end
+		if not byH[h] then byH[h] = {} end
+		byW[w][#byW[w]+1] = a
+		byH[h][#byH[h]+1] = a
+	end
 	local result = gd.createTrueColor(tw,th)
 	result:filledRectangle(0,0,tw,th,result:colorAllocate(0,128,128))
-	for i,info in ipairs(imglist) do 
+	local function removeThis(tab,info) 
+		for i=1,#tab do 
+			if tab[i]== info then
+				table.remove(tab,i)
+				return #tab == 0
+			end
+		end
+		error("no such element")
+	end
+		
+	while #imglist > 0 do
+		local info
+		for i=1,#freeRect do
+			local r = freeRect[i]
+			local w,h = r[3],r[4]
+			if byW[w] then
+				for j=1,#byW[w] do
+					if byW[w][j].h <= h then
+						if not info or info.h > byW[w][j].h then
+							info = byW[w][j]
+						end
+						if byW[w][j].h == h then
+							break
+						end
+					end
+				end
+				if info then break end
+			end
+			if byH[h] then
+				for j=1,#byH[h] do
+					if byH[h][j].w <= w then
+						if not info or info.w > byH[h][j].w then
+							info = byH[h][1]
+						end
+						if byH[h][j].w == w then
+							break
+						end
+					end
+				end
+				if info then break end
+			end
+		end
+		if not info then info = table.remove(imglist,1) 
+		else removeThis(imglist,info) end
+		print(info.w,info.h,byW[info.w],byH[info.h])
+		if removeThis(byW[info.w], info) then byW[info.w]= nil end
+		if removeThis(byH[info.h], info) then byH[info.h]= nil end
 		local x,y = fitRect(info.w,info.h)
 		if x then
 			info.rect = {x,y,info.w,info.h}
