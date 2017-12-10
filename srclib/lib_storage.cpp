@@ -26,7 +26,7 @@ namespace Storage {
             }
             return true;
         }
-        bool write(const void *data, int size) {
+        bool write(const void *data, int pos, int size) {
             /*stringBuffer.start().put(gBaseDir).put('/').put(file);
             File myFile = SD.open(stringBuffer.getAndForget(), FILE_WRITE);
             if (myFile) {
@@ -37,7 +37,7 @@ namespace Storage {
             }*/
             return false;
         }
-        bool read(void *data, int size) {
+        bool read(void *data, int pos, int size) {
             /*stringBuffer.start().put(gBaseDir).put('/').put(file);
             File myFile = SD.open(stringBuffer.getAndForget(), FILE_READ);
             if (myFile) {
@@ -50,88 +50,45 @@ namespace Storage {
         void close() {
             isInitialized = false;
         }
-        void seek(int pos) {
-        }
-        void seekEnd(int pos) {
-        }
     };
     #else
-    class Persistence {
-        FILE *fp;
-    public:
 
-        bool isInitialized;
-        bool init(const char *baseDir) {
-            isInitialized = true;
+    bool Persistence::init(const char *baseDir) {
+        fp = fopen(baseDir, "rb+");
+        if (fp == 0) {
+            fp = fopen(baseDir, "wb+");
+        }
+        return fp != 0;
+    }
+    bool Persistence::write(const void *data, int pos, int size) {
+        fwrite(data,size,1,fp);
+        return ferror(fp) == 0;
+    }
+    bool Persistence::read(void *data, int pos, int size) {
 
-            fp = fopen(baseDir, "rb+");
-            if (fp == 0) {
-                fp = fopen(baseDir, "wb+");
-            }
-            return fp != 0;
-        }
-        bool write(const void *data, int size) {
-            fwrite(data,size,1,fp);
-            return ferror(fp) == 0;
-        }
-        bool read(void *data, int size) {
-            long pos = ftell(fp);
-            long s = fseek(fp,0, SEEK_END);
-            fseek(fp,pos,SEEK_SET);
-            if (pos +size > s) {
-                return 0;
-            }
+        fseek(fp,pos,SEEK_SET);
 
-            fread(data, size, 1, fp);
-            return ferror(fp) == 0;
-        }
-        void close() {
-            fclose(fp);
-            fp = 0;
-            isInitialized = false;
-        }
-        void seek(int pos) {
-            fseek(fp,pos,SEEK_SET);
-        }
-        void seekEnd(int pos) {
-            fseek(fp,pos,SEEK_END);
-        }
-    };
+        fread(data, size, 1, fp);
+        return ferror(fp) == 0;
+    }
+    void Persistence::close() {
+        fclose(fp);
+        fp = 0;
+    }
     #endif // __WIN32__
 
 
+    void init(Persistence& p, const char *baseDir) {
+        p.init(baseDir);
 
-    Persistence persistence[MAX_PERSISTENCE_COUNT];
-
-
-    Persistence* init(const char *baseDir) {
-        for (int i=0;i<MAX_PERSISTENCE_COUNT;i+=1) {
-            if (persistence[i].isInitialized == false) {
-                persistence[i].init(baseDir);
-                return &persistence[i];
-            }
-        }
-        return 0;
     }
 
-    bool read(Persistence *p, void *data, int size) {
-        return p->read(data,size);
+    bool read(Persistence *p, void *data, int pos, int size) {
+        return p->read(data, pos,size);
     }
 
-    bool write(Persistence *p, const void *data, int size) {
-        return p->write(data, size);
-    }
-
-    bool seek(Persistence *p, int pos) {
-        //p->seek(pos);
-    }
-
-    bool seekEnd(Persistence *p, int pos) {
-        p->seekEnd(pos);
-    }
-
-    void close(Persistence *p) {
-        p->close();
+    bool write(Persistence *p, const void *data, int pos, int size) {
+        return p->write(data, pos, size);
     }
 }
 

@@ -2,14 +2,25 @@
 
 #define MAX_PERSISTENCE_COUNT 4
 
-namespace Storage {
-    class Persistence;
+#ifdef WIN32
+#include <stdio.h>
+#endif // WIN32
 
-    Persistence* init(const char *baseDir);
-    bool read(Persistence *p, void *data, int size);
-    bool write(Persistence *p, const void *data, int size);
-    bool seek(Persistence *p, int pos);
-    bool seekEnd(Persistence *p, int pos);
+namespace Storage {
+    struct Persistence {
+        #ifdef WIN32
+        FILE *fp;
+        #endif // WIN32
+
+        bool init(const char *baseDir);
+        bool write(const void *data, int pos, int size);
+        bool read(void *data, int pos, int size);
+        void close();
+    };
+
+    void init(Persistence &p, const char *baseDir);
+    bool read(Persistence *p, void *data,int pos, int size);
+    bool write(Persistence *p, const void *data, int pos, int size);
     void close(Persistence *p);
 }
 #endif // __LIB_STORAGE_H__
