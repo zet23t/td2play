@@ -37,6 +37,29 @@ public:
         }
         return *this;
     }
+    StringBuffer& put(const char* str, int maxLen) {
+        while (*str && bufferPos < STRINGBUFFER_SIZE && maxLen-- > 0) {
+            buffer[bufferPos++] = *str;
+            str+=1;
+        }
+        return *this;
+    }
+
+    StringBuffer& putTrimmed(const char* str, int maxLen) {
+        while (*str && *str <= 32 && maxLen-- > 0) str+=1;
+        const char *lastWS = str;
+        const char *seek = str;
+        int n = maxLen;
+        while (*seek && n-- > 0) {
+            if (*seek > 32) lastWS = seek;
+            seek += 1;
+        }
+        while (*str && bufferPos < STRINGBUFFER_SIZE && str <= lastWS) {
+            buffer[bufferPos++] = *str;
+            str+=1;
+        }
+        return *this;
+    }
     StringBuffer& put(char letter) {
         if (bufferPos < STRINGBUFFER_SIZE) buffer[bufferPos++] = letter;
         return *this;
