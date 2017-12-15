@@ -17,10 +17,5 @@ namespace Storage {
         bool read(void *data, int pos, int size);
         void close();
     };
-
-    void init(Persistence &p, const char *baseDir);
-    bool read(Persistence *p, void *data,int pos, int size);
-    bool write(Persistence *p, const void *data, int pos, int size);
-    void close(Persistence *p);
 }
 #endif // __LIB_STORAGE_H__

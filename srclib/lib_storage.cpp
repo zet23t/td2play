@@ -77,19 +77,6 @@ namespace Storage {
     }
     #endif // __WIN32__
 
-
-    void init(Persistence& p, const char *baseDir) {
-        p.init(baseDir);
-
-    }
-
-    bool read(Persistence *p, void *data, int pos, int size) {
-        return p->read(data, pos,size);
-    }
-
-    bool write(Persistence *p, const void *data, int pos, int size) {
-        return p->write(data, pos, size);
-    }
 }
 
 
