@@ -1,56 +1,57 @@
 #include "lib_StringBuffer.h"
 #include "lib_storage.h"
-#ifndef __WIN32__
 
-#include <SPI.h>
-#include <SD.h>
-
-#else
-
-#include <stdio.h>
-
-#endif
 
 namespace Storage {
     #ifndef __WIN32__
-    struct Persistence {
-        bool isInitialized;
-        const char *gBaseDir;
-
-        bool init(const char *baseDir) {
-            gBaseDir = baseDir;
-            isInitialized = true;
-            if (!SD.begin(10)) {
-                isInitialized = false;
-                return false;
-            }
+    bool Persistence::init(const char *baseDir) {
+        isInitialized = true;
+        if (!SD.begin(10)) {
+            isInitialized = false;
+            return false;
+        }
+        file = SD.open(baseDir);
+        isInitialized = (bool)file;
+        return isInitialized;
+    }
+    bool Persistence::write(const void *data, int pos, int size) {
+        if (file) {
+            file.seek(pos);
+            file.write((uint8_t*)data, size);
+            file.flush();
+        }
+        /*stringBuffer.start().put(gBaseDir).put('/').put(file);
+        File myFile = SD.open(stringBuffer.getAndForget(), FILE_WRITE);
+        if (myFile) {
+            myFile.write((uint8_t*)data, size);
+            myFile.flush();
+            myFile.close();
+            return true;
+        }*/
+        return false;
+    }
+    bool Persistence::read(void *data, int pos, int size) {
+        if (file) {
+            file.seek(pos);
+            file.read((uint8_t*)data, size);
             return true;
         }
-        bool write(const void *data, int pos, int size) {
-            /*stringBuffer.start().put(gBaseDir).put('/').put(file);
-            File myFile = SD.open(stringBuffer.getAndForget(), FILE_WRITE);
-            if (myFile) {
-                myFile.write((uint8_t*)data, size);
-                myFile.flush();
-                myFile.close();
-                return true;
-            }*/
-            return false;
+        /*stringBuffer.start().put(gBaseDir).put('/').put(file);
+        File myFile = SD.open(stringBuffer.getAndForget(), FILE_READ);
+        if (myFile) {
+            myFile.read(data, size);
+            myFile.close();
+            return true;
+        }*/
+        return false;
+    }
+    void Persistence::close() {
+        if (isInitialized) {
+            file.close();
         }
-        bool read(void *data, int pos, int size) {
-            /*stringBuffer.start().put(gBaseDir).put('/').put(file);
-            File myFile = SD.open(stringBuffer.getAndForget(), FILE_READ);
-            if (myFile) {
-                myFile.read(data, size);
-                myFile.close();
-                return true;
-            }*/
-            return false;
-        }
-        void close() {
-            isInitialized = false;
-        }
-    };
+        isInitialized = false;
+    }
+
     #else
 
     bool Persistence::init(const char *baseDir) {

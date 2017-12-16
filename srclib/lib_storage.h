@@ -2,14 +2,24 @@
 
 #define MAX_PERSISTENCE_COUNT 4
 
-#ifdef WIN32
+#ifndef __WIN32__
+
+#include <SPI.h>
+#include <SD.h>
+
+#else
+
 #include <stdio.h>
-#endif // WIN32
+
+#endif
 
 namespace Storage {
     struct Persistence {
         #ifdef WIN32
         FILE *fp;
+        #else
+        File file;
+        bool isInitialized;
         #endif // WIN32
 
         bool init(const char *baseDir);
