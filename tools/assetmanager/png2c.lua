@@ -391,6 +391,7 @@ local function packPNG (directory, outfile, config)
 		local n = 0
 		for i=1,#list do 
 			local imginfo = list[i]
+			assert(list[i],name.." element "..i.." has no image info")
 			local rect = imginfo.rect
 			if rect then 
 				n = n + 1
