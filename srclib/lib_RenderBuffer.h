@@ -75,6 +75,11 @@ private:
         const uint16_t *rgb565;
         const uint8_t *rgb233;
     };
+    void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void init(const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
+public:
     uint8_t type;
     uint16_t width;
     uint16_t height;
@@ -82,11 +87,6 @@ private:
     uint16_t heightMod;
     uint16_t transparentColorMask;
     uint8_t widthBits;
-    void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
-    void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
-    void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
-    void init(const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
-public:
     Texture():data(0),type(0),width(0),height(0),widthMod(0),heightMod(0),transparentColorMask(0),widthBits(0){
     }
     Texture(int):data(0),type(0),width(0),height(0),widthMod(0),heightMod(0),transparentColorMask(0),widthBits(0){

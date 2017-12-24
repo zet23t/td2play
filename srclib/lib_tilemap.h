@@ -249,8 +249,8 @@ namespace TileMap {
                     if (tileIndex != 0xff) {
                         buffer.drawRect(rectX, rectY,tileSize,tileSize)
                                           ->sprite(&scene.tileset.tileSets[layerIndex],
-                                                   (tileIndex & 0xf) << tileSizeBits,
-                                                   (tileIndex >> 4) << tileSizeBits)->setDepth(depth);
+                                                   (tileIndex << tileSizeBits) & scene.tileset.tileSets[layerIndex].widthMod,
+                                                   (tileIndex >> (scene.tileset.tileSets[layerIndex].widthBits - tileSizeBits))<<tileSizeBits)->setDepth(depth);
                     }
                 }
             }
