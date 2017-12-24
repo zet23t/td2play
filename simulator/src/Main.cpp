@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <TinyScreen.h>
 #include <stdio.h>
+#include <al.h>
+#include <alc.h>
+#include <math.h>
 
 #define TINYSCREEN_WIDTH 96
 #define TINYSCREEN_HEIGHT 64
@@ -25,6 +28,92 @@
 #define TinyArcadePinY 1
 #define TinyArcadePin1 45
 #define TinyArcadePin2 44
+
+#define PI_F (3.141592f)
+
+///// sound stuff - source: https://stackoverflow.com/questions/5469030/c-play-back-a-tone-generated-from-a-sinusoidal-wave
+#define CASE_RETURN(err) case (err): return "##err"
+const char* al_err_str(ALenum err) {
+    switch(err) {
+        CASE_RETURN(AL_NO_ERROR);
+        CASE_RETURN(AL_INVALID_NAME);
+        CASE_RETURN(AL_INVALID_ENUM);
+        CASE_RETURN(AL_INVALID_VALUE);
+        CASE_RETURN(AL_INVALID_OPERATION);
+        CASE_RETURN(AL_OUT_OF_MEMORY);
+    }
+    return "unknown";
+}
+#undef CASE_RETURN
+#define __al_check_error(file,line) \
+    do { \
+        ALenum err = alGetError(); \
+        for(; err!=AL_NO_ERROR; err=alGetError()) { \
+            printf("AL Error %s at %s:%d\n",al_err_str(err),file,":",line); \
+        } \
+    }while(0)
+
+#define al_check_error() \
+    __al_check_error(__FILE__, __LINE__)
+
+void init_al() {
+    ALCdevice *dev = NULL;
+    ALCcontext *ctx = NULL;
+
+    const char *defname = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+    printf("Default device: %s\n", defname);
+
+    dev = alcOpenDevice(defname);
+    ctx = alcCreateContext(dev, NULL);
+    alcMakeContextCurrent(ctx);
+}
+
+void exit_al() {
+    ALCdevice *dev = NULL;
+    ALCcontext *ctx = NULL;
+    ctx = alcGetCurrentContext();
+    dev = alcGetContextsDevice(ctx);
+
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(ctx);
+    alcCloseDevice(dev);
+}
+
+void test_al() {
+/* Create buffer to store samples */
+    ALuint buf;
+    alGenBuffers(1, &buf);
+    al_check_error();
+
+    /* Fill buffer with Sine-Wave */
+    float freq = 1440.f;
+    int seconds = 4;
+    unsigned sample_rate = 11025;
+    size_t buf_size = seconds * sample_rate;
+
+    int8_t audioBuffer[] = {10,0,-10,0,10,20,10,0,-10,-20,-10,0};
+    int8_t samples[buf_size];
+    for(int i=0; i<buf_size; ++i) {
+        //samples[i] = 127 * sin( (2.f*float(PI_F)*freq)/sample_rate * i );
+        samples[i] = audioBuffer[i%sizeof(audioBuffer)];
+    }
+
+    /* Download buffer to OpenAL */
+    alBufferData(buf, AL_FORMAT_MONO8, samples, buf_size, sample_rate);
+    al_check_error();
+
+
+    /* Set-up sound source and play buffer */
+    ALuint src = 0;
+    alGenSources(1, &src);
+    alSourcei(src, AL_BUFFER, buf);
+    alSourcePlay(src);
+
+    /* While sound is playing, sleep */
+    al_check_error();
+}
+
+//// graphics
 
 namespace TGA {
     // from https://stackoverflow.com/questions/7046270/loading-a-tga-file-and-using-it-with-opengl
@@ -171,6 +260,7 @@ int digitalRead(int pin) {
 }
 
 int analogWrite(int pin, int val) {
+    return 0;
 }
 
 int analogRead(int pin) {
@@ -474,10 +564,13 @@ int main(void)
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
+    init_al();
+    test_al();
     window = glfwCreateWindow(420, 520, "TinyScreen Simulator", NULL, NULL);
     emulator.window = window;
     if (!window)
     {
+        exit_al();
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -499,5 +592,6 @@ int main(void)
     }
     glfwDestroyWindow(window);
     glfwTerminate();
+    exit_al();
     exit(EXIT_SUCCESS);
 }
