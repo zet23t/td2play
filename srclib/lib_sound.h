@@ -1,7 +1,6 @@
 #pragma once
 
 namespace Sound {
-    struct Sample {
-
-    };
+    void init();
+    void tick();
 }

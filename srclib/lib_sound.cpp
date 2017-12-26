@@ -5,6 +5,7 @@ namespace Sound {
 
     void init() {
     }
-
+    void tick() {
+    }
 
 }
