@@ -3,7 +3,7 @@
 
 
 namespace Storage {
-    #ifndef __WIN32__
+    #ifndef WIN32
     bool Persistence::init(const char *baseDir) {
         isInitialized = true;
         if (!SD.begin(10)) {
@@ -62,18 +62,19 @@ namespace Storage {
         return fp != 0;
     }
     bool Persistence::write(const void *data, int pos, int size) {
+        if (fp == 0) return false;
         fwrite(data,size,1,fp);
         return ferror(fp) == 0;
     }
     bool Persistence::read(void *data, int pos, int size) {
-
+        if (fp == 0) return false;
         fseek(fp,pos,SEEK_SET);
 
         fread(data, size, 1, fp);
         return ferror(fp) == 0;
     }
     void Persistence::close() {
-        fclose(fp);
+        if (fp == 0) fclose(fp);
         fp = 0;
     }
     #endif // __WIN32__

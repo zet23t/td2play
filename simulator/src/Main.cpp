@@ -79,6 +79,11 @@ void exit_al() {
     alcCloseDevice(dev);
 }
 
+void update_al() {
+
+}
+
+
 void test_al() {
 /* Create buffer to store samples */
     ALuint buf;
