@@ -57,7 +57,11 @@ namespace Storage {
     bool Persistence::init(const char *baseDir) {
         fp = fopen(baseDir, "rb+");
         if (fp == 0) {
-            fp = fopen(baseDir, "wb+");
+            // sd arduino lib expects preceding slash - that's not what we need on windows
+            fp = fopen(&baseDir[1], "wb+");
+            if (fp == 0) {
+                printf("WARNING: Could not open file %s\n",baseDir);
+            }
         }
         return fp != 0;
     }
