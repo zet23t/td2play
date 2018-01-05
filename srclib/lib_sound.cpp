@@ -79,6 +79,17 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
     for (int i=0;i<pcnt;i+=1) {
         ALuint buf;
         alSourceUnqueueBuffers(src, 1, &buf);
+        int remaining = sizeof(sampleBuffer);
+        int p = 0;
+        memset(sampleBuffer,0,sizeof(sampleBuffer));
+        //printf("%d %d\n",*playbackPos, *bufferPos);
+        while (*playbackPos != *bufferPos && p < sizeof(sampleBuffer)) {
+            int8_t s = buffer[*playbackPos];
+            sampleBuffer[p++] = (uint8_t)(s + 127);
+            //printf(" %d",s);
+            *playbackPos = (*playbackPos + 1) % BUFFER_SAMPLE_COUNT;
+        }
+        //printf("\n");
 
         alBufferData(buf, AL_FORMAT_MONO8, sampleBuffer, sizeof(sampleBuffer), FREQUENCY);
         alSourceQueueBuffers(src, 1, &buf);
@@ -86,39 +97,6 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
     }
 }
 
-
-void test_al() {
-/* Create buffer to store samples */
-    ALuint buf;
-    alGenBuffers(1, &buf);
-    al_check_error();
-
-    /* Fill buffer with Sine-Wave */
-    float freq = 1440.f;
-    int seconds = 4;
-    unsigned sample_rate = FREQUENCY;
-    size_t buf_size = seconds * sample_rate;
-
-    int8_t audioBuffer[] = {10,0,-10,0,10,20,10,0,-10,-20,-10,0};
-    int8_t sampleBuffer[buf_size];
-    for(int i=0; i<buf_size; ++i) {
-        //samples[i] = 127 * sin( (2.f*float(PI_F)*freq)/sample_rate * i );
-        sampleBuffer[i] = audioBuffer[i%sizeof(audioBuffer)];
-    }
-
-    /* Download buffer to OpenAL */
-    alBufferData(buf, AL_FORMAT_MONO8, sampleBuffer, buf_size, sample_rate);
-    al_check_error();
-
-
-    /* Set-up sound source and play buffer */
-    alGenSources(1, &src);
-    alSourcei(src, AL_BUFFER, buf);
-    alSourcePlay(src);
-
-    /* While sound is playing, sleep */
-    al_check_error();
-}
 
 #define NATIVE_INIT init_al
 
@@ -134,8 +112,8 @@ namespace Sound {
     }
     void tick() {
         playbackPosition%=BUFFER_SAMPLE_COUNT;
-        while(bufferPosition!=playbackPosition) {
-            sampleBuffer[bufferPosition] = bufferPosition%16-8;
+        while((bufferPosition+1)%BUFFER_SAMPLE_COUNT!=playbackPosition) {
+            sampleBuffer[bufferPosition] = bufferPosition % (bufferPosition %16 + 1)-8;
             bufferPosition = (bufferPosition+1) % BUFFER_SAMPLE_COUNT;
         }
         update_al(sampleBuffer, &bufferPosition, &playbackPosition);
