@@ -106,39 +106,64 @@ namespace Sound {
         uint16_t remaining;
         uint16_t speed;
         uint16_t remainder;
-        void init(int8_t *s, uint16_t len, uint16_t speed);
+        uint16_t volume;
+        void init(int8_t *s, uint16_t len, uint16_t speed, uint16_t volume);
     };
 
-    void SamplePlayback::init(int8_t *s, uint16_t len, uint16_t speed) {
+    void SamplePlayback::init(int8_t *s, uint16_t len, uint16_t speed, uint16_t v) {
         samples = s;
         remaining = len;
         remainder = 0;
         this->speed = speed;
+        volume = v;
     }
 
     int8_t sampleBuffer[BUFFER_SAMPLE_COUNT];
-    uint16_t playbackPosition;
-    uint16_t bufferPosition;
+    uint16_t playbackPosition; // position that is played / queued on sound out
+    uint16_t bufferPosition; // position we have filled the buffer to
     static SamplePlayback playbacks[MAX_SAMPLE_PLAYBACKS];
 
+    void fillBuffer(uint16_t from, uint16_t n) {
+        //printf("%d %d %d %d\n",from,n,playbackPosition, bufferPosition);
+        for (int i=from;i<from+n;i+=1)
+            sampleBuffer[i] = i % (i%128 + 1) % 16-8;
+    }
+    void fillBuffer() {
+        playbackPosition%=BUFFER_SAMPLE_COUNT;
+        uint16_t pos = playbackPosition;
+        if (pos <= bufferPosition) {
+            if (bufferPosition < BUFFER_SAMPLE_COUNT) {
+                fillBuffer(bufferPosition,BUFFER_SAMPLE_COUNT - bufferPosition);
+            }
+            if (pos > 1) {
+                fillBuffer(0, pos - 1);
+                bufferPosition = pos - 1;
+            } else {
+                bufferPosition = BUFFER_SAMPLE_COUNT;
+            }
+        } else {
+            if (pos - bufferPosition > 1) {
+                fillBuffer(bufferPosition, pos-bufferPosition-1);
+                bufferPosition = pos-1;
+            }
+        }
+
+    }
     void init() {
         NATIVE_INIT();
+        fillBuffer();
     }
-    void playSample(int8_t *samples, uint16_t length, uint16_t speed) {
+    void playSample(int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume) {
         for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
         {
             if (playbacks[i].remaining == 0) {
-                playbacks[i].init(samples, length, speed);
+                playbacks[i].init(samples, length, speed, volume);
                 break;
             }
         }
     }
     void tick() {
-        playbackPosition%=BUFFER_SAMPLE_COUNT;
-        while((bufferPosition+1)%BUFFER_SAMPLE_COUNT!=playbackPosition) {
-            sampleBuffer[bufferPosition] = bufferPosition % (bufferPosition %128 + 1) % 16-8;
-            bufferPosition = (bufferPosition+1) % BUFFER_SAMPLE_COUNT;
-        }
+        fillBuffer();
         NATIVE_UPDATE(sampleBuffer, &bufferPosition, &playbackPosition);
     }
 

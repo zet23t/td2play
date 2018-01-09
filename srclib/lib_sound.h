@@ -8,7 +8,7 @@ extern "C" {
 }
 
 namespace Sound {
-    void playSample(int8_t *samples, uint16_t length, uint16_t speed);
+    void playSample(int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume);
     void init();
     void tick();
 }
