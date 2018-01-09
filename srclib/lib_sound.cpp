@@ -4,11 +4,6 @@
 #define BUFFER_SAMPLE_COUNT (2048)
 #define FREQUENCY (11025)
 
-extern "C" {
-    #define TD2PLAY 1
-    #include "lib_hxcmod.h"
-    #include "lib_hxcmod.c"
-}
 
 #ifdef WIN32
 
@@ -99,24 +94,52 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
 
 
 #define NATIVE_INIT init_al
+#define NATIVE_UPDATE update_al
 
 #endif // WIN32
 
+#define MAX_SAMPLE_PLAYBACKS 16
+
 namespace Sound {
+    struct SamplePlayback {
+        int8_t *samples;
+        uint16_t remaining;
+        uint16_t speed;
+        uint16_t remainder;
+        void init(int8_t *s, uint16_t len, uint16_t speed);
+    };
+
+    void SamplePlayback::init(int8_t *s, uint16_t len, uint16_t speed) {
+        samples = s;
+        remaining = len;
+        remainder = 0;
+        this->speed = speed;
+    }
+
     int8_t sampleBuffer[BUFFER_SAMPLE_COUNT];
     uint16_t playbackPosition;
     uint16_t bufferPosition;
+    static SamplePlayback playbacks[MAX_SAMPLE_PLAYBACKS];
 
     void init() {
         NATIVE_INIT();
     }
+    void playSample(int8_t *samples, uint16_t length, uint16_t speed) {
+        for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
+        {
+            if (playbacks[i].remaining == 0) {
+                playbacks[i].init(samples, length, speed);
+                break;
+            }
+        }
+    }
     void tick() {
         playbackPosition%=BUFFER_SAMPLE_COUNT;
         while((bufferPosition+1)%BUFFER_SAMPLE_COUNT!=playbackPosition) {
-            sampleBuffer[bufferPosition] = bufferPosition % (bufferPosition %16 + 1)-8;
+            sampleBuffer[bufferPosition] = bufferPosition % (bufferPosition %128 + 1) % 16-8;
             bufferPosition = (bufferPosition+1) % BUFFER_SAMPLE_COUNT;
         }
-        update_al(sampleBuffer, &bufferPosition, &playbackPosition);
+        NATIVE_UPDATE(sampleBuffer, &bufferPosition, &playbackPosition);
     }
 
 }
