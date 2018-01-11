@@ -3,13 +3,13 @@
 
 #define BUFFER_SAMPLE_COUNT (2048)
 #define FREQUENCY (11025)
+#include <memory.h>
 
 
 #ifdef WIN32
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <memory.h>
 
 #include <al.h>
 #include <alc.h>
@@ -81,6 +81,7 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
         while (*playbackPos != *bufferPos && p < sizeof(sampleBuffer)) {
             int8_t s = buffer[*playbackPos];
             sampleBuffer[p++] = (uint8_t)(s + 127);
+            buffer[*playbackPos] = 0;
             //printf(" %d",s);
             *playbackPos = (*playbackPos + 1) % BUFFER_SAMPLE_COUNT;
         }
@@ -98,24 +99,60 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
 
 #endif // WIN32
 
-#define MAX_SAMPLE_PLAYBACKS 16
+#define MAX_SAMPLE_PLAYBACKS 8
 
 namespace Sound {
     struct SamplePlayback {
-        int8_t *samples;
-        uint16_t remaining;
+        const int8_t *samples;
+        uint32_t pos;
+        uint16_t length;
         uint16_t speed;
-        uint16_t remainder;
         uint16_t volume;
-        void init(int8_t *s, uint16_t len, uint16_t speed, uint16_t volume);
+        uint16_t loopCount;
+        uint16_t id;
+        void stop();
+        void fillBuffer(int8_t *s, uint16_t n);
+        void init(const int8_t *s, uint16_t len, uint16_t speed, uint16_t volume, uint16_t loops, uint16_t id);
     };
-
-    void SamplePlayback::init(int8_t *s, uint16_t len, uint16_t speed, uint16_t v) {
+    void SamplePlayback::stop() {
+        samples = 0;
+    }
+    void SamplePlayback::init(const int8_t *s, uint16_t len, uint16_t speed, uint16_t v, uint16_t loops, uint16_t id) {
         samples = s;
-        remaining = len;
-        remainder = 0;
+        length = len;
+        pos = 0;
         this->speed = speed;
+        this->id = id;
+        loopCount = loops;
         volume = v;
+    }
+    void SamplePlayback::fillBuffer(int8_t *buf, uint16_t n) {
+        if (!samples) return;
+        uint32_t len = length << 8;
+        for (int i=0;i<n;i+=1) {
+            uint16_t p = pos >> 8;
+            int32_t a = samples[p];
+            int32_t b = samples[p + 1 < length ? p + 1 : 0];
+            uint8_t mix = pos & 0xff;
+            int32_t res = (a * (0xff-mix) + b * mix) >> 8;
+            //printf("%d ",res);
+            int32_t s = res + buf[n];
+            //printf("%d %d\n",samples[pos>>8],pos>>8);
+            //pos += speed;
+            s = (s * volume) >> 8;
+            if (s < -126) s = -126;
+            else if (s > 127) s = 127;
+            buf[i] = (int8_t) s;
+            pos += speed;
+            while (pos >= (len)) {
+                if (loopCount <= 1) {
+                    stop();
+                    return;
+                }
+                if (loopCount < 0xffff) loopCount -= 1;
+                pos -= len;
+            }
+        }
     }
 
     int8_t sampleBuffer[BUFFER_SAMPLE_COUNT];
@@ -125,8 +162,12 @@ namespace Sound {
 
     void fillBuffer(uint16_t from, uint16_t n) {
         //printf("%d %d %d %d\n",from,n,playbackPosition, bufferPosition);
-        for (int i=from;i<from+n;i+=1)
-            sampleBuffer[i] = i % (i%128 + 1) % 16-8;
+        memset(&sampleBuffer[from],0,n);
+        for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1) {
+            playbacks[i].fillBuffer(&sampleBuffer[from], n);
+        }
+        //for (int i=from;i<from+n;i+=1)
+        //    sampleBuffer[i] = i % (i%128 + 1) % 16-8;
     }
     void fillBuffer() {
         playbackPosition%=BUFFER_SAMPLE_COUNT;
@@ -152,13 +193,39 @@ namespace Sound {
     void init() {
         NATIVE_INIT();
         fillBuffer();
+        static const int8_t samples[] = {100,-100};//,80,-80,50,-50,10,-10};
+        playSample(1,samples, sizeof(samples), 0x20,0x200,0xff);
     }
-    void playSample(int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume) {
+    void playSample(uint16_t id, const int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume, uint16_t loops) {
         for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
         {
-            if (playbacks[i].remaining == 0) {
-                playbacks[i].init(samples, length, speed, volume);
+            if (playbacks[i].length == 0) {
+                playbacks[i].init(samples, length, speed, volume, loops,id);
                 break;
+            }
+        }
+    }
+    void stopSample(uint16_t id) {
+        for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
+        {
+            if (playbacks[i].id == id) {
+                playbacks[i].stop();
+            }
+        }
+    }
+    void updateVolume(int16_t id, uint16_t volume) {
+        for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
+        {
+            if (playbacks[i].id == id) {
+                playbacks[i].volume = volume;
+            }
+        }
+    }
+    void updateSpeed(int16_t id, uint16_t speed) {
+        for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
+        {
+            if (playbacks[i].id == id) {
+                playbacks[i].speed = speed;
             }
         }
     }
