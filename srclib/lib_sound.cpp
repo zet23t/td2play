@@ -193,8 +193,8 @@ namespace Sound {
     void init() {
         NATIVE_INIT();
         fillBuffer();
-        static const int8_t samples[] = {100,-100};//,80,-80,50,-50,10,-10};
-        playSample(1,samples, sizeof(samples), 0x20,0x200,0xff);
+        //static const int8_t samples[] = {100,-100};//,80,-80,50,-50,10,-10};
+        //playSample(1,samples, sizeof(samples), 0x20,0x200,0xff);
     }
     void playSample(uint16_t id, const int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume, uint16_t loops) {
         for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
