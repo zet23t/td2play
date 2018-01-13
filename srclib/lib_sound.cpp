@@ -91,29 +91,124 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
         alSourceQueueBuffers(src, 1, &buf);
 
     }
+    ALenum state;
+    alGetSourcei(src, AL_SOURCE_STATE, &state);
+    if (state != AL_PLAYING)
+        alSourcePlay(src);
 }
 
 
 #define NATIVE_INIT init_al
 #define NATIVE_UPDATE update_al
 
+#else // arduino init
+
+#include <Wire.h>
+#include <SPI.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+int8_t *audioBuffer;
+int16_t *audioBufferPos;
+
+void TC5_Handler (void)
+{
+
+  int v = audioBuffer ? audioBuffer[audioBufferPos] + 127 : 127;
+  if (audioBuffer) {
+      audioBufferPos+=1;
+      if( *audioBufferPos > BUFFER_SAMPLE_COUNT )
+        *audioBufferPos = 0;
+  }
+
+  while( DAC->STATUS.bit.SYNCBUSY == 1 );
+  DAC->DATA.reg = v<<2;
+  while( DAC->STATUS.bit.SYNCBUSY == 1 );
+
+  // Clear the interrupt
+  TC5->COUNT16.INTFLAG.bit.MC0 = 1;
+}
+#ifdef __cplusplus
+}
+#endif
+
+bool tcIsSyncing()
+{
+  return TC5->COUNT16.STATUS.reg & TC_STATUS_SYNCBUSY;
+}
+
+void tcStart()
+{
+  // Enable TC
+  TC5->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE;
+  while( tcIsSyncing());
+}
+
+void tcReset()
+{
+  // Reset TCx
+  TC5->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
+  while( tcIsSyncing());
+  while( TC5->COUNT16.CTRLA.bit.SWRST );
+}
+
+void tcStop()
+{
+  // Disable TC5
+  TC5->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
+  while( tcIsSyncing());
+}
+
+void tcConfigure( uint32_t sampleRate )
+{
+  // Enable GCLK for TCC2 and TC5 (timer counter input clock)
+  GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC4_TC5)) ;
+  while (GCLK->STATUS.bit.SYNCBUSY);
+
+  tcReset();
+
+  // Set Timer counter Mode to 16 bits
+  TC5->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16;
+
+  // Set TC5 mode as match frequency
+  TC5->COUNT16.CTRLA.reg |= TC_CTRLA_WAVEGEN_MFRQ;
+
+  TC5->COUNT16.CTRLA.reg |= TC_CTRLA_PRESCALER_DIV1;
+
+  TC5->COUNT16.CC[0].reg = (uint16_t) (SystemCoreClock / sampleRate - 1);
+  while (tcIsSyncing());
+
+  // Configure interrupt request
+  NVIC_DisableIRQ(TC5_IRQn);
+  NVIC_ClearPendingIRQ(TC5_IRQn);
+  NVIC_SetPriority(TC5_IRQn, 0);
+  NVIC_EnableIRQ(TC5_IRQn);
+
+  // Enable the TC5 interrupt request
+  TC5->COUNT16.INTENSET.bit.MC0 = 1;
+  while( tcIsSyncing());
+}
+
+void update_tc(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
+    audioBuffer = buffer;
+    audioBufferPos = playbackPos;
+}
+
+void init_tc() {
+    tcConfigure( FREQUENCY );
+    tcStart();
+}
+
+#define NATIVE_INIT init_tc
+#define NATIVE_UPDATE update_tc
+
+
 #endif // WIN32
 
 #define MAX_SAMPLE_PLAYBACKS 8
 
 namespace Sound {
-    struct SamplePlayback {
-        const int8_t *samples;
-        uint32_t pos;
-        uint16_t length;
-        uint16_t speed;
-        uint16_t volume;
-        uint16_t loopCount;
-        uint16_t id;
-        void stop();
-        void fillBuffer(int8_t *s, uint16_t n);
-        void init(const int8_t *s, uint16_t len, uint16_t speed, uint16_t volume, uint16_t loops, uint16_t id);
-    };
     void SamplePlayback::stop() {
         samples = 0;
     }
@@ -125,6 +220,8 @@ namespace Sound {
         this->id = id;
         loopCount = loops;
         volume = v;
+        interpolate = 0;
+        changeInterval = 0;
     }
     void SamplePlayback::fillBuffer(int8_t *buf, uint16_t n) {
         if (!samples) return;
@@ -132,9 +229,15 @@ namespace Sound {
         for (int i=0;i<n;i+=1) {
             uint16_t p = pos >> 8;
             int32_t a = samples[p];
-            int32_t b = samples[p + 1 < length ? p + 1 : 0];
-            uint8_t mix = pos & 0xff;
-            int32_t res = (a * (0xff-mix) + b * mix) >> 8;
+            int32_t res;
+            if (interpolate) {
+                int32_t b = samples[p + 1 < length ? p + 1 : 0];
+                uint8_t mix = pos & 0xff;
+                res = (a * (0xff-mix) + b * mix) >> 8;
+
+            } else {
+                res = a;
+            }
             //printf("%d ",res);
             int32_t s = res + buf[n];
             //printf("%d %d\n",samples[pos>>8],pos>>8);
@@ -144,6 +247,20 @@ namespace Sound {
             else if (s > 127) s = 127;
             buf[i] = (int8_t) s;
             pos += speed;
+            if (changeInterval) {
+                changeTimer += speed;
+                while (speed > 0 && changeTimer >= changeInterval) {
+                    changeTimer -= changeInterval;
+                    if (speed >= -changeSpeed) speed += changeSpeed;
+                    else speed = 0;
+                    if (volume >= -changeVolume) volume += changeVolume;
+                    else volume = 0;
+                }
+                if (speed == 0 || volume == 0) {
+                    stop();
+                    return;
+                }
+            }
             while (pos >= (len)) {
                 if (loopCount <= 1) {
                     stop();
@@ -169,6 +286,18 @@ namespace Sound {
         //for (int i=from;i<from+n;i+=1)
         //    sampleBuffer[i] = i % (i%128 + 1) % 16-8;
     }
+
+    SamplePlayback* SamplePlayback::enableInterpolate(){
+        interpolate = 1;
+        return this;
+    }
+    SamplePlayback* SamplePlayback::setChange(uint32_t interval, int16_t vol, int16_t speed){
+        changeSpeed = speed;
+        changeVolume = vol;
+        changeInterval = interval;
+        return this;
+    }
+
     void fillBuffer() {
         playbackPosition%=BUFFER_SAMPLE_COUNT;
         uint16_t pos = playbackPosition;
@@ -196,14 +325,16 @@ namespace Sound {
         //static const int8_t samples[] = {100,-100};//,80,-80,50,-50,10,-10};
         //playSample(1,samples, sizeof(samples), 0x20,0x200,0xff);
     }
-    void playSample(uint16_t id, const int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume, uint16_t loops) {
+    SamplePlayback* playSample(uint16_t id, const int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume, uint16_t loops) {
         for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
         {
-            if (playbacks[i].length == 0) {
+            if (playbacks[i].samples == 0) {
                 playbacks[i].init(samples, length, speed, volume, loops,id);
-                break;
+                return &playbacks[i];
             }
         }
+        static SamplePlayback def;
+        return &def;
     }
     void stopSample(uint16_t id) {
         for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
