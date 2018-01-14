@@ -1,9 +1,10 @@
 #include "lib_sound.h"
 #include <inttypes.h>
 
-#define BUFFER_SAMPLE_COUNT (2048)
+#define BUFFER_SAMPLE_COUNT (1024)
 #define FREQUENCY (11025)
-#include <memory.h>
+
+#include <string.h>
 
 
 #ifdef WIN32
@@ -77,7 +78,6 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
         int remaining = sizeof(sampleBuffer);
         int p = 0;
         memset(sampleBuffer,0,sizeof(sampleBuffer));
-        //printf("%d %d\n",*playbackPos, *bufferPos);
         while (*playbackPos != *bufferPos && p < sizeof(sampleBuffer)) {
             int8_t s = buffer[*playbackPos];
             sampleBuffer[p++] = (uint8_t)(s + 127);
@@ -110,14 +110,14 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
 extern "C" {
 #endif
 int8_t *audioBuffer;
-int16_t *audioBufferPos;
+uint16_t *audioBufferPos;
 
 void TC5_Handler (void)
 {
 
-  int v = audioBuffer ? audioBuffer[audioBufferPos] + 127 : 127;
+  int v = audioBuffer ? audioBuffer[*audioBufferPos] + 127 : 127;
   if (audioBuffer) {
-      audioBufferPos+=1;
+      *audioBufferPos+=1;
       if( *audioBufferPos > BUFFER_SAMPLE_COUNT )
         *audioBufferPos = 0;
   }
