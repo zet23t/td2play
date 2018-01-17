@@ -74,7 +74,6 @@ void update_al(int8_t* buffer, uint16_t* bufferPos, uint16_t* playbackPos) {
     for (int i=0;i<pcnt;i+=1) {
         ALuint buf;
         alSourceUnqueueBuffers(src, 1, &buf);
-        int remaining = sizeof(sampleBuffer);
         int p = 0;
         memset(sampleBuffer,0,sizeof(sampleBuffer));
         while (*playbackPos != *bufferPos && p < sizeof(sampleBuffer)) {

@@ -40,6 +40,7 @@ namespace Sound {
     void stopSample(uint16_t id);
     void updateVolume(int16_t id, uint16_t volume);
     void updateSpeed(int16_t id, uint16_t speed);
+
     void init();
     void tick();
 }
