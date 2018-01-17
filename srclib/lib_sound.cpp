@@ -2,7 +2,6 @@
 #include <inttypes.h>
 
 #define BUFFER_SAMPLE_COUNT (1024)
-#define FREQUENCY (11025)
 
 #include <string.h>
 
@@ -210,6 +209,9 @@ void init_tc() {
 
 namespace Sound {
     void SamplePlayback::stop() {
+        if (callback) {
+            callback(this);
+        }
         samples = 0;
     }
     void SamplePlayback::init(const int8_t *s, uint16_t len, uint16_t speed, uint16_t v, uint16_t loops, uint16_t id) {
@@ -222,6 +224,13 @@ namespace Sound {
         volume = v;
         interpolate = 0;
         changeInterval = 0;
+        callback = 0;
+        data = 0;
+    }
+    SamplePlayback* SamplePlayback::setOnStopCallback(OnSoundStopCallback cb, void* dat) {
+        callback = cb;
+        data = dat;
+        return this;
     }
     void SamplePlayback::fillBuffer(int8_t *buf, uint16_t n) {
         if (!samples) return;
