@@ -213,6 +213,12 @@ public:
     }
 
     FixedNumber16<4> length() const {
+        if (x.absolute() + y.absolute() > FixedNumber16<4>(16,0)) {
+            FixedNumber16<4> xx = x / FixedNumber16<4>(16,0);
+            FixedNumber16<4> yy = y / FixedNumber16<4>(16,0);
+            //printf("? %d %d %d\n",x.getIntegerPart(),xx.getIntegerPart(),(xx*xx+yy*yy).sqrt().getIntegerPart());
+            return (xx*xx+yy*yy).sqrt()*FixedNumber16<4>(16,0);
+        }
         FixedNumber16<4> sqd = x * x + y * y;
         return sqd.sqrt();
     }
