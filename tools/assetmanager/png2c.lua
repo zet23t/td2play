@@ -230,7 +230,7 @@ local function packPNG (directory, outfile, config)
 		if filename:match "%.png$" or filename:match "%.jpg$" then
 			local img 
 			if filename:match "%.png$" then
-				img = assert(gd.createFromPng(directory.."/"..filename))
+				img = assert(gd.createFromPng(directory.."/"..filename),filename)
 			else
 				img = assert(gd.createFromJpeg(directory.."/"..filename))
 			end
@@ -239,6 +239,7 @@ local function packPNG (directory, outfile, config)
 			assert(x and y)
 			local w,h = img:sizeXY()
 			local rawname,rawnumber = filename:match "^(.-)_?(%d*)%.[jp][pn]g"
+			print(rawname,rawnumber)
 			local imginfo = {
 				img = img;
 				rawname = rawname;
