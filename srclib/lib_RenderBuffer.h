@@ -75,9 +75,9 @@ private:
         const uint16_t *rgb565;
         const uint8_t *rgb233;
     };
-    void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
-    void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
-    void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLineRgb565 (bool sram, TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v, bool mirrorh, bool mirrorv, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLineRgb233sram (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v,bool mirrorh, bool mirrorv, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLineRgb233progmem (TColor *lineBuffer, uint8_t lineX, uint16_t u, uint16_t v,bool mirrorh, bool mirrorv, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
     void init(const uint8_t *data, uint8_t type, uint16_t width, uint16_t height, uint16_t transparentColorMask);
 public:
     uint8_t type;
@@ -95,11 +95,15 @@ public:
     Texture (const ImageData& data);
     Texture (const ImageData* data);
     uint8_t getType() const { return type; }
-    void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
+    void fillLine(TColor *lineBuffer, uint8_t lineX, uint8_t u, uint8_t v, bool mirrorh, bool mirrorv, uint8_t width, uint8_t blendMode,uint8_t *depthBuffer, uint8_t depth) const;
     bool isTransparent(uint16_t x, uint16_t y) const;
     TColor getColor(uint16_t x, uint16_t y) const;
 };
 
+namespace RenderCommandFlag {
+    extern const uint8_t MIRROR_HORIZONTAL;
+    extern const uint8_t MIRROR_VERTICAL;
+}
 namespace RenderCommandData {
     template<class TColor>
     struct Rect {
@@ -113,6 +117,7 @@ namespace RenderCommandData {
         uint8_t x1, x2;
         uint8_t u, v;
         uint8_t blendMode;
+        uint8_t flags;
     };
     template<class TColor>
     struct Text {
@@ -156,6 +161,7 @@ public:
     RenderCommand* filledRect(TColor color);
     RenderCommand* sprite(const Texture<TColor> *texture);
     RenderCommand* sprite(const Texture<TColor> *texture, uint8_t u, uint8_t v);
+    RenderCommand* sprite(const Texture<TColor> *texture, uint8_t u, uint8_t v, bool mirrorh, bool mirrorv);
     RenderCommand* blend(uint8_t blendMode);
     RenderCommand* setDepth(const uint8_t depth);
     void fillLine(TColor *line, uint8_t y, uint8_t *depthBuffer);
@@ -254,6 +260,7 @@ RenderCommand<TCol>* RenderBuffer<TCol, maxCommands>::drawRect(int16_t x, int16_
     else       cmd->y1 = y, cmd->rect.v = 0;
     cmd->rect.x2 = right > clipRight ? clipRight : right;
     cmd->y2 = bottom > clipBottom ? clipBottom : bottom;
+    cmd->rect.flags = 0;
     return cmd;
 }
 template<class TCol, int maxCommands>
