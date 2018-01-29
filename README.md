@@ -4,13 +4,24 @@ This is my 2nd library for the TinyDuino that is specifically targeting
 the TinyScreen+ which is a much more potent processor with more RAM and
 processing power.
 
+## Patreon page
+
+I have a dedicated Patreon page with the stuff I do for the Tiny Arcade platform: https://www.patreon.com/zet23t
+
+I am posting regular updates there for free.
+
 ## Project state
 
-This project is still in a very early stage! I'm new to C++ and I make lots of
-mistakes. Implementations change and there's right now only one branch (master) - 
-which happens to be unstable. Once the core functionality has reached a certain 
-level, I intend to work on a develop branch and keeping the master branch stable.
-Right now this doesn't make sense.
+I am still working on this library (as of January 2018) in my spare free time (which I don't have much of anyway). 
+
+The code reflects this: Bad structure, naming conventions not followed, shortcuts taken, incomplete features, broken features that used to work in certain modes but are broken due to lack of testing and so on.
+
+## Projects of mine using this library:
+
+* "Killing the Messenger", a game made for the game jam 2018: https://github.com/zet23t/Messenger
+* Sound generator: Experimental sound editor (not working yet): https://github.com/zet23t/TASoundGenerator
+* MicroVektoRoids: An asteroids game https://github.com/zet23t/MicroVectoroids
+* TinyRace: An incomplete racing game: https://github.com/zet23t/tinyrace
 
 ## Project structure
 
@@ -20,6 +31,7 @@ Right now this doesn't make sense.
 * ./screenshots: A collection of screenshots I'm making over the course of development
 * ./tools: Tools that may be used during development
 * ./pagebufferscript: A scripting language for TD environment - concept only so far
+* ./external: Other libraries I depend on
 
 For more information, please read the readme files in the respective directories.
 
@@ -41,6 +53,7 @@ For more information, please read the readme files in the respective directories
 * (work in progress) Tilemap rendering
 * (work in progress) Tiled .tmx import script
 * (stable) Javascript image conversion tool
+* (stable) Lua based asset transformation pipeline (it's very hacky)
 
 ## Regarding tests
 
