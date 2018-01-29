@@ -402,7 +402,12 @@ void TinyScreen::endTransfer(void) {
                 g = g << 5 | g << 2 | g >> 1;
                 b = rgb233 >> 5 & 7;
                 b = b << 5 | b << 2 | b >> 1;
-                emulator.rawFrameBuffer[bufferIdx++ % sizeof(emulator.rawFrameBuffer)] = 0;
+                uint16_t word = 0;
+                word |= (((uint16_t)r) & 0x00F8) >> 3;
+                word |= (((uint16_t)g) & 0x00FC) << 2;
+                word |= (((uint16_t)b) & 0x00F8) << 8;
+                emulator.rawFrameBuffer[bufferIdx++ % sizeof(emulator.rawFrameBuffer)] = word >> 8;
+                emulator.rawFrameBuffer[bufferIdx++ % sizeof(emulator.rawFrameBuffer)] = word & 0x00FF;
             }
             // my gif screencsat program doesn't like 00ff00
             if (r == 0 && g >= 250 && b == 0) g = 250;
