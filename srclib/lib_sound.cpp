@@ -336,7 +336,7 @@ namespace Sound {
     SamplePlayback* playSample(uint16_t id, const int8_t *samples, uint16_t length, uint16_t speed, uint16_t volume, uint16_t loops) {
         for (int i=0;i<MAX_SAMPLE_PLAYBACKS;i+=1)
         {
-            if (playbacks[i].samples == 0 || playbacks[i].id == id) {
+            if (playbacks[i].samples == 0 || (id && playbacks[i].id == id)) {
                 playbacks[i].init(samples, length, speed, volume, loops,id);
                 return &playbacks[i];
             }
