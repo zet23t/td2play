@@ -247,10 +247,10 @@ namespace Sound {
                 res = a;
             }
             //printf("%d ",res);
-            int32_t s = res + buf[n];
+            int32_t s = res;
             //printf("%d %d\n",samples[pos>>8],pos>>8);
             //pos += speed;
-            s = (s * volume) >> 8;
+            s = ((s * volume) >> 8) + buf[i];
             if (s < -126) s = -126;
             else if (s > 127) s = 127;
             buf[i] = (int8_t) s;
