@@ -116,7 +116,7 @@ void TC5_Handler (void)
   int v = audioBuffer ? audioBuffer[*audioBufferPos] + 127 : 127;
   if (audioBuffer) {
       *audioBufferPos+=1;
-      if( *audioBufferPos > BUFFER_SAMPLE_COUNT )
+      if( *audioBufferPos >= BUFFER_SAMPLE_COUNT )
         *audioBufferPos = 0;
   }
 
@@ -204,7 +204,7 @@ void init_tc() {
 
 #endif // WIN32
 
-#define MAX_SAMPLE_PLAYBACKS 8
+#define MAX_SAMPLE_PLAYBACKS 16
 
 namespace Sound {
     void SamplePlayback::stop() {
