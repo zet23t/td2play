@@ -207,6 +207,7 @@ void init_tc() {
 #define MAX_SAMPLE_PLAYBACKS 16
 
 namespace Sound {
+    uint8_t volumeShift = 0;
     void SamplePlayback::stop() {
         if (callback) {
             callback(this);
@@ -231,6 +232,7 @@ namespace Sound {
         data = dat;
         return this;
     }
+
     void SamplePlayback::fillBuffer(int8_t *buf, uint16_t n) {
         if (!samples) return;
         uint32_t len = length << 8;
@@ -250,7 +252,7 @@ namespace Sound {
             int32_t s = res;
             //printf("%d %d\n",samples[pos>>8],pos>>8);
             //pos += speed;
-            s = ((s * volume) >> 8) + buf[i];
+            s = (((s * volume) >> 8) >> volumeShift) + buf[i];
             if (s < -126) s = -126;
             else if (s > 127) s = 127;
             buf[i] = (int8_t) s;
@@ -372,5 +374,7 @@ namespace Sound {
         fillBuffer();
         NATIVE_UPDATE(sampleBuffer, &bufferPosition, &playbackPosition);
     }
-
+    void setGlobalVolume(uint8_t level) {
+        volumeShift = level < 8 ? 8-level : 0;
+    }
 }
