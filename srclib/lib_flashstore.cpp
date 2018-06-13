@@ -7,6 +7,12 @@
 
 #include "stdio.h"
 
+#ifndef WIN32
+#include <Wire.h>
+#include <SPI.h>
+#include <TinyScreen.h>
+#endif
+
 namespace FlashStore {
 
     uint32_t calcChecksum(const uint16_t sz, const uint8_t* data) {
@@ -138,9 +144,17 @@ namespace FlashStore {
     #else
 
 
-#include <Wire.h>
-#include <SPI.h>
 
+TinyScreen display = TinyScreen(TinyScreenPlus);
+void printCentered(const char * printString, int y) {
+    static bool init = false;
+    if (!init) {
+      display.begin();
+      display.setFont(thinPixel7_10ptFontInfo);
+    }
+  display.setCursor(48 - ((int)display.getPrintWidth((char*)printString) / 2), y);
+  display.print((char*)printString);
+}
 
 const uint32_t pageSizes[] = { 8, 16, 32, 64, 128, 256, 512, 1024 };
 
@@ -158,6 +172,7 @@ void flashProgress(const uint32_t, const uint32_t, void*) {
 }
 
 int readBuffer(uint32_t PAGE_SIZE, void *udata) {
+    printCentered("  Reading buffer  ",40);
   ReadBufferObject *rbo = (ReadBufferObject*)udata;
   memcpy(buffer,&rbo->buffer[rbo->pos],PAGE_SIZE);
   rbo->pos += PAGE_SIZE;
@@ -194,7 +209,7 @@ static void nvmWrite(uint32_t address, uint32_t fileSize, uint32_t PAGE_SIZE, vo
   // Do writes in pages
   while (size) {
 
-    //printCentered("  writing flash  ", 40);
+    printCentered("  writing flash  ", 40);
     reader(PAGE_SIZE, udata);
 
     if (size < 64) {
@@ -202,9 +217,11 @@ static void nvmWrite(uint32_t address, uint32_t fileSize, uint32_t PAGE_SIZE, vo
     }
     // Execute "PBC" Page Buffer Clear
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
+    printCentered("  wait ready", 40);
     while (NVMCTRL->INTFLAG.bit.READY == 0);
 
     // Fill page buffer
+    printCentered("  fill buffer  ", 40);
     uint32_t i;
     for (i = 0; i < (PAGE_SIZE / 4) && i < size; i++) {
       //uint32_t data = (buffer[i + 3] << 0) | (buffer[i + 2] << 1) | (buffer[i + 1] << 2) | (buffer[i] << 3);
@@ -214,6 +231,7 @@ static void nvmWrite(uint32_t address, uint32_t fileSize, uint32_t PAGE_SIZE, vo
     // Execute "WP" Write Page
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
 
+    printCentered("  waiting  ", 40);
     writeProgress((uint32_t)dst_addr-address,fileSize,progressData);
 
     while (NVMCTRL->INTFLAG.bit.READY == 0);
@@ -224,6 +242,7 @@ static void nvmWrite(uint32_t address, uint32_t fileSize, uint32_t PAGE_SIZE, vo
       size     -= PAGE_SIZE;
     else
       size = 0;
+    printCentered("  next  ", 40);
   }
 }
 
@@ -276,6 +295,7 @@ static void readEEPROM(uint8_t *buffer, uint32_t size, int32_t offset) {
 
 
     bool storeImpl(uint32_t gameId, const char* gameName, uint16_t dataSize, void* data) {
+        printCentered("  Begin storing   ", 48);
         Chunk *chunk;
         uint8_t *allData = 0;
         bool valid = findPosOf(&allData[EEPROM_START], gameId, dataSize, &chunk);
